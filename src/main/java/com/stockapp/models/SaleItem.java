@@ -1,6 +1,8 @@
+package com.stockapp.models;
+
 public class SaleItem {
     private int saleItemId;
-    private Sale sale;
+    private Sale sale; // optional, can be set when added to a Sale
     private Product product;
     private int quantity;
     private double unitPrice;
@@ -11,10 +13,19 @@ public class SaleItem {
         this.product = product;
         this.quantity = quantity;
         this.unitPrice = unitPrice;
+        this.lineTotal = quantity * unitPrice;
     }
 
     public int getSaleItemId() {
         return saleItemId;
+    }
+
+    public Sale getSale() {
+        return sale;
+    }
+
+    public void setSale(Sale sale) {
+        this.sale = sale;
     }
 
     public Product getProduct() {
@@ -25,6 +36,11 @@ public class SaleItem {
         return quantity;
     }
 
+    public void setQuantity(int quantity) {
+        this.quantity = quantity;
+        this.lineTotal = this.quantity * this.unitPrice;
+    }
+
     public double getUnitPrice() {
         return unitPrice;
     }
@@ -33,11 +49,12 @@ public class SaleItem {
         return lineTotal;
     }
 
-    public void setQuantity(int quantity) {
-        this.quantity = quantity;
-    }
-
+    @Override
     public String toString() {
-        return 0;
+        return "SaleItem ID: " + saleItemId +
+                ", Product: " + product +
+                ", Quantity: " + quantity +
+                ", Unit Price: $" + unitPrice +
+                ", Line Total: $" + lineTotal;
     }
 }

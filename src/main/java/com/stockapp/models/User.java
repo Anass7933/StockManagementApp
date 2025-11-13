@@ -1,3 +1,7 @@
+package com.stockapp.models;
+import com.stockapp.models.UserRole;
+import java.time.OffsetDateTime;
+
 public class User {
     private int userId;
     private String userName, passwordHash, fullName;
@@ -10,6 +14,7 @@ public class User {
         this.passwordHash = passwordHash;
         this.fullName = fullName;
         this.role = role;
+        this.createdAt = OffsetDateTime.now();
     }
 
     public int getUserId() {
@@ -47,9 +52,10 @@ public class User {
     @Override
     public String toString() {
         return "User{id=" + userId +
-                ", name='" + userName + '\'' +
+                ", username='" + userName + '\'' +
                 ", fullName='" + fullName + '\'' +
-                ", role=" + role + '}';
+                ", role=" + role +
+                ", createdAt=" + createdAt +
+                '}';
     }
-
 }
