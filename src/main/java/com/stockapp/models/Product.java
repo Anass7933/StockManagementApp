@@ -4,7 +4,7 @@ import java.math.BigDecimal;
 import java.time.OffsetDateTime;
 
 public class Product {
-    private Long id;
+    private int id;
     private String name;
     private String description;
     private BigDecimal price;
@@ -12,7 +12,7 @@ public class Product {
     private int minStock;
     private OffsetDateTime createdAt;
 
-    public Product(Long id, String name, String description, BigDecimal price, int quantity, int minStock) {
+    public Product(int id, String name, String description, BigDecimal price, int quantity, int minStock) {
         this.id = id;
         this.name = name;
         this.description = description;
@@ -22,7 +22,7 @@ public class Product {
         this.createdAt = OffsetDateTime.now();
     }
 
-    public Long getId() {
+    public int getId() {
         return id;
     }
 

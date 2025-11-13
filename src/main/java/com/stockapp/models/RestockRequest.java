@@ -4,13 +4,13 @@ import java.time.OffsetDateTime;
 import com.stockapp.models.RestockStatus;
 
 public class RestockRequest {
-    private Long id;
+    private int id;
     private Product product;
     private int quantityRequested;
     private RestockStatus status;
     private OffsetDateTime createdAt;
 
-    public RestockRequest(Long id, Product product, int quantityRequested) {
+    public RestockRequest(int id, Product product, int quantityRequested) {
         if (quantityRequested <= 0) {
             throw new IllegalArgumentException("Quantity requested must be positive");
         }
@@ -21,7 +21,7 @@ public class RestockRequest {
         this.createdAt = OffsetDateTime.now();
     }
 
-    public Long getId() {
+    public int getId() {
         return id;
     }
 
