@@ -1,0 +1,19 @@
+version: '3.9'
+
+services:
+  db:
+    image: postgres:15           # PostgreSQL version
+    container_name: stock_db
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: user1
+      POSTGRES_DB: stockdb
+    volumes:
+      - db-data:/var/lib/postgresql/data         # persist DB data
+      - ./database/migrations:/docker-entrypoint-initdb.d  # runs V1/V2 on first startup
+    ports:
+      - "5432:5432"  # access DB from host (JavaFX app)
+      
+volumes:
+  db-data:
+
