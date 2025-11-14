@@ -1,7 +1,7 @@
 package com.stockapp.models;
 
 public class SaleItem {
-    private int saleItemId;
+    private long saleItemId;
     private Sale sale; // optional, can be set when added to a Sale
     private Product product;
     private int quantity;
@@ -16,7 +16,7 @@ public class SaleItem {
         this.lineTotal = quantity * unitPrice;
     }
 
-    public int getSaleItemId() {
+    public long getSaleItemId() {
         return saleItemId;
     }
 

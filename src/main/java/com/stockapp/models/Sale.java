@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Sale {
-    private int saleId;
+    private long saleId;
     private User user;
     private double totalAmount;
     private OffsetDateTime createdAt;
@@ -17,7 +17,7 @@ public class Sale {
         this.items = new ArrayList<>();
     }
 
-    public int getSaleId() {
+    public long getSaleId() {
         return saleId;
     }
 

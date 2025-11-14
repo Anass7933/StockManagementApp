@@ -3,7 +3,7 @@ package com.stockapp.models;
 import java.time.OffsetDateTime;
 
 public class RestockRequest {
-    private int id;
+    private long id;
     private Product product;
     private int quantityRequested;
     private RestockStatus status;
@@ -20,7 +20,7 @@ public class RestockRequest {
         this.createdAt = OffsetDateTime.now();
     }
 
-    public int getId() {
+    public long getId() {
         return id;
     }
 
