@@ -1,22 +1,18 @@
 package com.stockapp;
 
 import javafx.application.Application;
-import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
-
-import java.net.URL;
+import javafx.stage.StageStyle;
 
 public class Main extends Application {
     @Override
     public void start(Stage primaryStage) throws Exception {
-        URL fxmlLocation = getClass().getResource("/fxml/login.fxml");
-        System.out.println(fxmlLocation);
-        Parent root = FXMLLoader.load(fxmlLocation);
-        primaryStage.setTitle("hello world");
-        primaryStage.setScene(new Scene(root, 300, 275));
+        Parent root = FXMLLoader.load(getClass().getResource("/fxml/login.fxml"));
+        primaryStage.initStyle(StageStyle.DECORATED);
+        primaryStage.setScene(new Scene(root, 500, 400));
         primaryStage.show();
     }
 
