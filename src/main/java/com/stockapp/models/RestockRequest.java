@@ -1,7 +1,6 @@
 package com.stockapp.models;
 
 import java.time.OffsetDateTime;
-import com.stockapp.models.RestockStatus;
 
 public class RestockRequest {
     private int id;
