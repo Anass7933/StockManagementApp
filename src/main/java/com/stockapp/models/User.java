@@ -3,7 +3,7 @@ import com.stockapp.models.UserRole;
 import java.time.OffsetDateTime;
 
 public class User {
-    private int userId;
+    private long userId;
     private String userName, passwordHash, fullName;
     private UserRole role;
     private OffsetDateTime createdAt;
@@ -17,13 +17,11 @@ public class User {
         this.createdAt = OffsetDateTime.now();
     }
 
-    public int getUserId() {
-        return userId;
-    }
+    public long getUserId() { return userId; }
 
-    public String getUserName() {
-        return userName;
-    }
+    public String getUserName() { return userName; }
+
+    public String getPasswordHash() { return passwordHash; }
 
     public String getFullName() {
         return fullName;
@@ -35,6 +33,10 @@ public class User {
 
     public OffsetDateTime getCreatedAt() {
         return createdAt;
+    }
+
+    public void setUserId(long userId) {
+        this.userId = userId;
     }
 
     public void setPasswordHash(String passwordHash) {
