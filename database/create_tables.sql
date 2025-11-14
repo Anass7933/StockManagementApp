@@ -1,7 +1,7 @@
 
 -- ENUM TYPES
 
-CREATE TYPE user_role AS ENUM ('ADMIN', 'STAFF');
+CREATE TYPE user_role AS ENUM ('STOCK_MANAGER','SUPERVISOR','CASHIER');
 CREATE TYPE restock_status AS ENUM ('PENDING', 'FULFILLED');
 
 
@@ -12,7 +12,7 @@ CREATE TABLE users (
     username VARCHAR(50) NOT NULL UNIQUE,
     password_hash VARCHAR(255) NOT NULL,
     full_name VARCHAR(120),
-    role user_role NOT NULL DEFAULT 'STAFF',
+    role user_role NOT NULL DEFAULT 'CASHIER',
     created_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 

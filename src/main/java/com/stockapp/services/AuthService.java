@@ -99,4 +99,14 @@ public class AuthService {
         if (!verify(password, user.getPasswordHash())) throw new SecurityException("Invalid password");
         return user;
     }
+
+	/* ========== AUTHORIZE USER =========== */
+    public static void requireRole(User user, UserRole... allowed) {
+        if (user == null) throw new SecurityException("User must be authenticated");
+        UserRole r = user.getRole();
+        for (UserRole a : allowed) {
+            if (r == a) return;
+        }
+        throw new SecurityException("You are not allowed to perform this action");
+    }
 }
