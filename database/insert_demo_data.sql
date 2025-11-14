@@ -1,6 +1,6 @@
 INSERT INTO users (username, password_hash, full_name, role)
 	VALUES
-		('admin', '$2a$12$EXAMPLERANDOMHASHSTRING1234567890', 'Admin User', 'ADMIN');
+		('admin', 'admin', 'Admin User', 'ADMIN');
 
 INSERT INTO products (supplier_id, name, description, price, quantity, min_stock)
 	VALUES
