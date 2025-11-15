@@ -14,7 +14,7 @@ import java.sql.SQLException;
 public class AuthService {
 
     /* ========== HASH PASSWORD ========== */
-    public String hashPassword(String plainPassword) {
+    public static String hashPassword(String plainPassword) {
         try {
             MessageDigest md = MessageDigest.getInstance("SHA-256");
             byte[] hashedBytes = md.digest(plainPassword.getBytes());
@@ -26,11 +26,6 @@ public class AuthService {
         } catch (NoSuchAlgorithmException e) {
             throw new RuntimeException("Hashing algorithm not found", e);
         }
-    }
-
-    /* ========== VERIFY PASSWORD ========== */
-    public boolean verify(String plainPassword, String hash) {
-        return hashPassword(plainPassword).equals(hash);
     }
 
     /* ========== CREATE USER ========== */
@@ -60,53 +55,40 @@ public class AuthService {
         }
     }
 
-    /* ========== FIND USER BY USERNAME ========== */
-    public User findByUsername(String username) {
+    /* ========== DELETE USER ========== */
+    public void deleteUser(long id) {
         String sql = """
-            SELECT id, username, password_hash, full_name, user_role, created_at
-            FROM users
-            WHERE username = ?
+			DELETE FROM users where id = ?
         """;
 
         try (Connection c = DatabaseUtils.getConnection();
              PreparedStatement ps = c.prepareStatement(sql)) {
 
-            ps.setString(1, username);
-
-            try (ResultSet rs = ps.executeQuery()) {
-                if (rs.next()) {
-                    return new User(
-                            rs.getInt("id"),
-                            rs.getString("username"),
-                            rs.getString("password_hash"),
-                            rs.getString("full_name"),
-                            UserRole.valueOf(rs.getString("user_role"))
-                    );
-                }
-            }
+            ps.setLong(1,id);
+			ps.executeQuery();
 
         } catch (SQLException e) {
-            throw new RuntimeException("Failed to find user", e);
+            throw new RuntimeException("Failed to delete user", e);
         }
-
-        return null;
     }
 
     /* ========== AUTHENTICATE USER ========== */
-    public User authenticate(String username, String password) throws SecurityException {
-        User user = findByUsername(username);
-        if (user == null) throw new SecurityException("User not found");
-        if (!verify(password, user.getPasswordHash())) throw new SecurityException("Invalid password");
-        return user;
-    }
 
-	/* ========== AUTHORIZE USER =========== */
-    public static void requireRole(User user, UserRole... allowed) {
-        if (user == null) throw new SecurityException("User must be authenticated");
-        UserRole r = user.getRole();
-        for (UserRole a : allowed) {
-            if (r == a) return;
+    public static boolean validateLogin(String username, String password) throws SQLException {
+        String sql = "SELECT COUNT(*) FROM users WHERE username = ? AND password_hash = ?";
+
+        try (Connection conn = DatabaseUtils.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setString(1, username);
+            stmt.setString(2, hashPassword(password));
+
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1) > 0;
+                }
+            }
         }
-        throw new SecurityException("You are not allowed to perform this action");
+        return false;
     }
 }

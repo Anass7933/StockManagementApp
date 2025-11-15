@@ -6,6 +6,8 @@
 /home/AnassEr/computer science/Java Technology/StockManagementApp/src/main/java/com/stockapp/models/User.java
 /home/AnassEr/computer science/Java Technology/StockManagementApp/src/main/java/com/stockapp/models/SaleItem.java
 /home/AnassEr/computer science/Java Technology/StockManagementApp/src/main/java/com/stockapp/services/ProductService.java
+/home/AnassEr/computer science/Java Technology/StockManagementApp/src/main/java/com/stockapp/models/UserRole.java
+/home/AnassEr/computer science/Java Technology/StockManagementApp/src/main/java/com/stockapp/models/RestockStatus.java
 /home/AnassEr/computer science/Java Technology/StockManagementApp/src/main/java/com/stockapp/services/RestockService.java
 /home/AnassEr/computer science/Java Technology/StockManagementApp/src/main/java/com/stockapp/models/Product.java
 /home/AnassEr/computer science/Java Technology/StockManagementApp/src/main/java/com/stockapp/models/RestockRequest.java

@@ -1,0 +1,30 @@
+# Maven build output
+/target/
+/target/*
+
+# Maven generated files
+**/maven-status/
+
+# IDE files
+/.idea/
+/*.iml
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Compiled classes (just in case)
+/**/*.class
+
+# Temporary files
+*.tmp
+*.swp
+
+# Ignore any other generated sources
+**/generated-sources/
+
+# Ignore build artifacts of resources in target
+/target/classes/

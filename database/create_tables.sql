@@ -1,9 +1,7 @@
 
 -- ENUM TYPES
 
-CREATE TYPE user_role AS ENUM ('STOCK_MANAGER','SUPERVISOR','CASHIER');
-CREATE TYPE restock_status AS ENUM ('PENDING', 'FULFILLED');
-
+CREATE TYPE user_role AS ENUM ('ADMIN','STOCK_MANAGER','CASHIER');
 
 -- USERS
 
@@ -54,25 +52,11 @@ CREATE TABLE sale_items (
     FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE RESTRICT
 );
 
-
--- RESTOCK REQUESTS
-
-CREATE TABLE restock_requests (
-    id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    product_id BIGINT NOT NULL,
-    quantity_requested INTEGER NOT NULL CHECK (quantity_requested > 0),
-    status restock_status NOT NULL DEFAULT 'PENDING',
-    created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
-    FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE RESTRICT
-);
-
 -- INDEXES
 
 CREATE INDEX idx_products_name ON products(name);
 CREATE INDEX idx_sales_created_at ON sales(created_at);
 CREATE INDEX idx_sale_items_product_id ON sale_items(product_id);
-CREATE INDEX idx_restock_product_id ON restock_requests(product_id);
-
 
 INSERT INTO users (username, password_hash, full_name, role)
 	VALUES

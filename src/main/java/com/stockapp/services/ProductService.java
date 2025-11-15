@@ -2,10 +2,8 @@ package com.stockapp.services;
 
 import com.stockapp.models.Product;
 import com.stockapp.models.User;
-import com.stockapp.models.UserRole;
 import com.stockapp.utils.DatabaseUtils;
 
-import java.math.BigDecimal;
 import java.sql.*;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
@@ -14,9 +12,6 @@ import java.util.List;
 public class ProductService {
     /* ========== ADD PRODUCT ========== */
     public Product addProduct(Product product, User currentUser) {
-		AuthService.requireRole(currentUser,UserRole.STOCK_MANAGER);
-
-
         String sql = """
             INSERT INTO products (name, description, price, quantity, min_stock)
             VALUES (?, ?, ?, ?, ?)
@@ -58,9 +53,6 @@ public class ProductService {
 
     /* ========== UPDATE PRODUCT ========== */
     public Product updateProduct(Product product, User currentUser) {
-
-		AuthService.requireRole(currentUser,UserRole.STOCK_MANAGER,UserRole.CASHIER);
-
         String sql = """
             UPDATE products
             SET name = ?, description = ?, price = ?, quantity = ?, min_stock = ?
@@ -103,7 +95,6 @@ public class ProductService {
 
     /* ========== DELETE PRODUCT ========== */
     public void deleteProduct(long id, User currentUser) {
-		AuthService.requireRole(currentUser,UserRole.STOCK_MANAGER);
 
         String sql = "DELETE FROM products WHERE id = ?";
 
@@ -122,17 +113,17 @@ public class ProductService {
     }
 
     /* ========== GET PRODUCT BY ID ========== */
-    public Product getProductById(long id) {
+    public Product getProductByName(String name) {
         String sql = """
             SELECT id, name, description, price, quantity, min_stock, created_at
             FROM products
-            WHERE id = ?
+            WHERE name = ?
         """;
 
         try (Connection c = DatabaseUtils.getConnection();
              PreparedStatement ps = c.prepareStatement(sql)) {
 
-            ps.setLong(1, id);
+            ps.setString(1, name);
 
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
@@ -192,7 +183,7 @@ public class ProductService {
     /**
      * Atomically increase product stock. Returns true if updated.
      */
-    boolean increaseStockAtomic(long productId, int amount, Connection conn) throws SQLException {
+    public static boolean increaseStock(long productId, int amount, Connection conn) throws SQLException {
         String sql = "UPDATE products SET quantity = quantity + ? WHERE id = ?";
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, amount);
@@ -206,7 +197,7 @@ public class ProductService {
      * Atomically decrease product stock only if enough stock exists.
      * Returns true if stock was decreased; false if insufficient stock.
      */
-    boolean decreaseStockIfAvailable(long productId, int amount, Connection conn) throws SQLException {
+    public static boolean decreaseStockIfAvailable(long productId, int amount, Connection conn) throws SQLException {
         String sql = "UPDATE products SET quantity = quantity - ? WHERE id = ? AND quantity >= ?";
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, amount);
@@ -216,4 +207,23 @@ public class ProductService {
             return updated > 0;
         }
     }
+	
+	public static boolean isRestockNeeded(long productID, Connection conn) {
+		String sql = "SELECT quantity,min_stock from products where id = ?";
+
+		int quantity,min_stock;
+
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setLong(1, productID);
+            ResultSet rs = ps.executeQuery();
+            rs.next();
+			quantity = rs.getInt("quantity");
+			min_stock = rs.getInt("min_stock");
+
+			return quantity <= min_stock;
+		}catch (SQLException e) {
+            throw new RuntimeException("Failed to fetch products", e);
+        }
+	
+	}
 }

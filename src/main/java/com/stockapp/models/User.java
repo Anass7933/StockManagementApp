@@ -48,7 +48,7 @@ public class User {
     }
 
     public boolean isAdmin() {
-        return role == UserRole.ADMIN;
+        return role == UserRole.STOCK_MANAGER;
     }
 
     @Override
