@@ -24,7 +24,8 @@ CREATE TABLE products (
     price NUMERIC(10,2) NOT NULL CHECK (price >= 0),
     quantity INTEGER NOT NULL DEFAULT 0 CHECK (quantity >= 0),
     min_stock INTEGER NOT NULL DEFAULT 0 CHECK (min_stock >= 0),
-    created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+	category VARCHAR(50) NOT NULL
 );
 
 

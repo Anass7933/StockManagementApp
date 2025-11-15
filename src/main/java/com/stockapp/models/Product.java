@@ -12,21 +12,23 @@ public class Product {
     private int quantity;
     private int minStock;
     private OffsetDateTime createdAt;
+	private String category;
 
     // Constructor without ID (used when creating new products)
     public Product(String name, String description,
-                   BigDecimal price, int quantity, int minStock) {
+                   BigDecimal price, int quantity, int minStock, String category) {
         this.name = name;
         this.description = description;
         this.price = price;
         this.quantity = quantity;
         this.minStock = minStock;
+		this.category = category;
     }
 
     // Constructor with ID (used when loading from DB)
     public Product(long id, String name, String description,
                    BigDecimal price, int quantity,
-                   int minStock, OffsetDateTime createdAt) {
+                   int minStock, OffsetDateTime createdAt, String category) {
         this.id = id;
         this.name = name;
         this.description = description;
@@ -34,6 +36,7 @@ public class Product {
         this.quantity = quantity;
         this.minStock = minStock;
         this.createdAt = createdAt;
+		this.category = category;
     }
 
     public long getId() { return id; }
@@ -43,18 +46,8 @@ public class Product {
     public int getQuantity() { return quantity; }
     public int getMinStock() { return minStock; }
     public OffsetDateTime getCreatedAt() { return createdAt; }
+	public String getCategory() { return category; }
 
     public void setId(long id) { this.id = id; }
     public void setPrice(BigDecimal p) { this.price = p; }
-
-    public boolean needsRestock() {
-        return quantity <= minStock;
-    }
-
-    public void increaseStock(int amount) {
-        if (amount < 0) {
-            throw new IllegalArgumentException("Amount must be positive");
-        }
-        this.quantity += amount;
-    }
 }

@@ -13,8 +13,8 @@ public class ProductService {
     /* ========== ADD PRODUCT ========== */
     public Product addProduct(Product product, User currentUser) {
         String sql = """
-            INSERT INTO products (name, description, price, quantity, min_stock)
-            VALUES (?, ?, ?, ?, ?)
+            INSERT INTO products (name, description, price, quantity, min_stock, category)
+            VALUES (?, ?, ?, ?, ?, ?)
             RETURNING id, created_at;
         """;
 
@@ -26,6 +26,7 @@ public class ProductService {
             ps.setBigDecimal(3, product.getPrice());
             ps.setInt(4, product.getQuantity());
             ps.setInt(5, product.getMinStock());
+			ps.setString(6,product.getCategory());
 
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
@@ -39,7 +40,8 @@ public class ProductService {
                             product.getPrice(),
                             product.getQuantity(),
                             product.getMinStock(),
-                            createdAt
+                            createdAt,
+							product.getCategory()
                     );
                 } else {
                     throw new RuntimeException("Failed to insert product");
@@ -55,7 +57,7 @@ public class ProductService {
     public Product updateProduct(Product product, User currentUser) {
         String sql = """
             UPDATE products
-            SET name = ?, description = ?, price = ?, quantity = ?, min_stock = ?
+            SET name = ?, description = ?, price = ?, quantity = ?, min_stock = ?, category = ?
             WHERE id = ?
             RETURNING created_at;
         """;
@@ -68,7 +70,8 @@ public class ProductService {
             ps.setBigDecimal(3, product.getPrice());
             ps.setInt(4, product.getQuantity());
             ps.setInt(5, product.getMinStock());
-            ps.setLong(6, product.getId());
+			ps.setString(6, product.getCategory());
+            ps.setLong(7, product.getId());
 
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
@@ -81,7 +84,8 @@ public class ProductService {
                             product.getPrice(),
                             product.getQuantity(),
                             product.getMinStock(),
-                            createdAt
+                            createdAt,
+							product.getCategory()
                     );
                 } else {
                     throw new RuntimeException("Product not found or not updated (id=" + product.getId() + ")");
@@ -112,10 +116,10 @@ public class ProductService {
         }
     }
 
-    /* ========== GET PRODUCT BY ID ========== */
+    /* ========== GET PRODUCT BY Name ========== */
     public Product getProductByName(String name) {
         String sql = """
-            SELECT id, name, description, price, quantity, min_stock, created_at
+            SELECT id, name, description, price, quantity, min_stock, created_at, category
             FROM products
             WHERE name = ?
         """;
@@ -134,7 +138,8 @@ public class ProductService {
                             rs.getBigDecimal("price"),
                             rs.getInt("quantity"),
                             rs.getInt("min_stock"),
-                            rs.getObject("created_at", OffsetDateTime.class)
+                            rs.getObject("created_at", OffsetDateTime.class),
+							rs.getString("category")
                     );
                 } else {
                     return null;
@@ -149,7 +154,7 @@ public class ProductService {
     /* ========== GET ALL PRODUCTS ========== */
     public List<Product> getAllProducts() {
         String sql = """
-            SELECT id, name, description, price, quantity, min_stock, created_at
+            SELECT id, name, description, price, quantity, min_stock, created_at, category
             FROM products
             ORDER BY id ASC
         """;
@@ -168,7 +173,8 @@ public class ProductService {
                         rs.getBigDecimal("price"),
                         rs.getInt("quantity"),
                         rs.getInt("min_stock"),
-                        rs.getObject("created_at", OffsetDateTime.class)
+                        rs.getObject("created_at", OffsetDateTime.class),
+						rs.getString("category")
                 ));
             }
 
