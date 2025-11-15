@@ -1,5 +1,6 @@
 package com.stockapp.services;
 
+import com.stockapp.models.Product;
 import com.stockapp.models.Sale;
 import com.stockapp.models.SaleItem;
 import com.stockapp.utils.DatabaseUtils;
@@ -13,10 +14,14 @@ import java.util.List;
 public class SaleService {
 
     /* ========== CREATE SALE ========== */
-    public Sale createSale(List<SaleItem> items) {
-        if (items == null || items.isEmpty()) {
+    public Sale createSale(Sale inputSale) {
+        if (inputSale == null || inputSale.getItems() == null || inputSale.getItems().isEmpty()) {
             throw new IllegalArgumentException("Sale must contain at least one item");
         }
+
+        // ensure totals are computed from model
+        inputSale.finalizeSale();
+        BigDecimal totalPrice = BigDecimal.valueOf(inputSale.calculateTotal());
 
         String insertSaleSql = """
             INSERT INTO sales (total_price)
@@ -27,24 +32,18 @@ public class SaleService {
         String insertSaleItemSql = """
             INSERT INTO sale_items (sale_id, product_id, quantity, unit_price)
             VALUES (?, ?, ?, ?)
+            RETURNING id
         """;
 
         try (Connection conn = DatabaseUtils.getConnection()) {
-            conn.setAutoCommit(false); // start transaction
-
-            // Calculate total price
-            BigDecimal totalPrice = BigDecimal.ZERO;
-            for (SaleItem item : items) {
-                totalPrice = totalPrice.add(item.getUnitPrice().multiply(BigDecimal.valueOf(item.getQuantity())));
-            }
+            conn.setAutoCommit(false);
 
             long saleId;
             OffsetDateTime createdAt;
 
-            // Insert into sales
+            // insert sale and get generated id
             try (PreparedStatement ps = conn.prepareStatement(insertSaleSql)) {
                 ps.setBigDecimal(1, totalPrice);
-
                 try (ResultSet rs = ps.executeQuery()) {
                     if (rs.next()) {
                         saleId = rs.getLong("id");
@@ -56,25 +55,52 @@ public class SaleService {
                 }
             }
 
-            // Insert sale items and update product stock
-            for (SaleItem item : items) {
-                boolean updated = ProductService.decreaseStockIfAvailable(item.getProductId(), item.getQuantity(), conn);
-                if (!updated) {
+            // insert sale items and decrease stock
+            List<SaleItem> persistedItems = new ArrayList<>();
+            for (SaleItem item : inputSale.getItems()) {
+                long productId = item.getProduct().getId();
+                int qty = item.getQuantity();
+
+                // decrease stock atomically (uses ProductService static helper)
+                boolean ok = ProductService.decreaseStockIfAvailable(productId, qty, conn);
+                if (!ok) {
                     conn.rollback();
-                    throw new RuntimeException("Insufficient stock for product ID: " + item.getProductId());
+                    throw new RuntimeException("Insufficient stock for product ID: " + productId);
                 }
 
+                // insert sale_item and get its id
+                long saleItemId = 0;
                 try (PreparedStatement ps = conn.prepareStatement(insertSaleItemSql)) {
                     ps.setLong(1, saleId);
-                    ps.setLong(2, item.getProductId());
-                    ps.setInt(3, item.getQuantity());
-                    ps.setBigDecimal(4, item.getUnitPrice());
-                    ps.executeUpdate();
+                    ps.setLong(2, productId);
+                    ps.setInt(3, qty);
+                    ps.setBigDecimal(4, BigDecimal.valueOf(item.getUnitPrice()));
+                    try (ResultSet rs = ps.executeQuery()) {
+                        if (rs.next()) {
+                            saleItemId = rs.getLong("id");
+                        } else {
+                            conn.rollback();
+                            throw new RuntimeException("Failed to insert sale item for product ID: " + productId);
+                        }
+                    }
                 }
+
+                // fetch fresh Product snapshot for returned item (keeps returned object consistent)
+                Product prodSnapshot = fetchProductById(productId, conn);
+
+                // construct SaleItem for returned Sale (SaleItem constructor takes int id in your model)
+                SaleItem persisted = new SaleItem((int) saleItemId, prodSnapshot, qty, item.getUnitPrice());
+                persistedItems.add(persisted);
             }
 
             conn.commit();
-            return new Sale(saleId, totalPrice, createdAt, items);
+
+            // create a Sale object to return (we create a fresh one so saleId matches DB)
+            Sale result = new Sale((int) saleId, null); // user is not stored in DB in your design
+            for (SaleItem si : persistedItems) result.addItem(si);
+            result.finalizeSale(); // compute total in model
+
+            return result;
 
         } catch (SQLException e) {
             throw new RuntimeException("Failed to create sale", e);
@@ -84,39 +110,36 @@ public class SaleService {
     /* ========== GET SALE BY ID ========== */
     public Sale getSaleById(long saleId) {
         String saleSql = "SELECT id, total_price, created_at FROM sales WHERE id = ?";
-        String itemsSql = "SELECT product_id, quantity, unit_price FROM sale_items WHERE sale_id = ?";
+        String itemsSql = "SELECT id, product_id, quantity, unit_price FROM sale_items WHERE sale_id = ? ORDER BY id ASC";
 
         try (Connection conn = DatabaseUtils.getConnection();
              PreparedStatement salePs = conn.prepareStatement(saleSql);
              PreparedStatement itemsPs = conn.prepareStatement(itemsSql)) {
 
             salePs.setLong(1, saleId);
-            Sale sale;
             try (ResultSet rs = salePs.executeQuery()) {
-                if (rs.next()) {
-                    sale = new Sale(
-                            rs.getLong("id"),
-                            rs.getBigDecimal("total_price"),
-                            rs.getObject("created_at", OffsetDateTime.class),
-                            new ArrayList<>()
-                    );
-                } else {
-                    return null;
-                }
+                if (!rs.next()) return null;
             }
 
+            // build Sale using available constructor (user not stored)
+            Sale sale = new Sale((int) saleId, null);
+
+            // fetch items
             itemsPs.setLong(1, saleId);
             try (ResultSet rs = itemsPs.executeQuery()) {
                 while (rs.next()) {
-                    sale.getItems().add(new SaleItem(
-                            saleId,
-                            rs.getLong("product_id"),
-                            rs.getInt("quantity"),
-                            rs.getBigDecimal("unit_price")
-                    ));
+                    int saleItemId = rs.getInt("id");
+                    long productId = rs.getLong("product_id");
+                    int quantity = rs.getInt("quantity");
+                    double unitPrice = rs.getBigDecimal("unit_price").doubleValue();
+
+                    Product product = fetchProductById(productId, conn);
+                    SaleItem item = new SaleItem(saleItemId, product, quantity, unitPrice);
+                    sale.addItem(item);
                 }
             }
 
+            sale.finalizeSale(); // compute totalAmount on model
             return sale;
 
         } catch (SQLException e) {
@@ -127,7 +150,7 @@ public class SaleService {
     /* ========== GET ALL SALES ========== */
     public List<Sale> getAllSales() {
         String saleSql = "SELECT id, total_price, created_at FROM sales ORDER BY id ASC";
-        String itemsSql = "SELECT sale_id, product_id, quantity, unit_price FROM sale_items WHERE sale_id = ?";
+        String itemsSql = "SELECT id, product_id, quantity, unit_price FROM sale_items WHERE sale_id = ? ORDER BY id ASC";
 
         List<Sale> sales = new ArrayList<>();
 
@@ -137,27 +160,26 @@ public class SaleService {
 
             while (saleRs.next()) {
                 long saleId = saleRs.getLong("id");
-                Sale sale = new Sale(
-                        saleId,
-                        saleRs.getBigDecimal("total_price"),
-                        saleRs.getObject("created_at", OffsetDateTime.class),
-                        new ArrayList<>()
-                );
+
+                Sale sale = new Sale((int) saleId, null);
 
                 try (PreparedStatement itemsPs = conn.prepareStatement(itemsSql)) {
                     itemsPs.setLong(1, saleId);
                     try (ResultSet itemsRs = itemsPs.executeQuery()) {
                         while (itemsRs.next()) {
-                            sale.getItems().add(new SaleItem(
-                                    saleId,
-                                    itemsRs.getLong("product_id"),
-                                    itemsRs.getInt("quantity"),
-                                    itemsRs.getBigDecimal("unit_price")
-                            ));
+                            int saleItemId = itemsRs.getInt("id");
+                            long productId = itemsRs.getLong("product_id");
+                            int quantity = itemsRs.getInt("quantity");
+                            double unitPrice = itemsRs.getBigDecimal("unit_price").doubleValue();
+
+                            Product product = fetchProductById(productId, conn);
+                            SaleItem item = new SaleItem(saleItemId, product, quantity, unitPrice);
+                            sale.addItem(item);
                         }
                     }
                 }
 
+                sale.finalizeSale();
                 sales.add(sale);
             }
 
@@ -184,6 +206,35 @@ public class SaleService {
 
         } catch (SQLException e) {
             throw new RuntimeException("Failed to fetch total revenue", e);
+        }
+    }
+
+    /* ======= Helper: fetch Product by id within same connection ======= */
+    private Product fetchProductById(long productId, Connection conn) throws SQLException {
+        String sql = """
+            SELECT id, name, description, price, quantity, min_stock, created_at, category
+            FROM products
+            WHERE id = ?
+        """;
+
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setLong(1, productId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return new Product(
+                            rs.getLong("id"),
+                            rs.getString("name"),
+                            rs.getString("description"),
+                            rs.getBigDecimal("price"),
+                            rs.getInt("quantity"),
+                            rs.getInt("min_stock"),
+                            rs.getObject("created_at", OffsetDateTime.class),
+                            rs.getString("category")
+                    );
+                } else {
+                    throw new RuntimeException("Product not found (id=" + productId + ")");
+                }
+            }
         }
     }
 }

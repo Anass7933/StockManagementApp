@@ -1,8 +1,8 @@
 package com.stockapp.services;
 
 import com.stockapp.models.User;
-import com.stockapp.models.UserRole;
 import com.stockapp.utils.DatabaseUtils;
+import com.stockapp.models.UserRole;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -10,6 +10,8 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.*;
+import java.time.OffsetDateTime;
 
 public class AuthService {
 
@@ -91,4 +93,30 @@ public class AuthService {
         }
         return false;
     }
+
+
+	public static List<User> loadUsers() throws SQLException {
+		String sql = "SELECT id, full_name, username, password_hash, role, created_at FROM users WHERE username != 'admin'";
+
+		List<User> userList = new ArrayList<>();
+
+		try (Connection conn = DatabaseUtils.getConnection();
+			 PreparedStatement stmt = conn.prepareStatement(sql);
+			 ResultSet rs = stmt.executeQuery()) {
+
+			while (rs.next()) {
+				int id = rs.getInt("id"); // cast to int
+				String fullName = rs.getString("full_name");
+				String username = rs.getString("username");
+				String passwordHash = rs.getString("password_hash");
+				UserRole role = UserRole.valueOf(rs.getString("role"));
+				OffsetDateTime createdAt = rs.getObject("created_at", OffsetDateTime.class);
+
+				User user = new User(id, username, passwordHash, fullName, role, createdAt);
+				userList.add(user);
+			}
+		}
+
+		return userList;
+	}
 }

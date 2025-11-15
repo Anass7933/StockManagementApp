@@ -8,13 +8,23 @@ public class User {
     private UserRole role;
     private OffsetDateTime createdAt;
 
-    public User(int userId, String userName, String passwordHash, String fullName, UserRole role){
+
+    public User(long userId, String userName, String passwordHash, String fullName, UserRole role, OffsetDateTime createdAt){
         this.userId = userId;
         this.userName = userName;
         this.passwordHash = passwordHash;
         this.fullName = fullName;
         this.role = role;
-        this.createdAt = OffsetDateTime.now();
+        this.createdAt = createdAt;
+
+    }
+
+    public User(long userId, String userName,String fullName, UserRole role, OffsetDateTime createdAt){
+        this.userId = userId;
+        this.userName = userName;
+        this.fullName = fullName;
+        this.role = role;
+        this.createdAt = createdAt;
     }
 
     public long getUserId() { return userId; }
