@@ -33,10 +33,8 @@ CREATE TABLE products (
 
 CREATE TABLE sales (
     id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    user_id BIGINT NOT NULL,
-    total_amount NUMERIC(12,2) NOT NULL CHECK (total_amount >= 0),
-    created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
-    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE RESTRICT
+	total_price NUMERIC(12,2) NOT NULL CHECK (total_price >= 0),
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
 
