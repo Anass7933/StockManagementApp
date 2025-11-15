@@ -14,7 +14,7 @@
 
     <children>
 
-        <VBox layoutX="180.0" layoutY="70.0" prefHeight="650.0" prefWidth="900.0" style="-fx-background-color: #C5C5C5;">
+        <VBox layoutX="180.0" layoutY="70.0" prefHeight="650.0" prefWidth="900.0">
             <children>
 
                 <HBox prefHeight="90.0" prefWidth="900.0">
@@ -39,7 +39,7 @@
                 <!-- FIXED: added fx:id -->
                 <TableView fx:id="usersTable" prefWidth="200.0">
                     <columns>
-                  <TableColumn prefWidth="168.0" text="Id" />
+                  <TableColumn minWidth="20.0" prefWidth="168.0" text="Id" />
                         <TableColumn fx:id="userNameColumn" prefWidth="168.0" text="username" />
                         <TableColumn fx:id="fullNameColumn" prefWidth="168.0" text="full name" />
                         <TableColumn fx:id="roleColumn" prefWidth="168.0" text="Role" />
@@ -55,24 +55,39 @@
 
         <Label layoutX="180.0" layoutY="20.0" text="Hi, ">
             <font><Font size="30.0" /></font>
+         <padding>
+            <Insets left="30.0" />
+         </padding>
         </Label>
 
         <Label fx:id="userNameLabel" layoutX="230.0" layoutY="20.0">
             <font><Font size="30.0" /></font>
+         <padding>
+            <Insets left="50.0" />
+         </padding>
         </Label>
 
-        <VBox prefWidth="180.0">
+        <VBox prefHeight="720.0" prefWidth="180.0" style="-fx-background-color: #2596be;">
             <children>
-                <Button fx:id="usersButton" prefHeight="40.0" prefWidth="180.0" style="-fx-background-color: #2596be;" text="Users" textFill="WHITE">
-                    <VBox.margin><Insets left="30.0" top="100.0" /></VBox.margin>
+                <Button fx:id="usersButton" alignment="CENTER" contentDisplay="CENTER" prefHeight="40.0" prefWidth="180.0" style="-fx-background-color: #2596be;" text="Users" textAlignment="CENTER" textFill="WHITE">
+                    <VBox.margin><Insets top="100.0" /></VBox.margin>
+               <font>
+                  <Font size="25.0" />
+               </font>
                 </Button>
 
-                <Button fx:id="productButton" prefHeight="40.0" prefWidth="180.0" text="Products">
-                    <VBox.margin><Insets left="30.0" top="20.0" /></VBox.margin>
+                <Button fx:id="productButton" prefHeight="40.0" prefWidth="180.0" style="-fx-background-color: #2596be;" text="Products" textFill="#c5c5c5">
+                    <VBox.margin><Insets top="20.0" /></VBox.margin>
+               <font>
+                  <Font size="20.0" />
+               </font>
                 </Button>
 
-                <Button fx:id="sighOutButton" prefHeight="40.0" prefWidth="180.0" text="sign out">
-                    <VBox.margin><Insets left="30.0" top="20.0" /></VBox.margin>
+                <Button fx:id="sighOutButton" alignment="CENTER" contentDisplay="CENTER" prefHeight="40.0" prefWidth="180.0" style="-fx-background-color: #2596be;" text="sign out" textAlignment="JUSTIFY" textFill="#c5c5c5">
+                    <VBox.margin><Insets top="20.0" /></VBox.margin>
+               <font>
+                  <Font size="20.0" />
+               </font>
                 </Button>
             </children>
         </VBox>
