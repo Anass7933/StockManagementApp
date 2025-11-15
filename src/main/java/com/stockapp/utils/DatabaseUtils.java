@@ -6,12 +6,10 @@ public class DatabaseUtils {
 
     private static final String HOST = "localhost";
     private static final String PORT = "5432";
-    private static final String DATABASE = "stockdp";
+    private static final String DATABASE = "stockdp";       // or "postgres", choose what you want
     private static final String URL = "jdbc:postgresql://" + HOST + ":" + PORT + "/" + DATABASE;
-
-    private static final String USER = "user";
-    private static final String PASSWORD = "user1";
-
+    private static final String USER = "user";              // choose correct user
+    private static final String PASSWORD = "user1";         // choose correct password
     private static final String DRIVER = "org.postgresql.Driver";
 
     static {
@@ -29,32 +27,23 @@ public class DatabaseUtils {
     }
 
     public static void closeResources(Connection conn, Statement stmt, ResultSet rs) {
-        try {
-            if (rs != null) rs.close();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        try {
-            if (stmt != null) stmt.close();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        try {
-            if (conn != null) conn.close();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
+        try { if (rs != null) rs.close(); } catch (SQLException e) { e.printStackTrace(); }
+        try { if (stmt != null) stmt.close(); } catch (SQLException e) { e.printStackTrace(); }
+        try { if (conn != null) conn.close(); } catch (SQLException e) { e.printStackTrace(); }
     }
 
     public static boolean testConnection() {
         try (Connection conn = getConnection()) {
             System.out.println("Connected to PostgreSQL database: " + DATABASE);
-            System.out.println("PostgreSQL version: " +
-                    conn.getMetaData().getDatabaseProductVersion());
+            System.out.println("PostgreSQL version: " + conn.getMetaData().getDatabaseProductVersion());
             return true;
         } catch (SQLException e) {
             System.err.println("Connection failed: " + e.getMessage());
             return false;
         }
+    }
+
+    public static void main(String[] args) {
+        testConnection();
     }
 }
