@@ -13,7 +13,7 @@ import java.util.List;
 
 public class SaleService {
 
-    /* ========== CREATE SALE ========== */
+    /* ========== CREATE SALE ==========
     public Sale createSale(Sale inputSale) {
         if (inputSale == null || inputSale.getItems() == null || inputSale.getItems().isEmpty()) {
             throw new IllegalArgumentException("Sale must contain at least one item");
@@ -107,7 +107,9 @@ public class SaleService {
         }
     }
 
-    /* ========== GET SALE BY ID ========== */
+     */
+
+    /* ========== GET SALE BY ID ==========
     public Sale getSaleById(long saleId) {
         String saleSql = "SELECT id, total_price, created_at FROM sales WHERE id = ?";
         String itemsSql = "SELECT id, product_id, quantity, unit_price FROM sale_items WHERE sale_id = ? ORDER BY id ASC";
@@ -147,7 +149,9 @@ public class SaleService {
         }
     }
 
-    /* ========== GET ALL SALES ========== */
+     */
+
+    /* ========== GET ALL SALES ==========
     public List<Sale> getAllSales() {
         String saleSql = "SELECT id, total_price, created_at FROM sales ORDER BY id ASC";
         String itemsSql = "SELECT id, product_id, quantity, unit_price FROM sale_items WHERE sale_id = ? ORDER BY id ASC";
@@ -190,7 +194,9 @@ public class SaleService {
         }
     }
 
-    /* ========== GET TOTAL REVENUE ========== */
+     */
+
+    /* ========== GET TOTAL REVENUE ========== /
     public BigDecimal getTotalRevenue() {
         String sql = "SELECT COALESCE(SUM(total_price), 0) AS revenue FROM sales";
 

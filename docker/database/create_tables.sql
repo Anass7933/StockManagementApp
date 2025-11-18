@@ -8,9 +8,9 @@ CREATE TYPE user_role AS ENUM ('ADMIN','STOCK_MANAGER','CASHIER');
 CREATE TABLE users (
     id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     username VARCHAR(50) NOT NULL UNIQUE,
-    password VARCHAR(255) NOT NULL,
+    password_hash VARCHAR(255) NOT NULL,
     full_name VARCHAR(120),
-    role user_role NOT NULL DEFAULT 'CASHIER',
+    role user_role NOT NULL,
     created_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
@@ -56,8 +56,3 @@ CREATE TABLE sale_items (
 CREATE INDEX idx_products_name ON products(name);
 CREATE INDEX idx_sales_created_at ON sales(created_at);
 CREATE INDEX idx_sale_items_product_id ON sale_items(product_id);
-
-INSERT INTO users (username, password_hash, full_name, role)
-	VALUES
-		('admin', 'admin', 'Admin User', 'ADMIN');
-

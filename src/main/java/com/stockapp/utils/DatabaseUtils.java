@@ -6,7 +6,7 @@ public class DatabaseUtils {
 
     private static final String HOST = "localhost";
     private static final String PORT = "5432";
-    private static final String DATABASE = "stockdp";       // or "postgres", choose what you want
+    private static final String DATABASE = "stockdb";       // or "postgres", choose what you want
     private static final String URL = "jdbc:postgresql://" + HOST + ":" + PORT + "/" + DATABASE;
     private static final String USER = "user";              // choose correct user
     private static final String PASSWORD = "user1";         // choose correct password

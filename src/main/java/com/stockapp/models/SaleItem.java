@@ -1,5 +1,7 @@
 package com.stockapp.models;
 
+import com.stockapp.models.Product;
+
 public class SaleItem {
     private long saleItemId;
     private Sale sale; // optional, can be set when added to a Sale

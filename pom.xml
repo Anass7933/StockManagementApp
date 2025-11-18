@@ -12,12 +12,11 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>25</maven.compiler.source>
         <maven.compiler.target>25</maven.compiler.target>
-        <!-- Use JavaFX 21 to match your installed java21-openjfx package -->
-        <javafx.version>21.0.5</javafx.version>
+        <javafx.version>25.0.1</javafx.version>
     </properties>
 
     <dependencies>
-        <!-- compile-time JavaFX API so your code compiles -->
+        <!-- JavaFX modules -->
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-controls</artifactId>
@@ -28,8 +27,6 @@
             <artifactId>javafx-fxml</artifactId>
             <version>${javafx.version}</version>
         </dependency>
-
-        <!-- postgres driver -->
         <dependency>
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
@@ -39,7 +36,7 @@
 
     <build>
         <plugins>
-            <!-- Compiler -->
+            <!-- Compiler plugin -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
@@ -50,32 +47,21 @@
                 </configuration>
             </plugin>
 
-            <!-- JavaFX plugin configured to use system-installed JavaFX native jars -->
-            <plugin>
-                <groupId>org.openjfx</groupId>
-                <artifactId>javafx-maven-plugin</artifactId>
-                <version>0.0.8</version>
-                <configuration>
-                    <!-- set your main class here; can be overridden with -DmainClass=... -->
-                    <mainClass>com.stockapp.Main</mainClass>
-
-                    <!-- Force plugin to add module-path pointing to the system-installed JavaFX jars -->
-                    <options>
-                        <option>--module-path</option>
-                        <option>/usr/lib/jvm/java-21-openjdk/lib</option>
-                        <option>--add-modules</option>
-                        <option>javafx.controls,javafx.fxml</option>
-                    </options>
-                </configuration>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>run</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
+            <!-- JavaFX Maven plugin -->
+			<plugin>
+				<groupId>org.openjfx</groupId>
+				<artifactId>javafx-maven-plugin</artifactId>
+				<version>0.0.8</version>
+				<configuration>
+					<mainClass>com.stockapp.Main</mainClass>
+					<options>
+						<option>--module-path</option>
+						<option>/usr/share/java/java-openjfx</option> <!-- Arch path -->
+						<option>--add-modules</option>
+						<option>javafx.controls,javafx.fxml</option>
+					</options>
+				</configuration>
+			</plugin>
         </plugins>
     </build>
 </project>
-
