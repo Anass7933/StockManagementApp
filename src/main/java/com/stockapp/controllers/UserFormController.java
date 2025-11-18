@@ -1,5 +1,9 @@
 package com.stockapp.controllers;
 
+import com.stockapp.models.User;
+import com.stockapp.models.UserRole;
+import com.stockapp.services.AuthService;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
@@ -10,8 +14,11 @@ public class UserFormController {
 
     @FXML private TextField usernameField;
     @FXML private TextField fullNameField;
+    @FXML private TextField passwordField;
     @FXML private ComboBox<String> roleComboBox;
     @FXML private Button saveButton;
+    @FXML private Button cancelButton;
+
 
     private Stage stage;
 
@@ -22,11 +29,11 @@ public class UserFormController {
     @FXML
     private void initialize() {
         saveButton.setOnAction(e -> {
-            String username = usernameField.getText();
             String fullName = fullNameField.getText();
-            String role = roleComboBox.getValue();
+            String username = usernameField.getText();
+            String password = passwordField.getText();
+            UserRole role = UserRole.valueOf(roleComboBox.getValue());
 
-            System.out.println("Saving: " + username + ", " + fullName + ", " + role);
             stage.close();
         });
     }
@@ -40,4 +47,8 @@ public class UserFormController {
     }
 
 
+    public void cancelButtonOnAction(ActionEvent actionEvent) {
+        Stage stage = (Stage) cancelButton.getScene().getWindow();
+        stage.close();
+    }
 }

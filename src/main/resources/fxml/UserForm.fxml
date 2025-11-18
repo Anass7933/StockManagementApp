@@ -10,48 +10,57 @@
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.ColumnConstraints?>
 <?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.RowConstraints?>
 
-<GridPane hgap="10" prefWidth="300.0" vgap="10" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.stockapp.controllers.UserFormController">
+<GridPane hgap="12" vgap="14" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.stockapp.controllers.UserFormController">
+
     <padding>
-        <Insets bottom="20" left="20" right="20" top="20" />
+        <Insets bottom="25" left="25" right="25" top="25" />
     </padding>
 
-    <!-- Full Name -->
-    <Label text="Full Name:" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+    <!-- FULL NAME -->
+    <Label text="Full Name:" GridPane.rowIndex="0" />
     <TextField fx:id="fullNameField" GridPane.columnIndex="1" GridPane.rowIndex="0" />
 
-    <!-- Username -->
-    <Label text="Username:" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+    <!-- USERNAME -->
+    <Label text="Username:" GridPane.rowIndex="1" />
     <TextField fx:id="usernameField" GridPane.columnIndex="1" GridPane.rowIndex="1" />
 
-    <!-- Password -->
-    <Label text="Password:" GridPane.columnIndex="0" GridPane.rowIndex="2" />
+    <!-- PASSWORD -->
+    <Label text="Password:" GridPane.rowIndex="2" />
     <PasswordField fx:id="passwordField" GridPane.columnIndex="1" GridPane.rowIndex="2" />
 
-    <!-- Role -->
-    <Label text="Role:" GridPane.columnIndex="0" GridPane.rowIndex="3" />
+    <!-- ROLE -->
+    <Label text="Role:" GridPane.rowIndex="3" />
     <ComboBox fx:id="roleComboBox" GridPane.columnIndex="1" GridPane.rowIndex="3">
         <items>
             <FXCollections fx:factory="observableArrayList">
                 <String fx:value="ADMIN" />
-                <String fx:value="USER" />
+                <String fx:value="STOCK MANAGER" />
+                <String fx:value="CASHIER" />
             </FXCollections>
         </items>
     </ComboBox>
 
-    <!-- Save Button -->
-    <Button fx:id="saveButton" text="Save" GridPane.columnIndex="1" GridPane.halignment="LEFT" GridPane.rowIndex="4" />
+    <!-- BUTTONS ROW -->
+    <HBox spacing="15" GridPane.columnIndex="1" GridPane.rowIndex="5">
+        <Button fx:id="saveButton" prefWidth="100" style="-fx-background-color: #2596be; -fx-text-fill: white; -fx-font-size: 13px; -fx-background-radius: 6;" text="Save" />
+
+        <Button fx:id="cancelButton" onAction="#cancelButtonOnAction" prefWidth="100" style="-fx-background-color: #2596be; -fx-text-fill: white; -fx-font-size: 13px; -fx-background-radius: 6;" text="Cancel" />
+    </HBox>
 
     <columnConstraints>
-        <ColumnConstraints />
-        <ColumnConstraints />
+        <ColumnConstraints minWidth="100" />
+        <ColumnConstraints minWidth="200" />
     </columnConstraints>
-    <rowConstraints>
-        <RowConstraints />
-        <RowConstraints />
-        <RowConstraints />
-        <RowConstraints />
-        <RowConstraints />
-    </rowConstraints>
+   <rowConstraints>
+      <RowConstraints />
+      <RowConstraints />
+      <RowConstraints />
+      <RowConstraints />
+      <RowConstraints />
+      <RowConstraints />
+   </rowConstraints>
+
 </GridPane>

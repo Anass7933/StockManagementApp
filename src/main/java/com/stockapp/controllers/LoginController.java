@@ -2,13 +2,16 @@ package com.stockapp.controllers;
 
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.scene.control.Label;
 import javafx.stage.Stage;
-import com.stockapp.services.*;
+import com.stockapp.services.AuthService;
 
+import java.io.IOException;
 import java.sql.SQLException;
 
 public class LoginController {
@@ -28,19 +31,36 @@ public class LoginController {
     @FXML
     private Label incorrectLabel;
 
+    private AuthService authService = new AuthService();
+
     @FXML
     private void loginButtonOnAction(ActionEvent event) {
-        String username = usernameField.getText();
-        String password = passwordField.getText();
+        String username = usernameField.getText().trim();
+        String password = passwordField.getText().trim();
 
         try {
-            if (AuthService.validateLogin(username, password)) {
-                incorrectLabel.setText("Login successful!");
+            boolean valid = AuthService.validateLogin(username, password);
+
+            if (valid) {
+
+                // Load next page
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/AdminDashboard.fxml"));
+                Scene scene = new Scene(loader.load());
+
+                // Change scene
+                Stage stage = (Stage) loginButton.getScene().getWindow();
+                stage.setScene(scene);
+                stage.show();
+
             } else {
                 incorrectLabel.setText("Invalid username or password.");
             }
+
         } catch (SQLException e) {
             incorrectLabel.setText("Database error.");
+            e.printStackTrace();
+        } catch (IOException e) {
+            incorrectLabel.setText("Cannot load next page.");
             e.printStackTrace();
         }
     }
