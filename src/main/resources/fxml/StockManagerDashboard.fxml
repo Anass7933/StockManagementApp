@@ -1,12 +1,103 @@
-<BorderPane  xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1">
-    <left>
-        <VBox spacing="10" prefWidth="200" style="-fx-padding: 10;">
-            <Label text="Stock Manager Interface" />
-            <ListView fx:id="navList" />
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<AnchorPane prefHeight="720.0" prefWidth="1080.0" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.stockapp.controllers.AdminController">
+
+    <children>
+
+        <VBox layoutX="180.0" layoutY="70.0" prefHeight="650.0" prefWidth="900.0">
+            <children>
+
+                <HBox prefHeight="90.0" prefWidth="900.0">
+                    <children>
+                        <Button fx:id="addButton" prefHeight="40.0" text="Add">
+                            <font><Font name="Cambria" size="20.0" /></font>
+                            <HBox.margin><Insets bottom="20.0" left="30.0" right="40.0" top="20.0" /></HBox.margin>
+                        </Button>
+
+                        <Button fx:id="modifyButton" prefHeight="40.0" text="Modify">
+                            <font><Font name="Cambria" size="20.0" /></font>
+                            <HBox.margin><Insets bottom="20.0" left="30.0" right="40.0" top="20.0" /></HBox.margin>
+                        </Button>
+
+                        <Button fx:id="deleteButton" prefHeight="40.0" text="Delete">
+                            <font><Font name="Cambria" size="20.0" /></font>
+                            <HBox.margin><Insets bottom="20.0" left="30.0" right="20.0" top="20.0" /></HBox.margin>
+                        </Button>
+                    </children>
+                </HBox>
+
+                <!-- Products Table -->
+                <HBox spacing="15">
+                    <TableView fx:id="productsTable" prefWidth="800.0">
+                        <columns>
+                            <TableColumn fx:id="idColumn" prefWidth="100.0" sortable="true" text="ID" />
+                            <TableColumn fx:id="nameColumn" prefWidth="170.0" sortable="true" text="Name" />
+                            <TableColumn fx:id="priceColumn" prefWidth="130.0" sortable="true" text="Price" />
+                            <TableColumn fx:id="quantityColumn" prefWidth="120.0" sortable="true" text="Quantity" />
+                            <TableColumn fx:id="minStockColumn" prefWidth="120.0" sortable="true" text="Min Stock" />
+                            <TableColumn fx:id="categoryColumn" prefWidth="150.0" sortable="true" text="Category" />
+                            <TableColumn fx:id="createdAtColumn" prefWidth="120.0" text="Created at" />
+                        </columns>
+                    </TableView>
+
+                    <VBox fx:id="lowStockPanel" prefWidth="100"
+                        style="-fx-background-color: #ffeeee; -fx-padding: 15; -fx-border-color: #ff4d4d; -fx-border-width: 1;">
+                        <Label text="Low Stock" style="-fx-font-size: 16; -fx-font-weight: bold;"/>
+                        <Button fx:id="restockButton" text="Restock Selected" maxWidth="Infinity"/>
+                    </VBox>
+                </HBox>
+
+            </children>
         </VBox>
-    </left>
-    <center>
-        <StackPane fx:id="contentPane" style="-fx-padding: 10;">
-        </StackPane>
-    </center>
-</BorderPane>
+
+        <Label layoutX="180.0" layoutY="20.0" text="Hi, ">
+            <font><Font size="30.0" /></font>
+            <padding>
+                <Insets left="30.0" />
+            </padding>
+        </Label>
+
+        <Label fx:id="userNameLabel" layoutX="230.0" layoutY="20.0">
+            <font><Font size="30.0" /></font>
+            <padding>
+                <Insets left="50.0" />
+            </padding>
+        </Label>
+
+        <VBox prefHeight="720.0" prefWidth="180.0" style="-fx-background-color: #2596be;">
+            <children>
+                <Button fx:id="usersButton" alignment="CENTER" contentDisplay="CENTER" prefHeight="40.0" prefWidth="180.0" style="-fx-background-color: #2596be;" text="Users" textAlignment="CENTER" textFill="#c5c5c5">
+                    <VBox.margin><Insets top="100.0" /></VBox.margin>
+                    <font>
+                        <Font name="Cambria" size="20.0" />
+                    </font>
+                </Button>
+
+                <Button fx:id="productsButton" prefHeight="40.0" prefWidth="180.0" style="-fx-background-color: #2596be;" text="Products" textFill="WHITE">
+                    <VBox.margin><Insets top="100.0" /></VBox.margin>
+                    <font>
+                        <Font name="Cambria" size="25.0" />
+                    </font>
+                </Button>
+
+                <Button fx:id="sighOutButton" alignment="CENTER" contentDisplay="CENTER" prefHeight="40.0" prefWidth="180.0" style="-fx-background-color: #2596be;" text="sign out" textAlignment="JUSTIFY" textFill="#c5c5c5">
+                    <VBox.margin><Insets top="20.0" /></VBox.margin>
+                    <font>
+                        <Font name="Cambria" size="20.0" />
+                    </font>
+                </Button>
+            </children>
+        </VBox>
+
+    </children>
+</AnchorPane>

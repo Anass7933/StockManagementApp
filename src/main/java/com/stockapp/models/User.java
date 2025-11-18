@@ -1,14 +1,15 @@
 package com.stockapp.models;
-import com.stockapp.models.UserRole;
 import java.time.OffsetDateTime;
 
 public class User {
     private long userId;
-    private String userName, passwordHash, fullName;
-    private UserRole role;
-    private OffsetDateTime createdAt;
+    private final String userName;
+    private final String passwordHash;
+    private final String fullName;
+    private final UserRole role;
+    private final OffsetDateTime createdAt;
 
-
+    // Constructor with ID (used when loading from DB to the table)
     public User(long userId, String userName, String passwordHash, String fullName, UserRole role, OffsetDateTime createdAt){
         this.userId = userId;
         this.userName = userName;
@@ -19,9 +20,10 @@ public class User {
 
     }
 
-    public User(long userId, String userName,String fullName, UserRole role, OffsetDateTime createdAt){
-        this.userId = userId;
+    // Constructor without ID (used when creating new users)
+    public User(String userName,String passwordHash, String fullName, UserRole role, OffsetDateTime createdAt){
         this.userName = userName;
+        this.passwordHash = passwordHash;
         this.fullName = fullName;
         this.role = role;
         this.createdAt = createdAt;
@@ -47,14 +49,6 @@ public class User {
 
     public void setUserId(long userId) {
         this.userId = userId;
-    }
-
-    public void setPasswordHash(String passwordHash) {
-        this.passwordHash = passwordHash;
-    }
-
-    public boolean verifyPassword(String plainPassword){
-        return passwordHash.equals(plainPassword);
     }
 
     public boolean isAdmin() {

@@ -38,12 +38,12 @@
 
                 <!-- FIXED: added fx:id -->
                 <TableView fx:id="usersTable" prefWidth="200.0">
-                    <columns>
-                  <TableColumn minWidth="20.0" prefWidth="168.0" text="Id" />
-                        <TableColumn fx:id="userNameColumn" prefWidth="168.0" text="username" />
-                        <TableColumn fx:id="fullNameColumn" prefWidth="168.0" text="full name" />
-                        <TableColumn fx:id="roleColumn" prefWidth="168.0" text="Role" />
-                        <TableColumn fx:id="createdAtColumn" prefWidth="168.0" text="Created at" />
+                    <columns>  
+                    <TableColumn fx:id="idColumn" text="ID" prefWidth="60.0" sortable="true"/>
+                        <TableColumn fx:id="userNameColumn" text="Username" prefWidth="168.0" sortable="true"/>
+                        <TableColumn fx:id="fullNameColumn" text="Full Name" prefWidth="168.0" sortable="true"/>
+                        <TableColumn fx:id="roleColumn" text="Role" prefWidth="168.0" sortable="true"/>
+                        <TableColumn fx:id="createdAtColumn" text="Created at" prefWidth="168.0" sortable="true"/>
                     </columns>
                     <VBox.margin>
                         <Insets bottom="20.0" left="30.0" right="30.0" top="20.0" />
@@ -76,10 +76,10 @@
                </font>
                 </Button>
 
-                <Button fx:id="productButton" prefHeight="40.0" prefWidth="180.0" style="-fx-background-color: #2596be;" text="Products" textFill="#c5c5c5">
-                    <VBox.margin><Insets top="20.0" /></VBox.margin>
+                <Button fx:id="productsButton" prefHeight="40.0" prefWidth="180.0" style="-fx-background-color: #2596be;" text="Products" textFill="WHITE">
+                    <VBox.margin><Insets top="100.0" /></VBox.margin>
                <font>
-                  <Font size="20.0" />
+                  <Font size="25.0" />
                </font>
                 </Button>
 

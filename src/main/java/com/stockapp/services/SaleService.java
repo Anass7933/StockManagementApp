@@ -1,15 +1,9 @@
 package com.stockapp.services;
 
 import com.stockapp.models.Product;
-import com.stockapp.models.Sale;
-import com.stockapp.models.SaleItem;
-import com.stockapp.utils.DatabaseUtils;
 
-import java.math.BigDecimal;
 import java.sql.*;
 import java.time.OffsetDateTime;
-import java.util.ArrayList;
-import java.util.List;
 
 public class SaleService {
 

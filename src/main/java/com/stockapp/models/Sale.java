@@ -3,9 +3,9 @@ package com.stockapp.models;
 import java.time.OffsetDateTime;
 
 public class Sale {
-    private long saleId;
-	private long totalPrice;
-    private OffsetDateTime createdAt;
+    private final long saleId;
+	private final long totalPrice;
+    private final OffsetDateTime createdAt;
 
     public Sale(int saleId,long total_price) {
         this.saleId = saleId;
@@ -25,12 +25,4 @@ public class Sale {
         return createdAt;
     }
 
-
-
-    @Override
-    public String toString() {
-        return "Sale ID: " + saleId +
-				"total price: " + totalPrice +
-                ", Created At: " + createdAt;
-    }
 }

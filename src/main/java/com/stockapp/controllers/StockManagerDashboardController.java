@@ -1,8 +1,12 @@
 package com.stockapp.controllers;
 
+import java.io.IOException;
 import java.util.List;
 
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Scene;
+import javafx.scene.control.Button;
 import javafx.scene.control.ListView;
 import javafx.scene.layout.StackPane;
 
@@ -10,11 +14,14 @@ import com.stockapp.models.Product;
 import com.stockapp.models.Sale;
 import com.stockapp.services.ProductService;
 import com.stockapp.services.SaleService;
+import javafx.stage.Stage;
 
 public class StockManagerDashboardController {
 
 	@FXML private ListView<String> navList;
 	@FXML private StackPane contentPane;
+	@FXML private Button usersButton;
+	@FXML private Button sighOutButton;
 
 	@FXML public void initialize() {
 		navList.getItems().addAll("Products","Sales");
@@ -25,12 +32,23 @@ public class StockManagerDashboardController {
 			if("Products".equals(newVal)) {
 				contentPane.getChildren().add(createProductsList());
 			}
-			/*else if ("Sales".equals(newVal)) {
-				contentPane.getChildren().add(createSalesList());
-			}
-
-			 */
 		});
+        usersButton.setOnAction(e -> {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/AdminDashboard.fxml"));
+            Scene scene = null;
+            try {
+                scene = new Scene(loader.load());
+            } catch (IOException ex) {
+                throw new RuntimeException(ex);
+            }
+
+            // Change scene
+                Stage stage = (Stage) usersButton.getScene().getWindow();
+                stage.setScene(scene);
+                stage.show();
+		});
+
+
 		navList.getSelectionModel().selectFirst();
 	}
 	
@@ -47,17 +65,5 @@ public class StockManagerDashboardController {
 		return productsList;
 	}
 
-/*	private ListView<String> createSalesList() {
-		ListView<String> salesList = new ListView<>();
 
-		SaleService saleService = new SaleService();
-
-		List<Sale> sales = saleService.getAllSales();
-		for (Sale s : sales) {
-			salesList.getItems().add(""+s.getSaleId());
-		}
-		return salesList;
-	}
-
- */
 }

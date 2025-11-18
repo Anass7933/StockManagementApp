@@ -6,13 +6,13 @@ import java.time.OffsetDateTime;
 public class Product {
 
     private long id;
-    private String name;
-    private String description;
-    private BigDecimal price;
-    private int quantity;
-    private int minStock;
+    private final String name;
+    private final String description;
+    private final BigDecimal price;
+    private final int quantity;
+    private final int minStock;
     private OffsetDateTime createdAt;
-	private String category;
+	private final String category;
 
     // Constructor without ID (used when creating new products)
     public Product(String name, String description,
@@ -48,6 +48,4 @@ public class Product {
     public OffsetDateTime getCreatedAt() { return createdAt; }
 	public String getCategory() { return category; }
 
-    public void setId(long id) { this.id = id; }
-    public void setPrice(BigDecimal p) { this.price = p; }
 }

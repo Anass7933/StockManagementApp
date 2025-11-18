@@ -37,7 +37,7 @@
         <items>
             <FXCollections fx:factory="observableArrayList">
                 <String fx:value="ADMIN" />
-                <String fx:value="STOCK MANAGER" />
+                <String fx:value="STOCK_MANAGER" />
                 <String fx:value="CASHIER" />
             </FXCollections>
         </items>

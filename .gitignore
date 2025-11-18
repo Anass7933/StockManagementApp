@@ -1,6 +1,7 @@
 # Maven build output
 /target/
 /target/*
+target/
 
 # Maven generated files
 **/maven-status/
@@ -28,3 +29,8 @@ Thumbs.db
 
 # Ignore build artifacts of resources in target
 /target/classes/
+
+*.class
+*.iml
+.idea/
+out/

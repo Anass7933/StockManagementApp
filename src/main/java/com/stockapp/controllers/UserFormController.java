@@ -10,6 +10,9 @@ import javafx.scene.control.ComboBox;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 
+import java.security.NoSuchAlgorithmException;
+import java.time.OffsetDateTime;
+
 public class UserFormController {
 
     @FXML private TextField usernameField;
@@ -28,27 +31,44 @@ public class UserFormController {
 
     @FXML
     private void initialize() {
-        saveButton.setOnAction(e -> {
+            saveButton.setOnAction(e -> {
             String fullName = fullNameField.getText();
             String username = usernameField.getText();
             String password = passwordField.getText();
-            UserRole role = UserRole.valueOf(roleComboBox.getValue());
+            UserRole role = UserRole.valueOf(roleComboBox.getValue().replace(" ", "_").toUpperCase());
+
+            User user = new User(username, password, fullName, role, OffsetDateTime.now());
+
+            if (editingUserId == 0) {
+                AuthService.createUser(user);
+            } else {
+                user.setUserId(editingUserId);
+                AuthService.updateUser(user);
+            }
 
             stage.close();
-        });
+   });
     }
 
     // Pre-fill fields for modify
-    public void loadUserData(String username) {
-        // Here you would fetch data from your table or database
-        usernameField.setText(username);
-        fullNameField.setText("John Doe");
-        roleComboBox.setValue("USER");
+    private long editingUserId;
+
+   public void loadUserData(long userId) {
+       editingUserId = userId;
+       AuthService.loadUserById(userId).ifPresent(user -> {
+           usernameField.setText(user.getUserName());
+           fullNameField.setText(user.getFullName());
+           try {
+            passwordField.setText(AuthService.unhashPassword(user.getPasswordHash()));
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException(e);
+        }
+           roleComboBox.setValue(user.getRole().name());
+           passwordField.clear();   
+        });
     }
 
-
     public void cancelButtonOnAction(ActionEvent actionEvent) {
-        Stage stage = (Stage) cancelButton.getScene().getWindow();
         stage.close();
     }
 }

@@ -31,8 +31,6 @@ public class LoginController {
     @FXML
     private Label incorrectLabel;
 
-    private AuthService authService = new AuthService();
-
     @FXML
     private void loginButtonOnAction(ActionEvent event) {
         String username = usernameField.getText().trim();

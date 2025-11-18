@@ -1,13 +1,12 @@
 package com.stockapp.models;
 
-import com.stockapp.models.Product;
 
 public class SaleItem {
-    private long saleItemId;
+    private final long saleItemId;
     private Sale sale; // optional, can be set when added to a Sale
-    private Product product;
+    private final Product product;
     private int quantity;
-    private double unitPrice;
+    private final double unitPrice;
     private double lineTotal;
 
     public SaleItem(int saleItemId, Product product, int quantity, double unitPrice){

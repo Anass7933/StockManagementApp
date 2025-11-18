@@ -30,11 +30,26 @@ public class AuthService {
         }
     }
 
+    /* ========== UNHASH PASSWORD ========== */
+    public static String unhashPassword(String hashedPassword) throws NoSuchAlgorithmException {
+        try {
+            MessageDigest md = MessageDigest.getInstance("SHA-256");
+            byte[] unhashedBytes = md.digest(hashedPassword.getBytes());
+            StringBuilder sb = new StringBuilder();
+            for (byte b : unhashedBytes) {
+                sb.append(String.format("%02x", b));
+            }
+            return sb.toString();
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException("Hashing algorithm not found", e);
+        }
+    }
+
     /* ========== CREATE USER ========== */
-    public void createUser(User user) {
+    public static void createUser(User user) {
         String sql = """
-            INSERT INTO users (username, password_hash, full_name, user_role)
-            VALUES (?, ?, ?, ?)
+            INSERT INTO users (username, password_hash, full_name, role)
+            VALUES (?, ?, ?, ?::user_role)
             RETURNING id, created_at;
         """;
 
@@ -57,11 +72,33 @@ public class AuthService {
         }
     }
 
-    /* ========== DELETE USER ========== */
-    public void deleteUser(long id) {
+    /* ========== UPDATE USER ========== */
+    public static void updateUser(User user) {
         String sql = """
-			DELETE FROM users where id = ?
+            UPDATE users SET username = ?, password_hash = ?, full_name = ?, role = ?::user_role WHERE id = ?
         """;
+
+        try (Connection c = DatabaseUtils.getConnection();
+             PreparedStatement ps = c.prepareStatement(sql)) {
+
+            ps.setString(1, user.getUserName());
+            ps.setString(2, hashPassword(user.getPasswordHash()));
+            ps.setString(3, user.getFullName());
+            ps.setString(4, user.getRole().name());
+            ps.setLong(5, user.getUserId());
+
+            ps.executeUpdate();
+
+        } catch (SQLException e) {
+            throw new RuntimeException("Failed to update user", e);
+        }
+    }
+
+    
+
+    /* ========== DELETE USER ========== */
+    public static void deleteUser(long id) {
+        String sql = " DELETE FROM users where id = ? ";
 
         try (Connection c = DatabaseUtils.getConnection();
              PreparedStatement ps = c.prepareStatement(sql)) {
@@ -94,6 +131,7 @@ public class AuthService {
         return false;
     }
 
+    /* ========== LOADS USERS ========== */
 
 	public static List<User> loadUsers() throws SQLException {
 		String sql = "SELECT id, full_name, username, password_hash, role, created_at FROM users WHERE username != 'admin'";
@@ -119,4 +157,25 @@ public class AuthService {
 
 		return userList;
 	}
+
+    /* ========== LOAD USER BY ID ========== */
+
+    public static Optional<User> loadUserById(long id) {
+        String sql = " SELECT id, full_name, username, password_hash, role, created_at FROM users WHERE id = ? ";
+        try (Connection conn = DatabaseUtils.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setLong(1, id);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return Optional.of(new User(rs.getLong("id"), rs.getString("username"), rs.getString("password_hash"), rs.getString("full_name"), UserRole.valueOf(rs.getString("role")), rs.getObject("created_at", OffsetDateTime.class)));
+                } else {
+                    return Optional.empty();
+                }
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Failed to load user by id: " + id, e);
+        }
+    }
+
+
 }

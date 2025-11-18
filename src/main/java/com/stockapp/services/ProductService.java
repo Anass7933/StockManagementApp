@@ -1,7 +1,6 @@
 package com.stockapp.services;
 
 import com.stockapp.models.Product;
-import com.stockapp.models.User;
 import com.stockapp.utils.DatabaseUtils;
 
 import java.sql.*;
@@ -11,7 +10,7 @@ import java.util.List;
 
 public class ProductService {
     /* ========== ADD PRODUCT ========== */
-    public Product addProduct(Product product, User currentUser) {
+    public Product addProduct(Product product) {
         String sql = """
             INSERT INTO products (name, description, price, quantity, min_stock, category)
             VALUES (?, ?, ?, ?, ?, ?)
@@ -54,7 +53,7 @@ public class ProductService {
     }
 
     /* ========== UPDATE PRODUCT ========== */
-    public Product updateProduct(Product product, User currentUser) {
+    public Product updateProduct(Product product) {
         String sql = """
             UPDATE products
             SET name = ?, description = ?, price = ?, quantity = ?, min_stock = ?, category = ?
@@ -98,7 +97,7 @@ public class ProductService {
     }
 
     /* ========== DELETE PRODUCT ========== */
-    public void deleteProduct(long id, User currentUser) {
+    public void deleteProduct(long id) {
 
         String sql = "DELETE FROM products WHERE id = ?";
 
@@ -186,9 +185,6 @@ public class ProductService {
     }
 
     /* ========== UPDATE STOCK (package-private, used by SaleService/RestockService) ========== */
-    /**
-     * Atomically increase product stock. Returns true if updated.
-     */
     public static boolean increaseStock(long productId, int amount, Connection conn) throws SQLException {
         String sql = "UPDATE products SET quantity = quantity + ? WHERE id = ?";
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
