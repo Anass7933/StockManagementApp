@@ -2,6 +2,7 @@ package com.stockapp.controllers;
 import com.stockapp.models.User;
 import com.stockapp.services.AuthService;
 import javafx.animation.Timeline;
+import javafx.beans.binding.Bindings;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -67,6 +68,9 @@ public class AdminController {
         fullNameColumn.setCellValueFactory(new PropertyValueFactory<>("fullName"));
         roleColumn.setCellValueFactory(new PropertyValueFactory<>("role"));
         createdAtColumn.setCellValueFactory(new PropertyValueFactory<>("createdAt"));
+
+
+        refreshUsers();
 
         addButton.setOnAction(e -> openUserForm(null));
 
@@ -157,22 +161,45 @@ public class AdminController {
     }
 
     private void refreshUsers() {
-    User selected = usersTable.getSelectionModel().getSelectedItem();
-    try {
-        List<User> users = AuthService.loadUsers();
-        ObservableList<User> data = FXCollections.observableArrayList(users);
-        usersTable.setItems(data);
+        User selected = usersTable.getSelectionModel().getSelectedItem();
+        try {
+            List<User> users = AuthService.loadUsers();
+            ObservableList<User> data = FXCollections.observableArrayList(users);
+            usersTable.setItems(data);
 
-        if (selected != null) {
-            data.stream()
-                .filter(u -> u.getUserId() == selected.getUserId())
-                .findFirst()
-                .ifPresent(u -> usersTable.getSelectionModel().select(u));
+            if (selected != null) {
+                data.stream()
+                        .filter(u -> u.getUserId() == selected.getUserId())
+                        .findFirst()
+                        .ifPresent(u -> usersTable.getSelectionModel().select(u));
+            }
+
+            // resize after row count changes
+            javafx.application.Platform.runLater(() -> autoResizeTable());
+
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
-    } catch (SQLException e) {
-        e.printStackTrace();
     }
-}
+
+
+    private void autoResizeTable() {
+        double headerHeight = 30;  // fallback
+
+        var header = usersTable.lookup(".column-header-background");
+        if (header != null) {
+            headerHeight = header.prefHeight(-1);
+        }
+
+        int rows = usersTable.getItems().size();
+        double rowHeight = usersTable.getFixedCellSize();
+
+        double totalHeight = headerHeight + rows * rowHeight;
+
+        double maxHeight = 500;
+
+        usersTable.setPrefHeight(Math.min(totalHeight, maxHeight));
+    }
 
 
 

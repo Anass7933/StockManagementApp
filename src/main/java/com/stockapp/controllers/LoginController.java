@@ -42,7 +42,7 @@ public class LoginController {
             if (valid) {
 
                 // Load next page
-                FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/AdminDashboard.fxml"));
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/AdminUsersDashboard.fxml"));
                 Scene scene = new Scene(loader.load());
 
                 // Change scene
