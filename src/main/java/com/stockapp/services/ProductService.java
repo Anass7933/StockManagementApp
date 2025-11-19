@@ -1,8 +1,6 @@
 package com.stockapp.services;
 
 import com.stockapp.models.Product;
-import com.stockapp.models.User;
-import com.stockapp.models.UserRole;
 import com.stockapp.utils.DatabaseUtils;
 
 import java.sql.*;
@@ -189,13 +187,14 @@ public class ProductService {
     }
 
     /* ========== UPDATE STOCK (package-private, used by SaleService/RestockService) ========== */
-    public static boolean increaseStock(long productId, int amount, Connection conn) throws SQLException {
+    public static void increaseStock(long productId, int amount) throws SQLException {
         String sql = "UPDATE products SET quantity = quantity + ? WHERE id = ?";
-        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+
+        Connection c = DatabaseUtils.getConnection();
+        try (PreparedStatement ps = c.prepareStatement(sql)) {
             ps.setInt(1, amount);
             ps.setLong(2, productId);
             int updated = ps.executeUpdate();
-            return updated > 0;
         }
     }
 

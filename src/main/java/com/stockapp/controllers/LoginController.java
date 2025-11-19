@@ -1,8 +1,10 @@
 package com.stockapp.controllers;
 
+import com.stockapp.models.User;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.PasswordField;
@@ -38,18 +40,37 @@ public class LoginController {
 
         try {
             boolean valid = AuthService.validateLogin(username, password);
+            String role = AuthService.loginRole(username, password);
 
-            if (valid) {
+            if (valid && role.equals("ADMIN")) {
 
-                // Load next page
                 FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/AdminUsersDashboard.fxml"));
+                Parent root = loader.load();
+
+                AdminUsersController controller = loader.getController();
+                controller.setLoggedUser(username);
+
+                Stage stage = (Stage) loginButton.getScene().getWindow();
+                stage.setScene(new Scene(root));
+                stage.show();
+            }
+            else if (valid && role.equals("STOCK_MANAGER")) {
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/StockManagerDashboard.fxml"));
                 Scene scene = new Scene(loader.load());
 
-                // Change scene
+                StockManagerDashboardController controller = loader.getController();
+                controller.setLoggedUser(username);
+
                 Stage stage = (Stage) loginButton.getScene().getWindow();
                 stage.setScene(scene);
                 stage.show();
+            } else if (valid && role.equals("CASHIER")) {
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/CashierDashboard.fxml"));
+                Scene scene = new Scene(loader.load());
 
+                Stage stage = (Stage) loginButton.getScene().getWindow();
+                stage.setScene(scene);
+                stage.show();
             } else {
                 incorrectLabel.setText("Invalid username or password.");
             }

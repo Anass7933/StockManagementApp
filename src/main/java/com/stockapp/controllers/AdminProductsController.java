@@ -1,6 +1,7 @@
 package com.stockapp.controllers;
 
 import com.stockapp.models.Product;
+import com.stockapp.models.User;
 import com.stockapp.services.ProductService;
 import javafx.animation.Animation;
 import javafx.animation.KeyFrame;
@@ -11,11 +12,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Button;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableRow;
-import javafx.scene.control.TableView;
+import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.stage.Stage;
 import javafx.util.Duration;
@@ -27,6 +24,7 @@ import java.util.List;
 
 public class AdminProductsController {
 
+    @FXML private Label userNameLabel;
     @FXML private Button addButton;
     @FXML private Button modifyButton;
     @FXML private Button deleteButton;
@@ -39,10 +37,18 @@ public class AdminProductsController {
     @FXML private Button sighOutButton;
     @FXML private Button usersButton;
 
+    private User loggedUser;
+
+
     private final Timeline refreshTimeline = new Timeline(
             new KeyFrame(Duration.ZERO, e -> refreshProducts()),
             new KeyFrame(Duration.seconds(2), e -> refreshProducts())
     );
+    public void setLoggedUser(String username) {
+        userNameLabel.setText("Hi, " + username);
+    }
+
+
 
     @FXML
     private void initialize() {
@@ -94,13 +100,20 @@ public class AdminProductsController {
         usersButton.setOnAction(e -> {
             try {
                 FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/AdminUsersDashboard.fxml"));
+                Parent root = loader.load();
+
+                AdminUsersController controller = loader.getController();
+                controller.setLoggedUser(userNameLabel.getText().replace("Hi, ", ""));
+
                 Stage stage = (Stage) usersButton.getScene().getWindow();
-                stage.setScene(new Scene(loader.load()));
+                stage.setScene(new Scene(root));
                 stage.show();
+
             } catch (IOException ex) {
-                throw new RuntimeException("Unable to open users dashboard", ex);
+                throw new RuntimeException(ex);
             }
         });
+
 
         refreshTimeline.setCycleCount(Animation.INDEFINITE);
         refreshTimeline.play();

@@ -48,10 +48,10 @@ public class AuthService {
     /* ========== CREATE USER ========== */
     public static void createUser(User user) {
         String sql = """
-            INSERT INTO users (username, password_hash, full_name, role)
-            VALUES (?, ?, ?, ?::user_role)
-            RETURNING id, created_at;
-        """;
+                    INSERT INTO users (username, password_hash, full_name, role)
+                    VALUES (?, ?, ?, ?::user_role)
+                    RETURNING id, created_at;
+                """;
 
         try (Connection c = DatabaseUtils.getConnection();
              PreparedStatement ps = c.prepareStatement(sql)) {
@@ -75,8 +75,8 @@ public class AuthService {
     /* ========== UPDATE USER ========== */
     public static void updateUser(User user) {
         String sql = """
-            UPDATE users SET username = ?, password_hash = ?, full_name = ?, role = ?::user_role WHERE id = ?
-        """;
+                    UPDATE users SET username = ?, password_hash = ?, full_name = ?, role = ?::user_role WHERE id = ?
+                """;
 
         try (Connection c = DatabaseUtils.getConnection();
              PreparedStatement ps = c.prepareStatement(sql)) {
@@ -94,7 +94,6 @@ public class AuthService {
         }
     }
 
-    
 
     /* ========== DELETE USER ========== */
     public static void deleteUser(long userId) {
@@ -138,30 +137,30 @@ public class AuthService {
 
     /* ========== LOADS USERS ========== */
 
-	public static List<User> loadUsers() throws SQLException {
-		String sql = "SELECT id, full_name, username, password_hash, role, created_at FROM users WHERE username != 'admin'";
+    public static List<User> loadUsers() throws SQLException {
+        String sql = "SELECT id, full_name, username, password_hash, role, created_at FROM users WHERE username != 'admin'";
 
-		List<User> userList = new ArrayList<>();
+        List<User> userList = new ArrayList<>();
 
-		try (Connection conn = DatabaseUtils.getConnection();
-			 PreparedStatement stmt = conn.prepareStatement(sql);
-			 ResultSet rs = stmt.executeQuery()) {
+        try (Connection conn = DatabaseUtils.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql);
+             ResultSet rs = stmt.executeQuery()) {
 
-			while (rs.next()) {
-				int id = rs.getInt("id"); // cast to int
-				String fullName = rs.getString("full_name");
-				String username = rs.getString("username");
-				String passwordHash = rs.getString("password_hash");
-				UserRole role = UserRole.valueOf(rs.getString("role"));
-				OffsetDateTime createdAt = rs.getObject("created_at", OffsetDateTime.class);
+            while (rs.next()) {
+                int id = rs.getInt("id"); // cast to int
+                String fullName = rs.getString("full_name");
+                String username = rs.getString("username");
+                String passwordHash = rs.getString("password_hash");
+                UserRole role = UserRole.valueOf(rs.getString("role"));
+                OffsetDateTime createdAt = rs.getObject("created_at", OffsetDateTime.class);
 
-				User user = new User(id, username, passwordHash, fullName, role, createdAt);
-				userList.add(user);
-			}
-		}
+                User user = new User(id, username, passwordHash, fullName, role, createdAt);
+                userList.add(user);
+            }
+        }
 
-		return userList;
-	}
+        return userList;
+    }
 
     /* ========== LOAD USER BY ID FOR MODIFICATION ========== */
 
@@ -181,6 +180,27 @@ public class AuthService {
             throw new RuntimeException("Failed to load user by id: " + id, e);
         }
     }
+    /* ========== USER ROLE  ========== */
+
+    public static String loginRole(String username, String password) throws SQLException {
+        String sql = "SELECT role FROM users WHERE username = ? AND password_hash = ?";
+
+        try (Connection conn = DatabaseUtils.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setString(1, username);
+            stmt.setString(2, hashPassword(password));
+
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getString(1);
+                }
+            }
+        }
+        return "";
+    }
+
+
 
 
 }

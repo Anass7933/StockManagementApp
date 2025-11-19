@@ -21,6 +21,7 @@ import java.util.List;
 
 public class AdminUsersController {
 
+    @FXML private Label userNameLabel;
     @FXML private Button addButton;
     @FXML private Button modifyButton;
     @FXML private Button deleteButton;
@@ -33,11 +34,16 @@ public class AdminUsersController {
     @FXML private Button sighOutButton;
     @FXML private Button productsButton;
 
+    private User loggedUser;
+
     private final Timeline refreshTimeline = new Timeline(
     new KeyFrame(Duration.ZERO, e -> refreshUsers()),
     new KeyFrame(Duration.seconds(2), e -> refreshUsers())
     );
 
+    public void setLoggedUser(String username) {
+        userNameLabel.setText("Hi, " + username);
+    }
 
     @FXML
     private void initialize() {
@@ -74,17 +80,22 @@ public class AdminUsersController {
         sighOutButton.setOnAction(e -> signOut());
 
         productsButton.setOnAction(e -> {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/AdminProductsDashboard.fxml"));
-            Scene scene;
             try {
-                scene = new Scene(loader.load());
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/AdminProductsDashboard.fxml"));
+                Parent root = loader.load();
+
+                AdminProductsController controller = loader.getController();
+                controller.setLoggedUser(userNameLabel.getText().replace("Hi, ", ""));
+
+                Stage stage = (Stage) productsButton.getScene().getWindow();
+                stage.setScene(new Scene(root));
+                stage.show();
+
             } catch (IOException ex) {
                 throw new RuntimeException(ex);
             }
-            Stage stage = (Stage) productsButton.getScene().getWindow();
-            stage.setScene(scene);
-            stage.show();
         });
+
 
         refreshUsers();
 
