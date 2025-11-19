@@ -10,7 +10,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane prefHeight="720.0" prefWidth="1080.0" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.stockapp.controllers.AdminController">
+<AnchorPane prefHeight="720.0" prefWidth="1080.0" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.stockapp.controllers.AdminUsersController">
 
     <children>
 
@@ -38,22 +38,22 @@
 
                 <!-- Products Table -->
                 <HBox spacing="15">
-                    <TableView fx:id="productsTable" prefWidth="800.0">
+                    <TableView fx:id="productsTable" prefWidth="750.0">
                         <columns>
-                            <TableColumn fx:id="idColumn" prefWidth="100.0" sortable="true" text="ID" />
+                            <TableColumn fx:id="idColumn" prefWidth="100.0" sortable="true" text="Id" />
                             <TableColumn fx:id="nameColumn" prefWidth="170.0" sortable="true" text="Name" />
-                            <TableColumn fx:id="priceColumn" prefWidth="130.0" sortable="true" text="Price" />
-                            <TableColumn fx:id="quantityColumn" prefWidth="120.0" sortable="true" text="Quantity" />
-                            <TableColumn fx:id="minStockColumn" prefWidth="120.0" sortable="true" text="Min Stock" />
-                            <TableColumn fx:id="categoryColumn" prefWidth="150.0" sortable="true" text="Category" />
-                            <TableColumn fx:id="createdAtColumn" prefWidth="120.0" text="Created at" />
+                            <TableColumn fx:id="priceColumn" prefWidth="155.0" sortable="true" text="Price" />
+                            <TableColumn fx:id="quantityColumn" prefWidth="155.0" sortable="true" text="Quantity" />
+                            <TableColumn fx:id="categoryColumn" prefWidth="170.0" sortable="true" text="Category" />
                         </columns>
+                  <HBox.margin>
+                     <Insets left="30.0" />
+                  </HBox.margin>
                     </TableView>
 
-                    <VBox fx:id="lowStockPanel" prefWidth="100"
-                        style="-fx-background-color: #ffeeee; -fx-padding: 15; -fx-border-color: #ff4d4d; -fx-border-width: 1;">
-                        <Label text="Low Stock" style="-fx-font-size: 16; -fx-font-weight: bold;"/>
-                        <Button fx:id="restockButton" text="Restock Selected" maxWidth="Infinity"/>
+                    <VBox fx:id="lowStockPanel" style="-fx-background-color: #ffeeee; -fx-padding: 15; -fx-border-color: #ff4d4d; -fx-border-width: 1;">
+                        <Label style="-fx-font-size: 16; -fx-font-weight: bold;" text="Low Stock" />
+                        <Button fx:id="restockButton" maxWidth="Infinity" text="Restock Selected" />
                     </VBox>
                 </HBox>
 
@@ -76,15 +76,9 @@
 
         <VBox prefHeight="720.0" prefWidth="180.0" style="-fx-background-color: #2596be;">
             <children>
-                <Button fx:id="usersButton" alignment="CENTER" contentDisplay="CENTER" prefHeight="40.0" prefWidth="180.0" style="-fx-background-color: #2596be;" text="Users" textAlignment="CENTER" textFill="#c5c5c5">
-                    <VBox.margin><Insets top="100.0" /></VBox.margin>
-                    <font>
-                        <Font name="Cambria" size="20.0" />
-                    </font>
-                </Button>
 
                 <Button fx:id="productsButton" prefHeight="40.0" prefWidth="180.0" style="-fx-background-color: #2596be;" text="Products" textFill="WHITE">
-                    <VBox.margin><Insets top="100.0" /></VBox.margin>
+                    <VBox.margin><Insets top="150.0" /></VBox.margin>
                     <font>
                         <Font name="Cambria" size="25.0" />
                     </font>

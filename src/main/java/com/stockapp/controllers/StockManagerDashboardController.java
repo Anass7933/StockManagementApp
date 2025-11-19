@@ -11,9 +11,7 @@ import javafx.scene.control.ListView;
 import javafx.scene.layout.StackPane;
 
 import com.stockapp.models.Product;
-import com.stockapp.models.Sale;
 import com.stockapp.services.ProductService;
-import com.stockapp.services.SaleService;
 import javafx.stage.Stage;
 
 public class StockManagerDashboardController {
@@ -34,7 +32,7 @@ public class StockManagerDashboardController {
 			}
 		});
         usersButton.setOnAction(e -> {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/AdminDashboard.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/AdminUsersDashboard.fxml"));
             Scene scene = null;
             try {
                 scene = new Scene(loader.load());
@@ -57,7 +55,7 @@ public class StockManagerDashboardController {
 
 		ProductService productService = new ProductService();
 
-		List<Product> products = productService.getAllProducts();
+		List<Product> products = productService.loadProducts();
 		for (Product p : products) {
 			productsList.getItems().add(p.getName());
 		}

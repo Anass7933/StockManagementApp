@@ -1,16 +1,19 @@
 package com.stockapp.services;
 
 import com.stockapp.models.Product;
+import com.stockapp.models.User;
+import com.stockapp.models.UserRole;
 import com.stockapp.utils.DatabaseUtils;
 
 import java.sql.*;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 public class ProductService {
-    /* ========== ADD PRODUCT ========== */
-    public Product addProduct(Product product) {
+    /* ========== CREATE PRODUCT ========== */
+    public static Product createProduct(Product product) {
         String sql = """
             INSERT INTO products (name, description, price, quantity, min_stock, category)
             VALUES (?, ?, ?, ?, ?, ?)
@@ -53,7 +56,7 @@ public class ProductService {
     }
 
     /* ========== UPDATE PRODUCT ========== */
-    public Product updateProduct(Product product) {
+    public static Product updateProduct(Product product) {
         String sql = """
             UPDATE products
             SET name = ?, description = ?, price = ?, quantity = ?, min_stock = ?, category = ?
@@ -97,7 +100,7 @@ public class ProductService {
     }
 
     /* ========== DELETE PRODUCT ========== */
-    public void deleteProduct(long id) {
+    public static void deleteProduct(long id) {
 
         String sql = "DELETE FROM products WHERE id = ?";
 
@@ -115,7 +118,7 @@ public class ProductService {
         }
     }
 
-    /* ========== GET PRODUCT BY Name ========== */
+    /* ========== GET PRODUCT BY Name FOR RECHERCHE ========== */
     public Product getProductByName(String name) {
         String sql = """
             SELECT id, name, description, price, quantity, min_stock, created_at, category
@@ -150,8 +153,9 @@ public class ProductService {
         }
     }
 
-    /* ========== GET ALL PRODUCTS ========== */
-    public List<Product> getAllProducts() {
+
+    /* ========== LOAD PRODUCTS ========== */
+    public static List<Product> loadProducts() {
         String sql = """
             SELECT id, name, description, price, quantity, min_stock, created_at, category
             FROM products
@@ -195,10 +199,6 @@ public class ProductService {
         }
     }
 
-    /**
-     * Atomically decrease product stock only if enough stock exists.
-     * Returns true if stock was decreased; false if insufficient stock.
-     */
     public static boolean decreaseStockIfAvailable(long productId, int amount, Connection conn) throws SQLException {
         String sql = "UPDATE products SET quantity = quantity - ? WHERE id = ? AND quantity >= ?";
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -228,4 +228,31 @@ public class ProductService {
         }
 	
 	}
+
+    /* ========== LOAD PRODUCT BY ID FOR MODIFICATION ========== */
+
+    public static Optional<Product> loadProductById(long id) {
+        String sql = " SELECT id, name, description, price, quantity, min_stock, category FROM products WHERE id = ? ";
+        try (Connection conn = DatabaseUtils.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setLong(1, id);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return Optional.of(new Product(
+                            rs.getLong("id"),
+                            rs.getString("name"),
+                            rs.getString("description"),
+                            rs.getBigDecimal("price"),
+                            rs.getInt("quantity"),
+                            rs.getInt("min_stock"),
+                            rs.getString("category")
+                    ));
+                } else {
+                    return Optional.empty();
+                }
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Failed to load user by id: " + id, e);
+        }
+    }
 }

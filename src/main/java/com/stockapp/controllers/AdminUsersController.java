@@ -2,7 +2,6 @@ package com.stockapp.controllers;
 import com.stockapp.models.User;
 import com.stockapp.services.AuthService;
 import javafx.animation.Timeline;
-import javafx.beans.binding.Bindings;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -20,40 +19,19 @@ import java.io.IOException;
 import java.sql.SQLException;
 import java.util.List;
 
-public class AdminController {
+public class AdminUsersController {
 
-    @FXML
-    private Button addButton;
-
-    @FXML
-    private Button modifyButton;
-
-    @FXML
-    private Button deleteButton;
-
-    @FXML
-    private TableView<User> usersTable;
-
-    @FXML
-    private TableColumn<User, Integer> idColumn;
-
-    @FXML
-    private TableColumn<User, String> userNameColumn;
-
-    @FXML
-    private TableColumn<User, String> fullNameColumn;
-
-    @FXML
-    private TableColumn<User, String> roleColumn;
-
-    @FXML
-    private TableColumn<User, String> createdAtColumn;
-
-    @FXML
-    private Button sighOutButton;
-
-    @FXML
-    private Button productsButton;
+    @FXML private Button addButton;
+    @FXML private Button modifyButton;
+    @FXML private Button deleteButton;
+    @FXML private TableView<User> usersTable;
+    @FXML private TableColumn<User, Integer> idColumn;
+    @FXML private TableColumn<User, String> userNameColumn;
+    @FXML private TableColumn<User, String> fullNameColumn;
+    @FXML private TableColumn<User, String> roleColumn;
+    @FXML private TableColumn<User, String> createdAtColumn;
+    @FXML private Button sighOutButton;
+    @FXML private Button productsButton;
 
     private final Timeline refreshTimeline = new Timeline(
     new KeyFrame(Duration.ZERO, e -> refreshUsers()),
@@ -96,8 +74,8 @@ public class AdminController {
         sighOutButton.setOnAction(e -> signOut());
 
         productsButton.setOnAction(e -> {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/StockManagerDashboard.fxml"));
-            Scene scene = null;
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/AdminProductsDashboard.fxml"));
+            Scene scene;
             try {
                 scene = new Scene(loader.load());
             } catch (IOException ex) {

@@ -39,6 +39,19 @@ public class Product {
 		this.category = category;
     }
 
+    // Constructor with ID (used when loading from DB for product form)
+    public Product(long id, String name, String description,
+                   BigDecimal price, int quantity,
+                   int minStock, String category) {
+        this.id = id;
+        this.name = name;
+        this.description = description;
+        this.price = price;
+        this.quantity = quantity;
+        this.minStock = minStock;
+        this.category = category;
+    }
+
     public long getId() { return id; }
     public String getName() { return name; }
     public String getDescription() { return description; }
@@ -47,5 +60,7 @@ public class Product {
     public int getMinStock() { return minStock; }
     public OffsetDateTime getCreatedAt() { return createdAt; }
 	public String getCategory() { return category; }
+
+    public void setId(long id) { this.id = id; }
 
 }

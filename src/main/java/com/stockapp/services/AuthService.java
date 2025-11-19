@@ -97,19 +97,24 @@ public class AuthService {
     
 
     /* ========== DELETE USER ========== */
-    public static void deleteUser(long id) {
-        String sql = " DELETE FROM users where id = ? ";
+    public static void deleteUser(long userId) {
+        try (Connection conn = DatabaseUtils.getConnection();
+             PreparedStatement stmt = conn.prepareStatement("DELETE FROM users WHERE id = ?")) {
 
-        try (Connection c = DatabaseUtils.getConnection();
-             PreparedStatement ps = c.prepareStatement(sql)) {
+            stmt.setLong(1, userId);
 
-            ps.setLong(1,id);
-			ps.executeQuery();
+            int rows = stmt.executeUpdate();  // ✅ FIXED
+
+            if (rows == 0) {
+                throw new RuntimeException("Failed to delete user: ID not found");
+            }
 
         } catch (SQLException e) {
+            e.printStackTrace();
             throw new RuntimeException("Failed to delete user", e);
         }
     }
+
 
     /* ========== AUTHENTICATE USER ========== */
 
@@ -158,7 +163,7 @@ public class AuthService {
 		return userList;
 	}
 
-    /* ========== LOAD USER BY ID ========== */
+    /* ========== LOAD USER BY ID FOR MODIFICATION ========== */
 
     public static Optional<User> loadUserById(long id) {
         String sql = " SELECT id, full_name, username, password_hash, role, created_at FROM users WHERE id = ? ";
