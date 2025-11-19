@@ -93,7 +93,7 @@ public class AdminProductsController {
 
         usersButton.setOnAction(e -> {
             try {
-                FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/AdminDashboard.fxml"));
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/AdminUsersDashboard.fxml"));
                 Stage stage = (Stage) usersButton.getScene().getWindow();
                 stage.setScene(new Scene(loader.load()));
                 stage.show();
