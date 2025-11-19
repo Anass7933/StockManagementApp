@@ -1,4 +1,86 @@
 package com.stockapp.controllers;
 
+import com.stockapp.models.Product;
+import com.stockapp.services.ProductService;
+import javafx.event.ActionEvent;
+import javafx.fxml.FXML;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Button;
+import javafx.scene.control.TextArea;
+import javafx.scene.control.TextField;
+import javafx.stage.Stage;
+
+import java.math.BigDecimal;
+
 public class ProductFormController {
+
+    @FXML private TextField nameField;
+    @FXML private TextField priceField;
+    @FXML private TextField quantityField;
+    @FXML private TextField categoryField;
+    @FXML private TextField minStockField;
+    @FXML private TextArea descriptionField;
+    @FXML private Button saveButton;
+    @FXML private Button cancelButton;
+
+
+    private Stage stage;
+
+    public void setStage(Stage stage) {
+        this.stage = stage;
+    }
+
+    @FXML
+    private void initialize() {
+        saveButton.setOnAction(e -> saveProduct());
+    }
+
+    private long editingProductId;
+
+    private void saveProduct() {
+        try {
+            String name = nameField.getText();
+            BigDecimal price = new BigDecimal(priceField.getText().trim());
+            int quantity = Integer.parseInt(quantityField.getText().trim());
+            String category = categoryField.getText().trim();
+            int minStock = Integer.parseInt(minStockField.getText().trim());
+            String description = descriptionField.getText().trim();
+
+            Product product = new Product(name, description, price, quantity, minStock, category);
+
+            if (editingProductId == 0) {
+                ProductService.createProduct(product);
+            } else {
+                product.setId(editingProductId);
+                ProductService.updateProduct(product);
+            }
+
+            stage.close();
+        } catch (NumberFormatException ex) {
+            showAlert("Please enter valid numeric values for price, quantity and min stock.");
+        }
+    }
+
+    public void loadProductData(long productId) {
+        editingProductId = productId;
+        ProductService.loadProductById(productId).ifPresent(product -> {
+            nameField.setText(product.getName());
+            priceField.setText(product.getPrice().toPlainString());
+            quantityField.setText(String.valueOf(product.getQuantity()));
+            categoryField.setText(product.getCategory());
+            minStockField.setText(String.valueOf(product.getMinStock()));
+            descriptionField.setText(product.getDescription());
+        });
+    }
+
+    private void showAlert(String msg) {
+        Alert alert = new Alert(Alert.AlertType.WARNING);
+        alert.setHeaderText(null);
+        alert.setContentText(msg);
+        alert.showAndWait();
+    }
+
+    public void cancelButtonOnAction(ActionEvent actionEvent) {
+        stage.close();
+    }
 }
