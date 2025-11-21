@@ -1,7 +1,7 @@
-package com.stockapp.models;
+package com.stockapp.models.enums;
 
 public enum UserRole {
 	STOCK_MANAGER,
 	CASHIER,
-    ADMIN, SUPERVISOR
+	ADMIN,
 }

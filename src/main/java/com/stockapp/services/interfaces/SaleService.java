@@ -1,0 +1,13 @@
+package com.stockapp.services.interfaces;
+
+import com.stockapp.models.entities.Sale;
+import com.stockapp.models.entities.SaleItem;
+import java.util.List;
+
+public interface SaleService extends CrudService<Sale> {
+	Sale createSaleWithItems(Sale sale, List<SaleItem> items);
+
+	void updateSaleWithItems(Long saleId, Sale sale, List<SaleItem> items);
+
+	Long getTotalRevenue(Long SaleId);
+}
