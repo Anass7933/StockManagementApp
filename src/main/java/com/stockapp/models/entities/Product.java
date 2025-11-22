@@ -72,7 +72,7 @@ public class Product implements Identifiable, Auditable {
 		return category;
 	}
 
-	public void setID(Long id) {
+	public void setId(Long id) {
 		this.id = id;
 	}
 

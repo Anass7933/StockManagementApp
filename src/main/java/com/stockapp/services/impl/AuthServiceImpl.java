@@ -3,13 +3,14 @@ package com.stockapp.services.impl;
 import com.stockapp.models.entities.User;
 import com.stockapp.utils.*;
 import com.stockapp.models.enums.UserRole;
+import com.stockapp.services.interfaces.AuthService;
 
 import java.sql.*;
 import java.time.OffsetDateTime;
 import java.util.Optional;
 
-public class AuthServiceImpl {
-	public Optional<User> Login(String username, String password) {
+public class AuthServiceImpl implements AuthService {
+	public User validateLogin(String username, String password) {
 		String sql_query = "SELECT id, username, password_hash, full_name, role, created_at FROM users WHERE username = ?;";
 		try (Connection c = DatabaseUtils.getConnection();) {
 			PreparedStatement ps = c.prepareStatement(sql_query);
@@ -27,12 +28,12 @@ public class AuthServiceImpl {
 							rs.getString("full_name"),
 							UserRole.valueOf(rs.getString("role")),
 							rs.getObject("created_at", OffsetDateTime.class));
-					return Optional.of(user);
+					return user;
 				} else {
-					return Optional.empty();
+					return null;
 				}
 			} else {
-				return Optional.empty();
+				return null;
 			}
 		} catch (SQLException e) {
 			throw new RuntimeException("Error during login", e);

@@ -72,7 +72,7 @@
                 <TableColumn fx:id="priceColumn" prefWidth="140" style="-fx-alignment: CENTER;" text="Price" />
                 <TableColumn fx:id="quantityColumn" prefWidth="140" style="-fx-alignment: CENTER;" text="Quantity" />
                 <TableColumn fx:id="categoryColumn" prefWidth="140" style="-fx-alignment: CENTER;" text="Category" />
-                <TableColumn fx:id="stockField" prefWidth="140" style="-fx-alignment: CENTER;" text="Stock" />
+                <TableColumn fx:id="stockCheckColumn" prefWidth="140" style="-fx-alignment: CENTER;" text="Stock Status" />
             </columns>
         </TableView>
 

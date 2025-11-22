@@ -10,6 +10,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import javax.swing.text.html.Option;
+
 public class ProductServiceImpl implements ProductService {
 	public Product create(Product product) {
 		String sql = """
@@ -173,7 +175,7 @@ public class ProductServiceImpl implements ProductService {
 		}
 	}
 
-	public Product findByName(String name) {
+	public Optional<Product> findByName(String name) {
 		String sql = """
 				    SELECT id, name, description, price, quantity, min_stock, created_at, category
 				    FROM products
@@ -187,7 +189,7 @@ public class ProductServiceImpl implements ProductService {
 
 			try (ResultSet rs = ps.executeQuery()) {
 				if (rs.next()) {
-					return new Product(
+					return Optional.of(new Product(
 							rs.getLong("id"),
 							rs.getString("name"),
 							rs.getString("description"),
@@ -195,9 +197,9 @@ public class ProductServiceImpl implements ProductService {
 							rs.getInt("quantity"),
 							rs.getInt("min_stock"),
 							rs.getObject("created_at", OffsetDateTime.class),
-							rs.getString("category"));
+							rs.getString("category")));
 				} else {
-					return null;
+					return Optional.empty();
 				}
 			}
 

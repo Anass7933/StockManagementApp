@@ -8,5 +8,5 @@ import com.stockapp.models.enums.UserRole;
 public interface UserService extends CrudService<User> {
 	List<User> findByRole(UserRole role);
 
-	List<User> findByuserName(String userName);
+	User findByUsername(String userName);
 }

@@ -10,9 +10,14 @@ public class User implements Identifiable, Auditable {
 	private UserRole role;
 	private OffsetDateTime createdAt;
 
+	public User() {
+
+	}
+
 	public User(long userId, String userName, String passwordHash, String fullName, UserRole role,
 			OffsetDateTime createdAt) {
 		this.userId = userId;
+
 		this.userName = userName;
 		this.passwordHash = passwordHash;
 		this.fullName = fullName;

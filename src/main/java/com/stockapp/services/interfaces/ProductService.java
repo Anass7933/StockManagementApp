@@ -2,11 +2,12 @@ package com.stockapp.services.interfaces;
 
 import com.stockapp.models.entities.Product;
 import java.util.List;
+import java.util.Optional;
 
 public interface ProductService extends CrudService<Product> {
 	List<Product> findByCategory(String category);
 
-	Product findByName(String keyword);
+	Optional<Product> findByName(String keyword);
 
 	void updateStock(Long productId, int ammount);
 

@@ -14,8 +14,8 @@ import java.util.Optional;
 public class UserServiceImpl implements UserService {
 	public User create(User user) {
 		String sql_query = """
-					INSERT INTO users (username, password_hash, full_name, role)
-					VALUES (?, ?, ?, ?)
+					INSERT INTO users (username, password_hash, full_name,role)
+					VALUES (?, ?, ?, ?::user_role)
 					RETURNING id, created_at;
 				""";
 		try (Connection c = DatabaseUtils.getConnection();) {
@@ -151,27 +151,24 @@ public class UserServiceImpl implements UserService {
 		}
 	}
 
-	public List<User> findByuserName(String userName) {
+	public User findByUsername(String userName) {
 		String sql_query = "SELECT id, username, password_hash, full_name, role, created_at FROM users WHERE username = ?;";
-		List<User> users = new ArrayList<>();
 		try (Connection c = DatabaseUtils.getConnection();) {
 			PreparedStatement ps = c.prepareStatement(sql_query);
 			ps.setString(1, userName);
 
 			ResultSet rs = ps.executeQuery();
 
-			while (rs.next()) {
-				User user = new User(
+			if (rs.next()) {
+				return new User(
 						rs.getLong("id"),
 						rs.getString("username"),
 						rs.getString("password_hash"),
 						rs.getString("full_name"),
 						UserRole.valueOf(rs.getString("role")),
 						rs.getObject("created_at", OffsetDateTime.class));
-				users.add(user);
 			}
-			return users;
-
+			return null;
 		} catch (SQLException e) {
 			throw new RuntimeException("Error finding users by username", e);
 		}
