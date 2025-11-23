@@ -16,7 +16,7 @@ public class ProductServiceImpl implements ProductService {
 	public Product create(Product product) {
 		String sql = """
 				    INSERT INTO products (name, description, price, quantity, min_stock, category)
-				    VALUES (?, ?, ?, ?, ?, ?)
+				    VALUES (?, ?, ?, ?, ?, ?::category)
 				    RETURNING id, created_at;
 				""";
 
@@ -88,7 +88,7 @@ public class ProductServiceImpl implements ProductService {
 	public Product update(Product product) {
 		String sql = """
 				    UPDATE products
-				    SET name = ?, description = ?, price = ?, quantity = ?, min_stock = ?, category = ?
+				    SET name = ?, description = ?, price = ?, quantity = ?, min_stock = ?, category = ?::category
 				    WHERE id = ?
 				    RETURNING created_at;
 				""";
