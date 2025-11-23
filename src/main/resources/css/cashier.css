@@ -1,0 +1,129 @@
+.root {
+    -fx-background-color: #ffffff;
+    -fx-font-family: "Inter", "Segoe UI", sans-serif;
+    -fx-font-size: 14px;
+}
+
+.top-bar {
+    -fx-background-color: #ffffff;
+    -fx-padding: 20 40 20 20;
+    -fx-border-color: #e5e7eb;
+    -fx-border-width: 0 0 1 0;
+}
+
+.cashier-label {
+    -fx-fill: #111827;
+    -fx-font-size: 18px;
+    -fx-font-weight: 700;
+}
+
+.text-field {
+    -fx-background-color: #f9fafb;
+    -fx-background-radius: 8;
+    -fx-border-color: #e5e7eb;
+    -fx-border-radius: 8;
+    -fx-border-width: 1;
+    -fx-padding: 10 15 10 15;
+    -fx-font-size: 14px;
+}
+
+.text-field:focused {
+    -fx-border-color: #3b82f6;
+    -fx-border-width: 2;
+    -fx-background-color: #ffffff;
+}
+
+.toggle-button {
+    -fx-background-color: #f3f4f6;
+    -fx-text-fill: #6b7280;
+    -fx-background-radius: 8;
+    -fx-padding: 8 20 8 20;
+    -fx-cursor: hand;
+    -fx-border-width: 0;
+    -fx-font-weight: 500;
+}
+
+.toggle-button:selected {
+    -fx-background-color: #3b82f6;
+    -fx-text-fill: #ffffff;
+}
+
+.toggle-button:hover {
+    -fx-background-color: #e5e7eb;
+}
+
+.toggle-button:selected:hover {
+    -fx-background-color: #2563eb;
+}
+
+.scroll-pane {
+    -fx-background-color: #f9fafb;
+    -fx-border-color: transparent;
+}
+
+.scroll-pane .viewport {
+    -fx-background-color: #f9fafb;
+}
+
+.product-container {
+    -fx-background-color: #f9fafb;
+    -fx-padding: 20;
+}
+
+.bottom-bar {
+    -fx-background-color: #ffffff;
+    -fx-padding: 20;
+    -fx-border-color: #e5e7eb;
+    -fx-border-width: 1 0 0 0;
+}
+
+.button {
+    -fx-background-color: #3b82f6;
+    -fx-text-fill: white;
+    -fx-background-radius: 8;
+    -fx-padding: 12 24 12 24;
+    -fx-cursor: hand;
+    -fx-font-weight: 600;
+    -fx-font-size: 14px;
+    -fx-border-width: 0;
+}
+
+.button:hover {
+    -fx-background-color: #2563eb;
+    -fx-scale-y: 1.02;
+    -fx-scale-x: 1.02;
+}
+
+.button:pressed {
+    -fx-background-color: #1d4ed8;
+}
+
+#LogOutButton {
+    -fx-background-color: transparent;
+    -fx-text-fill: #ef4444;
+    -fx-border-color: #ef4444;
+    -fx-border-width: 2;
+    -fx-border-radius: 8;
+}
+
+#LogOutButton:hover {
+    -fx-background-color: #fef2f2;
+    -fx-text-fill: #dc2626;
+    -fx-border-color: #dc2626;
+}
+
+#LogOutButton:pressed {
+    -fx-background-color: #fee2e2;
+}
+
+#btnCart,
+#btnClearCart,
+#btnAddSale {
+    -fx-background-color: #3b82f6;
+}
+
+#btnCart:hover,
+#btnClearCart:hover,
+#btnAddSale:hover {
+    -fx-background-color: #2563eb;
+}

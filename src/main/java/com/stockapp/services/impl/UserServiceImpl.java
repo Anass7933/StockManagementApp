@@ -68,7 +68,7 @@ public class UserServiceImpl implements UserService {
 	public User update(User user) {
 		String sql_query = """
 					UPDATE users
-					SET username = ?, password_hash = ?, full_name = ?, role = ?
+					SET username = ?, password_hash = ?, full_name = ?, role = ?::user_role
 					WHERE id = ?;
 				""";
 		try (Connection c = DatabaseUtils.getConnection();) {
