@@ -5,12 +5,13 @@
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane prefHeight="720.0" prefWidth="1080.0" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.stockapp.controllers.StockManagerDashboardController">
+<AnchorPane prefHeight="720.0" prefWidth="1280.0" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.stockapp.controllers.StockManagerDashboardController">
 
     <!-- LEFT SIDEBAR -->
     <VBox prefHeight="720.0" prefWidth="180.0" style="-fx-background-color: #2596be;" AnchorPane.bottomAnchor="0" AnchorPane.leftAnchor="0" AnchorPane.topAnchor="0">
@@ -36,7 +37,7 @@
             <font><Font name="Cambria" size="30" /></font>
             <padding><Insets top="20" /></padding>
          <VBox.margin>
-            <Insets left="30.0" />
+            <Insets left="-130.0" />
          </VBox.margin>
         </Label>
 
@@ -63,17 +64,25 @@
             <Insets left="30.0" />
          </padding>
         </HBox>
+      <TextField prefHeight="26.0" prefWidth="973.0" promptText="Search by name or category">
+         <VBox.margin>
+            <Insets left="30.0" right="750.0" />
+         </VBox.margin>
+      </TextField>
 
         <!-- PRODUCTS TABLE -->
         <TableView fx:id="productsTable" prefWidth="850" VBox.vgrow="ALWAYS">
             <columns>
                 <TableColumn fx:id="idColumn" prefWidth="140" style="-fx-alignment: CENTER;" text="Id" />
-                <TableColumn fx:id="nameColumn" prefWidth="140" style="-fx-alignment: CENTER;" text="Name" />
-                <TableColumn fx:id="priceColumn" prefWidth="140" style="-fx-alignment: CENTER;" text="Price" />
+                <TableColumn fx:id="nameColumn" prefWidth="270.0" style="-fx-alignment: CENTER;" text="Name" />
+                <TableColumn fx:id="priceColumn" prefWidth="150.0" style="-fx-alignment: CENTER;" text="Price" />
                 <TableColumn fx:id="quantityColumn" prefWidth="140" style="-fx-alignment: CENTER;" text="Quantity" />
-                <TableColumn fx:id="categoryColumn" prefWidth="140" style="-fx-alignment: CENTER;" text="Category" />
-                <TableColumn fx:id="stockCheckColumn" prefWidth="140" style="-fx-alignment: CENTER;" text="Stock Status" />
+                <TableColumn fx:id="categoryColumn" prefWidth="190.0" style="-fx-alignment: CENTER;" text="Category" />
+                <TableColumn fx:id="stockCheckColumn" prefWidth="150.0" style="-fx-alignment: CENTER;" text="Stock Status" />
             </columns>
+         <VBox.margin>
+            <Insets bottom="30.0" left="30.0" right="30.0" />
+         </VBox.margin>
         </TableView>
 
     </VBox>
