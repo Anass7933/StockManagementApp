@@ -3,6 +3,7 @@ package com.stockapp.services.impl;
 import com.stockapp.models.entities.Product;
 import com.stockapp.services.interfaces.ProductService;
 import com.stockapp.utils.*;
+import com.stockapp.models.enums.Category;
 
 import java.sql.*;
 import java.time.OffsetDateTime;
@@ -28,7 +29,7 @@ public class ProductServiceImpl implements ProductService {
 			ps.setBigDecimal(3, product.getPrice());
 			ps.setInt(4, product.getQuantity());
 			ps.setInt(5, product.getMinStock());
-			ps.setString(6, product.getCategory());
+			ps.setString(6, product.getCategory().name());
 
 			try (ResultSet rs = ps.executeQuery()) {
 				if (rs.next()) {
@@ -74,7 +75,7 @@ public class ProductServiceImpl implements ProductService {
 						rs.getInt("quantity"),
 						rs.getInt("min_stock"),
 						rs.getObject("created_at", OffsetDateTime.class),
-						rs.getString("category"));
+						Category.valueOf(rs.getString("category")));
 				return Optional.of(product);
 			} else {
 				return Optional.empty();
@@ -101,7 +102,8 @@ public class ProductServiceImpl implements ProductService {
 			ps.setBigDecimal(3, product.getPrice());
 			ps.setInt(4, product.getQuantity());
 			ps.setInt(5, product.getMinStock());
-			ps.setString(6, product.getCategory());
+			ps.setString(6, product.getCategory().name());
+			ps.setLong(7, product.getId());
 
 			try (ResultSet rs = ps.executeQuery()) {
 				if (rs.next()) {
@@ -165,7 +167,7 @@ public class ProductServiceImpl implements ProductService {
 						rs.getInt("quantity"),
 						rs.getInt("min_stock"),
 						rs.getObject("created_at", OffsetDateTime.class),
-						rs.getString("category")));
+						Category.valueOf(rs.getString("category"))));
 			}
 
 			return products;
@@ -197,7 +199,7 @@ public class ProductServiceImpl implements ProductService {
 							rs.getInt("quantity"),
 							rs.getInt("min_stock"),
 							rs.getObject("created_at", OffsetDateTime.class),
-							rs.getString("category")));
+							Category.valueOf(rs.getString("category"))));
 				} else {
 					return Optional.empty();
 				}
@@ -227,7 +229,7 @@ public class ProductServiceImpl implements ProductService {
 						rs.getInt("quantity"),
 						rs.getInt("min_stock"),
 						rs.getObject("created_at", OffsetDateTime.class),
-						rs.getString("category"));
+						Category.valueOf(rs.getString("category")));
 				products.add(user);
 			}
 			return products;

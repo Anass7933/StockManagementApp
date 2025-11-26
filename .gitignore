@@ -24,6 +24,9 @@ Thumbs.db
 *.tmp
 *.swp
 
+# personal notes
+/flow/*
+
 # Ignore any other generated sources
 **/generated-sources/
 

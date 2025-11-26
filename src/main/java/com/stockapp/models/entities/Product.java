@@ -2,7 +2,9 @@ package com.stockapp.models.entities;
 
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
+
 import com.stockapp.models.interfaces.*;
+import com.stockapp.models.enums.Category;
 
 public class Product implements Identifiable, Auditable {
 
@@ -13,11 +15,11 @@ public class Product implements Identifiable, Auditable {
 	private int quantity;
 	private int minStock;
 	private OffsetDateTime createdAt;
-	private String category;
+	private Category category;
 
 	// Constructor without ID (used when creating new products)
 	public Product(String name, String description,
-			BigDecimal price, int quantity, int minStock, String category) {
+			BigDecimal price, int quantity, int minStock, Category category) {
 		this.name = name;
 		this.description = description;
 		this.price = price;
@@ -29,7 +31,7 @@ public class Product implements Identifiable, Auditable {
 	// Constructor with ID (used when loading from DB)
 	public Product(long id, String name, String description,
 			BigDecimal price, int quantity,
-			int minStock, OffsetDateTime createdAt, String category) {
+			int minStock, OffsetDateTime createdAt, Category category) {
 		this.id = id;
 		this.name = name;
 		this.description = description;
@@ -68,7 +70,7 @@ public class Product implements Identifiable, Auditable {
 		return createdAt;
 	}
 
-	public String getCategory() {
+	public Category getCategory() {
 		return category;
 	}
 

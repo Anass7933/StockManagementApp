@@ -3,20 +3,17 @@
     -fx-font-family: "Inter", "Segoe UI", sans-serif;
     -fx-font-size: 14px;
 }
-
 .top-bar {
     -fx-background-color: #ffffff;
     -fx-padding: 20 40 20 20;
     -fx-border-color: #e5e7eb;
     -fx-border-width: 0 0 1 0;
 }
-
 .cashier-label {
     -fx-fill: #111827;
     -fx-font-size: 18px;
     -fx-font-weight: 700;
 }
-
 .text-field {
     -fx-background-color: #f9fafb;
     -fx-background-radius: 8;
@@ -26,13 +23,11 @@
     -fx-padding: 10 15 10 15;
     -fx-font-size: 14px;
 }
-
 .text-field:focused {
     -fx-border-color: #3b82f6;
     -fx-border-width: 2;
     -fx-background-color: #ffffff;
 }
-
 .toggle-button {
     -fx-background-color: #f3f4f6;
     -fx-text-fill: #6b7280;
@@ -42,41 +37,75 @@
     -fx-border-width: 0;
     -fx-font-weight: 500;
 }
-
 .toggle-button:selected {
     -fx-background-color: #3b82f6;
     -fx-text-fill: #ffffff;
 }
-
 .toggle-button:hover {
     -fx-background-color: #e5e7eb;
 }
-
 .toggle-button:selected:hover {
     -fx-background-color: #2563eb;
 }
-
 .scroll-pane {
     -fx-background-color: #f9fafb;
     -fx-border-color: transparent;
 }
-
 .scroll-pane .viewport {
     -fx-background-color: #f9fafb;
+}
+
+/* ListView Styling */
+.list-view {
+    -fx-background-color: #ffffff;
+    -fx-border-color: #e5e7eb;
+    -fx-border-width: 1;
+    -fx-border-radius: 8;
+    -fx-background-radius: 8;
+}
+
+.list-view .list-cell {
+    -fx-background-color: #ffffff;
+    -fx-text-fill: #111827;
+    -fx-padding: 12 16 12 16;
+    -fx-border-color: #f3f4f6;
+    -fx-border-width: 0 0 1 0;
+}
+
+.list-view .list-cell:hover {
+    -fx-background-color: #f9fafb;
+    -fx-cursor: hand;
+}
+
+.list-view .list-cell:selected {
+    -fx-background-color: #eff6ff;
+    -fx-text-fill: #1e40af;
+}
+
+.list-view .list-cell:selected:hover {
+    -fx-background-color: #dbeafe;
+}
+
+.list-view .list-cell:empty {
+    -fx-background-color: transparent;
+    -fx-border-width: 0;
+}
+
+.list-view:focused .list-cell:selected {
+    -fx-background-color: #dbeafe;
+    -fx-border-color: #3b82f6;
 }
 
 .product-container {
     -fx-background-color: #f9fafb;
     -fx-padding: 20;
 }
-
 .bottom-bar {
     -fx-background-color: #ffffff;
     -fx-padding: 20;
     -fx-border-color: #e5e7eb;
     -fx-border-width: 1 0 0 0;
 }
-
 .button {
     -fx-background-color: #3b82f6;
     -fx-text-fill: white;
@@ -87,17 +116,14 @@
     -fx-font-size: 14px;
     -fx-border-width: 0;
 }
-
 .button:hover {
     -fx-background-color: #2563eb;
     -fx-scale-y: 1.02;
     -fx-scale-x: 1.02;
 }
-
 .button:pressed {
     -fx-background-color: #1d4ed8;
 }
-
 #LogOutButton {
     -fx-background-color: transparent;
     -fx-text-fill: #ef4444;
@@ -105,25 +131,85 @@
     -fx-border-width: 2;
     -fx-border-radius: 8;
 }
-
 #LogOutButton:hover {
     -fx-background-color: #fef2f2;
     -fx-text-fill: #dc2626;
     -fx-border-color: #dc2626;
 }
-
 #LogOutButton:pressed {
     -fx-background-color: #fee2e2;
 }
-
 #btnCart,
 #btnClearCart,
 #btnAddSale {
     -fx-background-color: #3b82f6;
 }
-
 #btnCart:hover,
 #btnClearCart:hover,
 #btnAddSale:hover {
     -fx-background-color: #2563eb;
+}
+/* Product Cell Styles */
+.product-cell-container {
+    -fx-padding: 10 15 10 15;
+    -fx-spacing: 15;
+}
+
+.product-name {
+    -fx-font-size: 16px;
+    -fx-font-weight: 700;
+    -fx-text-fill: #111827;
+}
+
+.product-details {
+    -fx-spacing: 20;
+}
+
+.product-id,
+.product-category,
+.product-stock {
+    -fx-font-size: 13px;
+    -fx-text-fill: #6b7280;
+}
+
+.product-category {
+	-fx-background-color:#e5e7eb;
+	-fx-background-radius:4px;
+	-fx-padding:2px;
+}
+.product-price {
+    -fx-font-size: 14px;
+    -fx-font-weight: 600;
+    -fx-text-fill: #059669;
+}
+
+.product-stock-low {
+    -fx-font-size: 13px;
+    -fx-text-fill: #f59e0b;
+    -fx-font-weight: 600;
+}
+
+.product-stock-out {
+    -fx-font-size: 13px;
+    -fx-text-fill: #dc2626;
+    -fx-font-weight: 600;
+}
+
+.add-to-cart-button {
+    -fx-background-color: #3b82f6;
+    -fx-text-fill: white;
+    -fx-background-radius: 8;
+    -fx-padding: 10 20 10 20;
+    -fx-cursor: hand;
+    -fx-font-weight: 600;
+    -fx-font-size: 13px;
+}
+
+.add-to-cart-button:hover {
+    -fx-background-color: #2563eb;
+}
+
+.add-to-cart-button:disabled {
+    -fx-background-color: #e5e7eb;
+    -fx-text-fill: #9ca3af;
 }

@@ -88,4 +88,8 @@ public class SaleItem implements Identifiable {
 		this.lineTotal = lineTotal;
 	}
 
+	public void setProduct(Product product) {
+		this.productId = product.getId();
+	}
+
 }

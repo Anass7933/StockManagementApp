@@ -4,7 +4,11 @@
 <?import javafx.scene.text.*?>
 <?import javafx.geometry.Insets?>
 
-<BorderPane xmlns:fx="http://javafx.com/fxml" stylesheets="@../../css/cashier.css" prefWidth="1100" prefHeight="800">
+<BorderPane xmlns:fx="http://javafx.com/fxml" 
+			stylesheets="@../../css/cashier/cashierView.css" 
+			fx:controller="com.stockapp.controllers.cashier.CashierController"
+			prefWidth="1100" 
+			prefHeight="800">
 	<top>
 		<HBox spacing="20" styleClass="top-bar">
 			<padding>
@@ -17,7 +21,7 @@
 			<Region HBox.hgrow="ALWAYS"/>
 			
 			<VBox spacing="5">
-				<TextField fx:id="searchField" promptText="Search..." prefWidth="200"/>
+				<TextField fx:id="searchField" promptText="Search..." prefWidth="300"/>
 				<HBox spacing="10">
 					<ToggleButton fx:id="searchByIdButton" text="Id" selected="true">
 						<toggleGroup>
@@ -31,15 +35,12 @@
 	</top>
 	<center>
 		<ScrollPane fitToWidth="true">
-			<VBox fx:id="productListContainer" spacing="5" styleClass="product-container">
-				<padding>
-					<Insets top="10" right="10" bottom="10" left="10"/>
-				</padding>
-			</VBox>
+			<ListView fx:id="ProductListView"/>
 		</ScrollPane>
 	</center>
 	<bottom>
 		<HBox spacing="10" styleClass="bottom-bar">
+			
 			<padding>
 				<Insets top="10" right="10" bottom="10" left="10"/>
 			</padding>

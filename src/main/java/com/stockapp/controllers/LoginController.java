@@ -65,7 +65,7 @@ public class LoginController {
 				stage.setScene(scene);
 				stage.show();
 			} else if (currentUser != null && currentUser.getRole().name().equals("CASHIER")) {
-				FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/CashierDashboard.fxml"));
+				FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/cashier/CashierView.fxml"));
 				Scene scene = new Scene(loader.load());
 
 				Stage stage = (Stage) loginButton.getScene().getWindow();

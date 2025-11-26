@@ -1,0 +1,224 @@
+/* Main Container */
+.cart-container {
+    -fx-background-color: #f5f7fa;
+    -fx-min-width: 600px;
+    -fx-min-height: 500px;
+}
+
+/* Header */
+.cart-header {
+    -fx-background-color: #667eea;
+    -fx-padding: 25 30;
+    -fx-alignment: center-left;
+}
+
+.cart-title {
+    -fx-font-size: 28px;
+    -fx-font-weight: bold;
+    -fx-text-fill: white;
+}
+
+/* Scroll Pane */
+.cart-scroll-pane {
+    -fx-background-color: transparent;
+    -fx-background: transparent;
+}
+
+.cart-scroll-pane .viewport {
+    -fx-background-color: transparent;
+}
+
+/* Cart Items Container */
+.cart-items-container {
+    -fx-padding: 20;
+    -fx-spacing: 0;
+    -fx-background-color: transparent;
+}
+
+/* List Header */
+.cart-list-header {
+    -fx-background-color: #ffffff;
+    -fx-padding: 15 20;
+    -fx-spacing: 10;
+    -fx-border-color: #e1e8ed;
+    -fx-border-width: 0 0 2 0;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 10, 0, 0, 2);
+}
+
+.header-label {
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #4a5568;
+}
+
+/* List View */
+.cart-list-view {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-background-insets: 0;
+    -fx-padding: 0;
+}
+
+.cart-list-view .list-cell {
+    -fx-background-color: white;
+    -fx-padding: 0;
+    -fx-border-color: transparent;
+    -fx-border-width: 0 0 1 0;
+    -fx-border-insets: 0;
+}
+
+.cart-list-view .list-cell:filled:hover {
+    -fx-background-color: #f8fafc;
+    -fx-cursor: hand;
+}
+
+.cart-list-view .list-cell:selected {
+    -fx-background-color: #edf2f7;
+}
+
+.cart-list-view .list-cell:empty {
+    -fx-background-color: transparent;
+}
+
+/* Cart Item Row */
+.cart-item-row {
+    -fx-padding: 15 15;
+    -fx-spacing: 10;
+    -fx-alignment: center-left;
+    -fx-background-color: transparent;
+}
+
+/* Action Buttons */
+.action-buttons {
+    -fx-spacing: 8;
+    -fx-alignment: center-left;
+}
+
+.update-button, .remove-button {
+    -fx-min-width: 50px;
+    -fx-min-height: 35px;
+    -fx-font-size: 12px;
+    -fx-font-weight: 600;
+    -fx-cursor: hand;
+    -fx-background-radius: 6;
+    -fx-border-radius: 6;
+}
+
+.update-button {
+    -fx-background-color: #3182ce;
+    -fx-text-fill: white;
+    -fx-border-color: transparent;
+}
+
+.update-button:hover {
+    -fx-background-color: #2c5aa0;
+}
+
+.remove-button {
+    -fx-background-color: #fc8181;
+    -fx-text-fill: white;
+    -fx-border-color: transparent;
+}
+
+.remove-button:hover {
+    -fx-background-color: #e53e3e;
+}
+
+/* Product Labels */
+.product-name {
+    -fx-font-size: 15px;
+    -fx-font-weight: 500;
+    -fx-text-fill: #2d3748;
+}
+
+.product-quantity, .product-price, .product-total {
+    -fx-font-size: 14px;
+    -fx-text-fill: #4a5568;
+    -fx-alignment: center;
+}
+
+.product-total {
+    -fx-font-weight: 600;
+    -fx-text-fill: #667eea;
+}
+
+/* Footer */
+.cart-footer {
+    -fx-background-color: white;
+    -fx-padding: 20 30;
+    -fx-spacing: 20;
+    -fx-alignment: center;
+    -fx-border-color: #e1e8ed;
+    -fx-border-width: 2 0 0 0;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 15, 0, 0, -3);
+}
+
+/* Total Section */
+.total-section {
+    -fx-spacing: 15;
+    -fx-alignment: center-left;
+}
+
+.total-label {
+    -fx-font-size: 18px;
+    -fx-font-weight: 600;
+    -fx-text-fill: #2d3748;
+}
+
+.total-price {
+    -fx-font-size: 24px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #667eea;
+}
+
+/* Close Button */
+.close-button {
+    -fx-min-width: 120px;
+    -fx-min-height: 45px;
+    -fx-font-size: 16px;
+    -fx-font-weight: 600;
+    -fx-background-color: #48bb78;
+    -fx-text-fill: white;
+    -fx-cursor: hand;
+    -fx-background-radius: 8;
+    -fx-border-radius: 8;
+    -fx-border-color: transparent;
+}
+
+.close-button:hover {
+    -fx-background-color: #38a169;
+    -fx-scale-y: 1.02;
+    -fx-scale-x: 1.02;
+}
+
+/* Empty Cart Message */
+.empty-cart-message {
+    -fx-font-size: 18px;
+    -fx-text-fill: #718096;
+    -fx-padding: 50 0;
+    -fx-alignment: center;
+}
+
+/* Scrollbar Styling */
+.cart-scroll-pane .scroll-bar:vertical {
+    -fx-background-color: transparent;
+}
+
+.cart-scroll-pane .scroll-bar:vertical .track {
+    -fx-background-color: #f5f7fa;
+    -fx-border-color: transparent;
+    -fx-background-radius: 5;
+}
+
+.cart-scroll-pane .scroll-bar:vertical .thumb {
+    -fx-background-color: #cbd5e0;
+    -fx-background-radius: 5;
+}
+
+.cart-scroll-pane .scroll-bar:vertical .thumb:hover {
+    -fx-background-color: #a0aec0;
+}
+
+.cart-scroll-pane .scroll-bar:horizontal {
+    -fx-background-color: transparent;
+}

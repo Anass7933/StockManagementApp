@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+			fx:controller="com.stockapp.controllers.cashier.CartViewController"
+			stylesheets="@../../css/cashier/cartView.css"
+            styleClass="cart-container">
+    
+    <top>
+        <HBox styleClass="cart-header">
+            <Label text="Shopping Cart" styleClass="cart-title"/>
+        </HBox>
+    </top>
+    
+    <center>
+        <ScrollPane fitToWidth="true" styleClass="cart-scroll-pane">
+            <VBox fx:id="cartItemsContainer" styleClass="cart-items-container">
+                <HBox styleClass="cart-list-header">
+                    <Label text="Actions" styleClass="header-label" prefWidth="120" minWidth="120" maxWidth="120"/>
+                    <Label text="Product Name" styleClass="header-label" prefWidth="300" minWidth="300" HBox.hgrow="ALWAYS"/>
+                    <Label text="Quantity" styleClass="header-label" prefWidth="100" minWidth="100" maxWidth="100" alignment="CENTER"/>
+                    <Label text="Price" styleClass="header-label" prefWidth="100" minWidth="100" maxWidth="100" alignment="CENTER"/>
+                    <Label text="Total" styleClass="header-label" prefWidth="100" minWidth="100" maxWidth="100" alignment="CENTER"/>
+                </HBox>
+                
+                <ListView fx:id="cartListView" styleClass="cart-list-view"/>
+            </VBox>
+        </ScrollPane>
+    </center>
+    
+    <bottom>
+        <HBox styleClass="cart-footer">
+            <HBox styleClass="total-section" HBox.hgrow="ALWAYS">
+                <Label text="Total Price:" styleClass="total-label"/>
+                <Label fx:id="totalPriceLabel" text="451.46$" styleClass="total-price"/>
+            </HBox>
+            
+            <Button fx:id="closeButton" text="Close" styleClass="close-button"/>
+        </HBox>
+    </bottom>
+    
+</BorderPane>
