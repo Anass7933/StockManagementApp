@@ -53,6 +53,7 @@ public class LoginController {
 
 				Stage stage = (Stage) loginButton.getScene().getWindow();
 				stage.setScene(new Scene(root));
+				stage.setMaximized(true);
 				stage.show();
 			} else if (currentUser != null && currentUser.getRole().name().equals("STOCK_MANAGER")) {
 				FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/StockManagerDashboard.fxml"));
@@ -63,6 +64,7 @@ public class LoginController {
 
 				Stage stage = (Stage) loginButton.getScene().getWindow();
 				stage.setScene(scene);
+				stage.setMaximized(true);
 				stage.show();
 			} else if (currentUser != null && currentUser.getRole().name().equals("CASHIER")) {
 				FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/cashier/CashierView.fxml"));
@@ -70,6 +72,7 @@ public class LoginController {
 
 				Stage stage = (Stage) loginButton.getScene().getWindow();
 				stage.setScene(scene);
+				stage.setMaximized(true);
 				stage.show();
 			} else {
 				incorrectLabel.setText("Invalid username or password.");

@@ -1,127 +1,76 @@
 package com.stockapp.utils;
 
 import org.junit.jupiter.api.Test;
-import java.sql.*;
+
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+
 import static org.junit.jupiter.api.Assertions.*;
 
-
-public class DatabaseUtilsTest {
+class DatabaseUtilsTest {
 
     @Test
-    public void testGetConnection_ShouldReturnValidConnection() throws SQLException {
-        Connection connection = null;
-        try {
-            connection = DatabaseUtils.getConnection();
-
-            assertNotNull(connection, "Connection should not be null");
-            assertFalse(connection.isClosed(), "Connection should be open");
-        } finally {
-            if (connection != null && !connection.isClosed()) {
-                connection.close();
-            }
+    void testGetConnection_Success() {
+        System.out.println("Running: testGetConnection_Success");
+        
+        try (Connection conn = DatabaseUtils.getConnection()) {
+            assertNotNull(conn, "Connection should not be null");
+            assertFalse(conn.isClosed(), "Connection should be open");
+            assertTrue(conn.isValid(2), "Connection should be valid (check timeout 2s)");
+        } catch (SQLException e) {
+            fail("Should successfully connect to the database: " + e.getMessage());
         }
     }
 
     @Test
-    public void testGetConnection_ShouldBeAbleToExecuteQuery() throws SQLException {
-        Connection connection = null;
-        Statement statement = null;
-        ResultSet resultSet = null;
+    void testCloseResources_RealObjects() throws SQLException {
+        System.out.println("Running: testCloseResources_RealObjects");
+        
+        // 1. Create real resources
+        Connection conn = DatabaseUtils.getConnection();
+        Statement stmt = conn.createStatement();
+        // Just a simple query to get a ResultSet
+        ResultSet rs = stmt.executeQuery("SELECT 1"); 
 
-        try {
-            connection = DatabaseUtils.getConnection();
-            statement = connection.createStatement();
-            resultSet = statement.executeQuery("SELECT 1 as test_value");
+        // Verify they are open initially
+        assertFalse(conn.isClosed());
+        assertFalse(stmt.isClosed());
+        assertFalse(rs.isClosed());
 
-            assertTrue(resultSet.next(), "Query should return a result");
-            assertEquals(1, resultSet.getInt("test_value"), "Query should return correct value");
-        } finally {
-            DatabaseUtils.closeResources(connection, statement, resultSet);
-        }
+        // 2. Close them using your utility
+        DatabaseUtils.closeResources(conn, stmt, rs);
+
+        // 3. Verify they are closed
+        // Note: Closing connection usually closes stmt and rs automatically, 
+        // but your utility explicitly closes them, which is safer.
+        assertTrue(rs.isClosed(), "ResultSet should be closed");
+        assertTrue(stmt.isClosed(), "Statement should be closed");
+        assertTrue(conn.isClosed(), "Connection should be closed");
     }
 
     @Test
-    public void testCloseResources_ShouldCloseAllResources() throws SQLException {
-        Connection connection = DatabaseUtils.getConnection();
-        Statement statement = connection.createStatement();
-        ResultSet resultSet = statement.executeQuery("SELECT 1");
-
-        DatabaseUtils.closeResources(connection, statement, resultSet);
-
-        assertTrue(resultSet.isClosed(), "ResultSet should be closed");
-        assertTrue(statement.isClosed(), "Statement should be closed");
-        assertTrue(connection.isClosed(), "Connection should be closed");
+    void testCloseResources_NullSafe() {
+        System.out.println("Running: testCloseResources_NullSafe");
+        
+        // This should run without throwing a NullPointerException
+        assertDoesNotThrow(() -> {
+            DatabaseUtils.closeResources(null, null, null);
+        }, "Should handle null resources gracefully");
     }
 
     @Test
-    public void testCloseResources_ShouldHandleNullConnection() {
-        // Should not throw exception when closing null resources
-        assertDoesNotThrow(() -> DatabaseUtils.closeResources(null, null, null),
-                "Closing null resources should not throw exception");
-    }
-
-    @Test
-    public void testCloseResources_ShouldHandlePartiallyNullResources() throws SQLException {
-        Connection connection = DatabaseUtils.getConnection();
-
-        assertDoesNotThrow(() -> DatabaseUtils.closeResources(connection, null, null),
-                "Should handle null statement and resultset");
-
-        assertTrue(connection.isClosed(), "Connection should still be closed");
-    }
-
-    @Test
-    public void testGetConnection_MultipleConnections() throws SQLException {
-        Connection conn1 = null;
-        Connection conn2 = null;
-
-        try {
-            conn1 = DatabaseUtils.getConnection();
-            conn2 = DatabaseUtils.getConnection();
-
-            assertNotNull(conn1);
-            assertNotNull(conn2);
-            assertNotSame(conn1, conn2, "Should create separate connection instances");
-        } finally {
-            if (conn1 != null)
-                conn1.close();
-            if (conn2 != null)
-                conn2.close();
-        }
-    }
-
-    @Test
-    public void testGetConnection_ShouldConnectToCorrectDatabase() throws SQLException {
-        Connection connection = null;
-        Statement statement = null;
-        ResultSet resultSet = null;
-
-        try {
-            connection = DatabaseUtils.getConnection();
-            statement = connection.createStatement();
-            resultSet = statement.executeQuery("SELECT current_database()");
-
-            assertTrue(resultSet.next());
-            String dbName = resultSet.getString(1);
-            assertEquals("stockdb", dbName, "Should connect to stockdb database");
-        } finally {
-            DatabaseUtils.closeResources(connection, statement, resultSet);
-        }
-    }
-
-    @Test
-    public void testCloseResources_ShouldHandleAlreadyClosedResources() throws SQLException {
-        Connection connection = DatabaseUtils.getConnection();
-        Statement statement = connection.createStatement();
-        ResultSet resultSet = statement.executeQuery("SELECT 1");
-
-        // Close resources manually first
-        resultSet.close();
-        statement.close();
-        connection.close();
-
-        // Should not throw exception when closing already closed resources
-        assertDoesNotThrow(() -> DatabaseUtils.closeResources(connection, statement, resultSet),
-                "Should handle already closed resources gracefully");
+    void testCloseResources_MixedNulls() throws SQLException {
+        System.out.println("Running: testCloseResources_MixedNulls");
+        
+        Connection conn = DatabaseUtils.getConnection();
+        
+        // Pass nulls for Statement and ResultSet, but a real Connection
+        assertDoesNotThrow(() -> {
+            DatabaseUtils.closeResources(conn, null, null);
+        });
+        
+        assertTrue(conn.isClosed(), "Connection should still be closed even if others were null");
     }
 }

@@ -2,6 +2,8 @@ package com.stockapp.controllers.cashier.components;
 
 import com.stockapp.controllers.cashier.CashierController;
 import com.stockapp.models.entities.Product;
+import com.stockapp.utils.CartManager;
+
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -93,23 +95,33 @@ public class ProductListCell extends ListCell<Product> {
 			categoryLabel.setText(product.getCategory().toString());
 			priceLabel.setText(String.format("$%.2f", product.getPrice()));
 
+			// --- NEW LOGIC STARTS HERE ---
+
+			// 1. Get Actual DB Stock
+			int actualStock = product.getQuantity();
+			int minStock = product.getMinStock();
+
+			// 2. Get Quantity currently inside the Cart
+			int inCart = CartManager.getInstance().getProductQuantityInCart(product);
+
+			// 3. Calculate Visual Stock (prevent negatives)
+			int displayStock = Math.max(0, actualStock - inCart);
+
 			// Reset stock label styles
 			stockLabel.getStyleClass().removeAll("product-stock", "product-stock-low", "product-stock-out");
 
-			// Update stock label with color coding
-			int stock = product.getQuantity();
-			int minStock = product.getMinStock();
-
-			if (stock == 0) {
+			// 4. Use 'displayStock' for all visual logic
+			if (displayStock == 0) {
 				stockLabel.setText("Out of Stock");
 				stockLabel.getStyleClass().add("product-stock-out");
+				// Important: Disable button if visual stock is 0 (even if DB has stock)
 				addButton.setDisable(true);
-			} else if (stock <= minStock) {
-				stockLabel.setText("Stock: " + stock);
+			} else if (displayStock <= minStock) {
+				stockLabel.setText("Stock: " + displayStock);
 				stockLabel.getStyleClass().add("product-stock-low");
 				addButton.setDisable(false);
 			} else {
-				stockLabel.setText("Stock: " + stock);
+				stockLabel.setText("Stock: " + displayStock);
 				stockLabel.getStyleClass().add("product-stock");
 				addButton.setDisable(false);
 			}

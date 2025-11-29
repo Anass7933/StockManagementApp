@@ -61,6 +61,11 @@ public class CashierController {
 		saleService = new SaleServiceImpl();
 		cartManager = CartManager.getInstance();
 
+		cartManager.setOnCartChangeListener(() -> {
+			ProductListView.refresh(); // This forces the Cells to re-calculate (Stock - Cart)
+			updateCartButton(); // This updates the "Cart (5)" text
+		});
+
 		// Set up ListView
 		productList = FXCollections.observableArrayList();
 		ProductListView.setItems(productList);
@@ -232,11 +237,13 @@ public class CashierController {
 		Optional<ButtonType> result = alert.showAndWait();
 		if (result.isPresent() && result.get() == ButtonType.OK) {
 			try {
+
+				List<SaleItem> items = cartManager.getCartItems();
 				// Create Sale entity
 				Sale sale = new Sale((long) cartManager.getTotalPrice());
 
 				// Save the sale
-				saleService.create(sale);
+				saleService.createSaleWithItems(sale, items);
 
 				cartManager.clearCart();
 				updateCartButton();

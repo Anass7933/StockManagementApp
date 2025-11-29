@@ -14,10 +14,10 @@ public class SaleItem implements Identifiable {
 
 	}
 
-	public SaleItem(long saleItemId, long productId, long saleId, int quantity, double unitPrice, double lineTotal) {
+	public SaleItem(long saleItemId, long saleId, long productId, int quantity, double unitPrice, double lineTotal) {
 		this.saleItemId = saleItemId;
-		this.productId = productId;
 		this.saleId = saleId;
+		this.productId = productId;
 		this.quantity = quantity;
 		this.unitPrice = unitPrice;
 		this.lineTotal = lineTotal;
@@ -64,8 +64,8 @@ public class SaleItem implements Identifiable {
 		return lineTotal;
 	}
 
-	public void setId(long saleId) {
-		this.saleId = saleId;
+	public void setId(long saleItemId) {
+		this.saleItemId = saleItemId;
 	}
 
 	public void setSaleId(long saleId) {

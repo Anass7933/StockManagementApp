@@ -9,7 +9,7 @@ services:
       POSTGRES_DB: stockdb
     volumes:
       - db-data:/var/lib/postgresql/data
-      - ./docker/database:/docker-entrypoint-initdb.d
+      - ./database:/docker-entrypoint-initdb.d
     ports:
       - "5432:5432"
 

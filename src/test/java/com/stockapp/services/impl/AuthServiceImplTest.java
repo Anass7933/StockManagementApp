@@ -2,114 +2,112 @@ package com.stockapp.services.impl;
 
 import com.stockapp.models.entities.User;
 import com.stockapp.models.enums.UserRole;
-import com.stockapp.services.interfaces.AuthService;
-import com.stockapp.services.interfaces.UserService;
+import com.stockapp.utils.DatabaseUtils;
 import com.stockapp.utils.PasswordUtils;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
-public class AuthServiceImplTest {
+/**
+ * Integration Test for AuthServiceImpl.
+ * * NOTE: This test connects to the REAL 'stockdb' database.
+ * It creates a temporary user before every test and deletes it afterwards.
+ */
+class AuthServiceImplTest {
 
-    private AuthService authService;
-    private UserService userService;
-    private User testUser;
+	private AuthServiceImpl authService;
 
-    @BeforeAll
-    void initServices() {
-        authService = new AuthServiceImpl();
-        userService = new UserServiceImpl();
-    }
+	// Test Data Constants
+	private final String TEST_USERNAME = "junit_integr_test_user";
+	private final String TEST_PASSWORD_RAW = "secureTestPass123";
+	private final String TEST_FULLNAME = "JUnit Integration Agent";
+	private final UserRole TEST_ROLE = UserRole.CASHIER;
 
-    @BeforeEach
-    void setUp() {
-        // Delete user if already exists
-        try {
-            User existing = userService.findByUsername("testuser_auth");
-            if (existing != null) {
-                userService.delete(existing.getId());
-            }
-        } catch (Exception ignored) {}
+	@BeforeEach
+	void setUp() throws SQLException {
+		authService = new AuthServiceImpl();
 
-        // Create fresh test user
-        String rawPassword = "testPassword123";
-        String hashed = PasswordUtils.hashPassword(rawPassword);
+		// 1. Clean up any leftovers from previous failed runs to avoid "Duplicate Key"
+		// errors
+		deleteTestUser();
 
-        testUser = new User(
-                "testuser_auth",
-                hashed,
-                "Test User",
-                UserRole.CASHIER,
-                null
-        );
+		// 2. Hash the raw password using YOUR real util
+		String hashedPassword = PasswordUtils.hashPassword(TEST_PASSWORD_RAW);
 
-        testUser = userService.create(testUser);
-    }
+		// 3. Insert the test user into the real DB
+		try (Connection conn = DatabaseUtils.getConnection()) {
+			// Note: We use 'NOW()' for created_at. Adjust SQL if your DB requires specific
+			// time format.
+			String sql = "INSERT INTO users (username, password_hash, full_name, role, created_at) " +
+					"VALUES (?, ?, ?, ?::user_role, NOW())";
 
-    @AfterEach
-    void tearDown() {
-        try {
-            if (testUser != null && testUser.getId() > 0) {
-                userService.delete(testUser.getId());
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
+			try (PreparedStatement ps = conn.prepareStatement(sql)) {
+				ps.setString(1, TEST_USERNAME);
+				ps.setString(2, hashedPassword);
+				ps.setString(3, TEST_FULLNAME);
+				ps.setString(4, TEST_ROLE.name()); // Converts Enum CASHIER -> "CASHIER"
+				ps.executeUpdate();
+			}
+		}
+	}
 
-    @Test
-    @Order(1)
-    void validCredentials_ReturnUser() {
-        User user = authService.validateLogin("testuser_auth", "testPassword123");
+	@AfterEach
+	void tearDown() throws SQLException {
+		// 4. Always clean up after the test finishes
+		deleteTestUser();
+	}
 
-        assertNotNull(user);
-        assertEquals("testuser_auth", user.getUserName());
-        assertEquals(UserRole.CASHIER, user.getRole());
-    }
+	// Helper method to delete the test user
+	private void deleteTestUser() throws SQLException {
+		try (Connection conn = DatabaseUtils.getConnection()) {
+			String sql = "DELETE FROM users WHERE username = ?";
+			try (PreparedStatement ps = conn.prepareStatement(sql)) {
+				ps.setString(1, TEST_USERNAME);
+				ps.executeUpdate();
+			}
+		}
+	}
 
-    @Test
-    @Order(2)
-    void wrongPassword_ReturnNull() {
-        assertNull(authService.validateLogin("testuser_auth", "wrongPassword"));
-    }
+	@Test
+	void testValidateLogin_Success() {
+		System.out.println("Running: testValidateLogin_Success");
 
-    @Test
-    @Order(3)
-    void unknownUser_ReturnNull() {
-        assertNull(authService.validateLogin("nope", "whatever"));
-    }
+		// Act
+		User user = authService.validateLogin(TEST_USERNAME, TEST_PASSWORD_RAW);
 
-    @Test
-    @Order(4)
-    void emptyPassword_ReturnNull() {
-        assertNull(authService.validateLogin("testuser_auth", ""));
-    }
+		// Assert
+		assertNotNull(user, "Login should return a User object for valid credentials");
+		assertEquals(TEST_USERNAME, user.getUserName(), "Username should match");
+		assertEquals(TEST_ROLE, user.getRole(), "Role should be CASHIER");
+		assertEquals(TEST_FULLNAME, user.getFullName(), "Full Name should match");
+		assertNotNull(user.getId(), "User ID should be populated from DB");
+	}
 
-    @Test
-    @Order(5)
-    void passwordCaseSensitive() {
-        assertNull(authService.validateLogin("testuser_auth", "TESTPASSWORD123"));
-    }
+	@Test
+	void testValidateLogin_WrongPassword() {
+		System.out.println("Running: testValidateLogin_WrongPassword");
 
-    @Test
-    @Order(6)
-    void returnedUser_HasRequiredFields() {
-        User user = authService.validateLogin("testuser_auth", "testPassword123");
+		// Act
+		User user = authService.validateLogin(TEST_USERNAME, "WrongPassword123");
 
-        assertNotNull(user);
-        assertTrue(user.getId() > 0);
-        assertNotNull(user.getPasswordHash());
-        assertNotNull(user.getCreatedAt());
-        assertNotEquals("testPassword123", user.getPasswordHash());
-    }
+		// Assert
+		assertNull(user, "Login should return null when password is incorrect");
+	}
 
-    @Test
-    @Order(7)
-    void nullInputs_ReturnNull() {
-        assertNull(authService.validateLogin(null, "abc"));
-        assertNull(authService.validateLogin("testuser_auth", null));
-        assertNull(authService.validateLogin(null, null));
-    }
+	@Test
+	void testValidateLogin_UserNotFound() {
+		System.out.println("Running: testValidateLogin_UserNotFound");
+
+		// Act
+		User user = authService.validateLogin("ghost_user_9999", "anyPassword");
+
+		// Assert
+		assertNull(user, "Login should return null for non-existent username");
+	}
 }

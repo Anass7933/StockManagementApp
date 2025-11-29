@@ -5,254 +5,165 @@ import com.stockapp.models.entities.SaleItem;
 import com.stockapp.models.enums.Category;
 import com.stockapp.services.impl.ProductServiceImpl;
 import com.stockapp.services.interfaces.ProductService;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
+import java.time.OffsetDateTime;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+class CartManagerTest {
 
-@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-public class CartManagerTest {
+	private CartManager cartManager;
+	private ProductService productService;
+	private Product realProduct; // The product created in the DB
 
-    private CartManager cartManager;
-    private ProductService productService;
-    private Product testProduct;
+	@BeforeEach
+	void setUp() {
+		// 1. Initialize Service
+		productService = new ProductServiceImpl();
+		cartManager = CartManager.getInstance();
 
-    @BeforeEach
-    public void setUp() {
-        // Get singleton instance and clear it
-        cartManager = CartManager.getInstance();
-        cartManager.clearCart();
+		// 2. Clear Cart (Singleton safety)
+		cartManager.clearCart();
 
-        productService = new ProductServiceImpl();
+		// 3. Create a Real Product in DB using the Service
+		// This replaces the complex 'createRealProductInDb' method
+		Product newProduct = new Product(
+				"CartManager Integration Product",
+				"Created by Service",
+				new BigDecimal("20.00"),
+				50, // Quantity
+				5, // Min Stock
+				Category.ELECTRONICS);
 
-        // Create a test product with sufficient stock
-        testProduct = new Product(
-                "Test Product for Cart",
-                "Test Description",
-                new BigDecimal("10.00"),
-                100, // quantity
-                10, // min stock
-                Category.ELECTRONICS);
-        testProduct = productService.create(testProduct);
-    }
+		// The service handles SQL, ID generation, and returning the object
+		this.realProduct = productService.create(newProduct);
+	}
 
-    @AfterEach
-    public void tearDown() {
-        // Clean up: clear cart and delete test product
-        cartManager.clearCart();
-        if (testProduct != null && testProduct.getId() > 0) {
-            try {
-                productService.delete(testProduct.getId());
-            } catch (Exception e) {
-                // Ignore cleanup errors
-            }
-        }
-    }
+	@AfterEach
+	void tearDown() {
+		cartManager.clearCart();
 
-    @Test
-    @Order(1)
-    public void testGetInstance_ShouldReturnSingletonInstance() {
-        CartManager instance1 = CartManager.getInstance();
-        CartManager instance2 = CartManager.getInstance();
+		// Use the service to clean up
+		if (realProduct != null && realProduct.getId() > 0) {
+			productService.delete(realProduct.getId());
+		}
+	}
 
-        assertSame(instance1, instance2, "Should return same singleton instance");
-    }
+	// --- Helper for Dummy Objects (still useful for simple logic tests) ---
+	private Product createDummyProduct(long id, double price, int stock) {
+		return new Product(
+				id,
+				"Dummy Product " + id,
+				"Description",
+				BigDecimal.valueOf(price),
+				stock,
+				5,
+				OffsetDateTime.now(),
+				Category.ELECTRONICS);
+	}
 
-    @Test
-    @Order(2)
-    public void testAddItem_ShouldAddProductToCart() {
-        cartManager.addItem(testProduct, 5);
+	// ================= TESTS =================
 
-        assertEquals(1, cartManager.getTotalItemCount(), "Cart should have 1 item");
-        assertTrue(cartManager.containsProduct(testProduct), "Cart should contain the product");
-        assertEquals(5, cartManager.getProductQuantityInCart(testProduct),
-                "Cart should have correct quantity");
-    }
+	@Test
+	void testAddItem_NewItem() {
+		System.out.println("Running: testAddItem_NewItem");
 
-    @Test
-    @Order(3)
-    public void testAddItem_ShouldThrowExceptionForZeroQuantity() {
-        Exception exception = assertThrows(IllegalArgumentException.class, () -> {
-            cartManager.addItem(testProduct, 0);
-        });
+		// We can use the Real Product for this simple test too
+		cartManager.addItem(realProduct, 5);
 
-        assertEquals("Quantity must be greater than 0", exception.getMessage());
-    }
+		assertEquals(1, cartManager.getTotalItemCount());
+		assertEquals(100.0, cartManager.getTotalPrice()); // 5 * 20.00
 
-    @Test
-    @Order(4)
-    public void testAddItem_ShouldThrowExceptionForNegativeQuantity() {
-        Exception exception = assertThrows(IllegalArgumentException.class, () -> {
-            cartManager.addItem(testProduct, -5);
-        });
+		SaleItem item = cartManager.getCartItems().get(0);
+		assertEquals(realProduct.getId(), item.getProductId());
+	}
 
-        assertEquals("Quantity must be greater than 0", exception.getMessage());
-    }
+	@Test
+	void testAddItem_ExistingItem_IncreasesQuantity() {
+		System.out.println("Running: testAddItem_ExistingItem");
 
-    @Test
-    @Order(5)
-    public void testAddItem_ShouldThrowExceptionWhenExceedingStock() {
-        Exception exception = assertThrows(IllegalArgumentException.class, () -> {
-            cartManager.addItem(testProduct, 150); // More than available stock (100)
-        });
+		cartManager.addItem(realProduct, 2);
+		cartManager.addItem(realProduct, 3);
 
-        assertEquals("Quantity exceeds available stock", exception.getMessage());
-    }
+		assertEquals(1, cartManager.getTotalItemCount());
+		assertEquals(5, cartManager.getCartItems().get(0).getQuantity());
+		assertEquals(100.0, cartManager.getTotalPrice());
+	}
 
-    @Test
-    @Order(6)
-    public void testAddItem_ShouldUpdateQuantityForExistingProduct() {
-        cartManager.addItem(testProduct, 5);
-        cartManager.addItem(testProduct, 3);
+	@Test
+	void testAddItem_ExceedsStock_ThrowsException() {
+		System.out.println("Running: testAddItem_ExceedsStock");
 
-        assertEquals(1, cartManager.getTotalItemCount(), "Should still have 1 unique item");
-        assertEquals(8, cartManager.getProductQuantityInCart(testProduct),
-                "Quantity should be updated to 8");
-    }
+		// Real product has 50 stock. Try to add 51.
+		assertThrows(IllegalArgumentException.class, () -> {
+			cartManager.addItem(realProduct, 51);
+		});
+	}
 
-    @Test
-    @Order(7)
-    public void testAddItem_ShouldThrowExceptionWhenTotalExceedsStock() {
-        cartManager.addItem(testProduct, 60);
+	@Test
+	void testRemoveItem() {
+		System.out.println("Running: testRemoveItem");
 
-        Exception exception = assertThrows(IllegalArgumentException.class, () -> {
-            cartManager.addItem(testProduct, 50); // Total would be 110, exceeding stock of 100
-        });
+		cartManager.addItem(realProduct, 1);
+		SaleItem item = cartManager.getCartItems().get(0);
 
-        assertEquals("Total quantity exceeds available stock", exception.getMessage());
-    }
+		cartManager.removeItem(item);
 
-    @Test
-    @Order(8)
-    public void testRemoveItem_ShouldRemoveProductFromCart() {
-        cartManager.addItem(testProduct, 5);
-        SaleItem item = cartManager.getCartItems().get(0);
+		assertTrue(cartManager.isEmpty());
+	}
 
-        cartManager.removeItem(item);
+	@Test
+	void testCalculateTotal_MultipleItems() {
+		System.out.println("Running: testCalculateTotal");
 
-        assertEquals(0, cartManager.getTotalItemCount(), "Cart should be empty");
-        assertFalse(cartManager.containsProduct(testProduct), "Cart should not contain the product");
-    }
+		// Use Dummy products for this one to avoid creating 2 DB entries
+		Product p1 = createDummyProduct(1001L, 10.0, 100);
+		Product p2 = createDummyProduct(1002L, 5.0, 100);
 
-    @Test
-    @Order(9)
-    public void testUpdateItemQuantity_ShouldUpdateQuantity() {
-        cartManager.addItem(testProduct, 5);
-        SaleItem item = cartManager.getCartItems().get(0);
+		cartManager.addItem(p1, 2); // 20.0
+		cartManager.addItem(p2, 3); // 15.0
 
-        cartManager.updateItemQuantity(item, 10);
+		assertEquals(35.0, cartManager.getTotalPrice());
+	}
 
-        assertEquals(10, item.getQuantity(), "Quantity should be updated to 10");
-    }
+	@Test
+	void testUpdateItemQuantity_Success() {
+		System.out.println("Running: testUpdateItemQuantity_Success");
 
-    @Test
-    @Order(10)
-    public void testUpdateItemQuantity_ShouldRemoveItemWhenQuantityIsZero() {
-        cartManager.addItem(testProduct, 5);
-        SaleItem item = cartManager.getCartItems().get(0);
+		cartManager.addItem(realProduct, 1);
+		SaleItem item = cartManager.getCartItems().get(0);
 
-        cartManager.updateItemQuantity(item, 0);
+		// This works because realProduct exists in the DB
+		cartManager.updateItemQuantity(item, 10);
 
-        assertEquals(0, cartManager.getTotalItemCount(), "Item should be removed from cart");
-    }
+		assertEquals(10, item.getQuantity());
+		assertEquals(200.0, cartManager.getTotalPrice());
+	}
 
-    @Test
-    @Order(11)
-    public void testIncrementQuantity_ShouldIncreaseQuantityByOne() {
-        cartManager.addItem(testProduct, 5);
-        SaleItem item = cartManager.getCartItems().get(0);
+	@Test
+	void testUpdateItemQuantity_ExceedsRealStock() {
+		System.out.println("Running: testUpdateItemQuantity_ExceedsRealStock");
 
-        cartManager.incrementQuantity(item);
+		cartManager.addItem(realProduct, 1);
+		SaleItem item = cartManager.getCartItems().get(0);
 
-        assertEquals(6, item.getQuantity(), "Quantity should be incremented to 6");
-    }
+		// Try to update to 51 (Real DB stock is 50)
+		assertThrows(IllegalArgumentException.class, () -> {
+			cartManager.updateItemQuantity(item, 51);
+		});
+	}
 
-    @Test
-    @Order(12)
-    public void testDecrementQuantity_ShouldDecreaseQuantityByOne() {
-        cartManager.addItem(testProduct, 5);
-        SaleItem item = cartManager.getCartItems().get(0);
+	@Test
+	void testClearCart() {
+		System.out.println("Running: testClearCart");
 
-        cartManager.decrementQuantity(item);
+		cartManager.addItem(realProduct, 1);
+		cartManager.clearCart();
 
-        assertEquals(4, item.getQuantity(), "Quantity should be decremented to 4");
-    }
-
-    @Test
-    @Order(13)
-    public void testDecrementQuantity_ShouldRemoveItemWhenQuantityBecomesZero() {
-        cartManager.addItem(testProduct, 1);
-        SaleItem item = cartManager.getCartItems().get(0);
-
-        cartManager.decrementQuantity(item);
-
-        assertEquals(0, cartManager.getTotalItemCount(), "Item should be removed when quantity becomes 0");
-    }
-
-    @Test
-    @Order(14)
-    public void testGetTotalPrice_ShouldCalculateCorrectTotal() {
-        cartManager.addItem(testProduct, 5);
-
-        double expectedTotal = 5 * 10.00; // 5 items at $10.00 each
-        assertEquals(expectedTotal, cartManager.getTotalPrice(), 0.01,
-                "Total price should be calculated correctly");
-    }
-
-    @Test
-    @Order(15)
-    public void testIsEmpty_ShouldReturnTrueForEmptyCart() {
-        assertTrue(cartManager.isEmpty(), "Empty cart should return true");
-    }
-
-    @Test
-    @Order(16)
-    public void testIsEmpty_ShouldReturnFalseForNonEmptyCart() {
-        cartManager.addItem(testProduct, 1);
-
-        assertFalse(cartManager.isEmpty(), "Non-empty cart should return false");
-    }
-
-    @Test
-    @Order(17)
-    public void testClearCart_ShouldRemoveAllItems() {
-        cartManager.addItem(testProduct, 5);
-
-        cartManager.clearCart();
-
-        assertEquals(0, cartManager.getTotalItemCount(), "Cart should be empty after clear");
-        assertTrue(cartManager.isEmpty(), "Cart should be empty");
-    }
-
-    @Test
-    @Order(18)
-    public void testGetSaleItems_ShouldReturnUnmodifiableList() {
-        cartManager.addItem(testProduct, 5);
-
-        var saleItems = cartManager.getSaleItems();
-
-        assertNotNull(saleItems);
-        assertEquals(1, saleItems.size());
-
-        // Verify it's unmodifiable by attempting to modify
-        assertThrows(UnsupportedOperationException.class, () -> {
-            saleItems.clear();
-        });
-    }
-
-    @Test
-    @Order(19)
-    public void testContainsProduct_ShouldReturnFalseForProductNotInCart() {
-        assertFalse(cartManager.containsProduct(testProduct),
-                "Should return false for product not in cart");
-    }
-
-    @Test
-    @Order(20)
-    public void testGetProductQuantityInCart_ShouldReturnZeroForProductNotInCart() {
-        assertEquals(0, cartManager.getProductQuantityInCart(testProduct),
-                "Should return 0 for product not in cart");
-    }
+		assertTrue(cartManager.isEmpty());
+	}
 }

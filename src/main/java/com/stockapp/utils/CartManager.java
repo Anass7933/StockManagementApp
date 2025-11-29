@@ -14,6 +14,7 @@ public class CartManager {
 
 	private static CartManager instance;
 	private ObservableList<SaleItem> cartItems;
+	private Runnable onCartChange;
 
 	private CartManager() {
 		cartItems = FXCollections.observableArrayList();
@@ -24,6 +25,18 @@ public class CartManager {
 			instance = new CartManager();
 		}
 		return instance;
+	}
+
+	// Add this setter method
+	public void setOnCartChangeListener(Runnable listener) {
+		this.onCartChange = listener;
+	}
+
+	// Helper method to notify the listener
+	private void notifyCartChange() {
+		if (onCartChange != null) {
+			onCartChange.run();
+		}
 	}
 
 	public void addItem(Product product, int quantity) {
@@ -57,10 +70,12 @@ public class CartManager {
 
 			cartItems.add(newItem);
 		}
+		notifyCartChange();
 	}
 
 	public void removeItem(SaleItem item) {
 		cartItems.remove(item);
+		notifyCartChange();
 	}
 
 	public void updateItemQuantity(SaleItem item, int newQuantity) {
@@ -78,6 +93,7 @@ public class CartManager {
 
 		item.setQuantity(newQuantity);
 		cartItems.set(cartItems.indexOf(item), item);
+		notifyCartChange();
 	}
 
 	public void incrementQuantity(SaleItem item) {
@@ -112,6 +128,7 @@ public class CartManager {
 
 	public void clearCart() {
 		cartItems.clear();
+		notifyCartChange();
 	}
 
 	private Optional<SaleItem> findItemByProduct(Product product) {

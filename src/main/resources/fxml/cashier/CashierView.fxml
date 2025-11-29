@@ -34,9 +34,13 @@
 		</HBox>
 	</top>
 	<center>
-		<ScrollPane fitToWidth="true">
-			<ListView fx:id="ProductListView"/>
-		</ScrollPane>
+		<VBox alignment="CENTER" styleClass="content-area">
+			<padding>
+                <Insets top="30" right="50" bottom="30" left="50"/>
+            </padding>
+
+			<ListView fx:id="ProductListView" VBox.vgrow="ALWAYS" maxWidth="1200"/>
+		</VBox>
 	</center>
 	<bottom>
 		<HBox spacing="10" styleClass="bottom-bar">

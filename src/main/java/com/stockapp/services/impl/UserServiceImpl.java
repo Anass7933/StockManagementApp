@@ -126,7 +126,7 @@ public class UserServiceImpl implements UserService {
 	}
 
 	public List<User> findByRole(UserRole role) {
-		String sql_query = "SELECT id, username, password_hash, full_name, role, created_at FROM users WHERE role = ?;";
+		String sql_query = "SELECT id, username, password_hash, full_name, role, created_at FROM users WHERE role = ?::user_role;";
 		List<User> users = new ArrayList<>();
 		try (Connection c = DatabaseUtils.getConnection();) {
 			PreparedStatement ps = c.prepareStatement(sql_query);
