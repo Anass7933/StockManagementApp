@@ -16,7 +16,7 @@ public class Main extends Application {
 		// FXMLLoader.load(getClass().getResource("/fxml/cashier/CashierView.fxml"));
 		// Parent root =
 		// FXMLLoader.load(getClass().getResource("/fxml/cashier/QuantityForm.fxml"));
-		Parent root = FXMLLoader.load(getClass().getResource("/fxml/Login.fxml"));
+		Parent root = FXMLLoader.load(getClass().getResource("/fxml/cashier/CashierView.fxml"));
 		primaryStage.initStyle(StageStyle.DECORATED);
 		primaryStage.setScene(new Scene(root, 500, 400));
 		primaryStage.show();

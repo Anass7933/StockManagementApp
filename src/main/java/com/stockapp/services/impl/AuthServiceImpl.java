@@ -7,7 +7,6 @@ import com.stockapp.services.interfaces.AuthService;
 
 import java.sql.*;
 import java.time.OffsetDateTime;
-import java.util.Optional;
 
 public class AuthServiceImpl implements AuthService {
 	public User validateLogin(String username, String password) {
