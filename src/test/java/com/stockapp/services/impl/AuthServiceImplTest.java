@@ -9,109 +9,107 @@ import org.junit.jupiter.api.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-/**
- * Integration test for AuthServiceImpl
- * Tests authentication functionality without using Mockito
- */
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class AuthServiceImplTest {
 
     private AuthService authService;
     private UserService userService;
     private User testUser;
 
-    @BeforeEach
-    public void setUp() {
+    @BeforeAll
+    void initServices() {
         authService = new AuthServiceImpl();
         userService = new UserServiceImpl();
+    }
 
-        // Create a test user for authentication
-        String password = "testPassword123";
-        String hashedPassword = PasswordUtils.hashPassword(password);
-
-        testUser = new User(
-                "testuser_auth",
-                hashedPassword,
-                "Test User",
-                UserRole.CASHIER,
-                null);
-
-        // Delete if exists from previous test
+    @BeforeEach
+    void setUp() {
+        // Delete user if already exists
         try {
             User existing = userService.findByUsername("testuser_auth");
             if (existing != null) {
                 userService.delete(existing.getId());
             }
-        } catch (Exception e) {
-            // Ignore
-        }
+        } catch (Exception ignored) {}
+
+        // Create fresh test user
+        String rawPassword = "testPassword123";
+        String hashed = PasswordUtils.hashPassword(rawPassword);
+
+        testUser = new User(
+                "testuser_auth",
+                hashed,
+                "Test User",
+                UserRole.CASHIER,
+                null
+        );
 
         testUser = userService.create(testUser);
     }
 
     @AfterEach
-    public void tearDown() {
-        // Clean up test user
-        if (testUser != null && testUser.getId() > 0) {
-            try {
+    void tearDown() {
+        try {
+            if (testUser != null && testUser.getId() > 0) {
                 userService.delete(testUser.getId());
-            } catch (Exception e) {
-                // Ignore cleanup errors
             }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
     @Test
     @Order(1)
-    public void testValidateLogin_ShouldReturnUserForValidCredentials() {
-        User authenticatedUser = authService.validateLogin("testuser_auth", "testPassword123");
+    void validCredentials_ReturnUser() {
+        User user = authService.validateLogin("testuser_auth", "testPassword123");
 
-        assertNotNull(authenticatedUser, "Should return user for valid credentials");
-        assertEquals("testuser_auth", authenticatedUser.getUserName());
-        assertEquals("Test User", authenticatedUser.getFullName());
-        assertEquals(UserRole.CASHIER, authenticatedUser.getRole());
+        assertNotNull(user);
+        assertEquals("testuser_auth", user.getUserName());
+        assertEquals(UserRole.CASHIER, user.getRole());
     }
 
     @Test
     @Order(2)
-    public void testValidateLogin_ShouldReturnNullForInvalidPassword() {
-        User authenticatedUser = authService.validateLogin("testuser_auth", "wrongPassword");
-
-        assertNull(authenticatedUser, "Should return null for invalid password");
+    void wrongPassword_ReturnNull() {
+        assertNull(authService.validateLogin("testuser_auth", "wrongPassword"));
     }
 
     @Test
     @Order(3)
-    public void testValidateLogin_ShouldReturnNullForNonExistentUser() {
-        User authenticatedUser = authService.validateLogin("nonexistent_user", "anyPassword");
-
-        assertNull(authenticatedUser, "Should return null for non-existent user");
+    void unknownUser_ReturnNull() {
+        assertNull(authService.validateLogin("nope", "whatever"));
     }
 
     @Test
     @Order(4)
-    public void testValidateLogin_ShouldReturnNullForEmptyPassword() {
-        User authenticatedUser = authService.validateLogin("testuser_auth", "");
-
-        assertNull(authenticatedUser, "Should return null for empty password");
+    void emptyPassword_ReturnNull() {
+        assertNull(authService.validateLogin("testuser_auth", ""));
     }
 
     @Test
     @Order(5)
-    public void testValidateLogin_ShouldBeCaseSensitiveForPassword() {
-        User authenticatedUser = authService.validateLogin("testuser_auth", "TESTPASSWORD123");
-
-        assertNull(authenticatedUser, "Password should be case-sensitive");
+    void passwordCaseSensitive() {
+        assertNull(authService.validateLogin("testuser_auth", "TESTPASSWORD123"));
     }
 
     @Test
     @Order(6)
-    public void testValidateLogin_ShouldReturnCompleteUserObject() {
-        User authenticatedUser = authService.validateLogin("testuser_auth", "testPassword123");
+    void returnedUser_HasRequiredFields() {
+        User user = authService.validateLogin("testuser_auth", "testPassword123");
 
-        assertNotNull(authenticatedUser);
-        assertTrue(authenticatedUser.getId() > 0, "User should have valid ID");
-        assertNotNull(authenticatedUser.getCreatedAt(), "User should have creation timestamp");
-        assertNotNull(authenticatedUser.getPasswordHash(), "User should have password hash");
+        assertNotNull(user);
+        assertTrue(user.getId() > 0);
+        assertNotNull(user.getPasswordHash());
+        assertNotNull(user.getCreatedAt());
+        assertNotEquals("testPassword123", user.getPasswordHash());
+    }
+
+    @Test
+    @Order(7)
+    void nullInputs_ReturnNull() {
+        assertNull(authService.validateLogin(null, "abc"));
+        assertNull(authService.validateLogin("testuser_auth", null));
+        assertNull(authService.validateLogin(null, null));
     }
 }

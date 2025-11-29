@@ -4,10 +4,7 @@ import org.junit.jupiter.api.Test;
 import java.sql.*;
 import static org.junit.jupiter.api.Assertions.*;
 
-/**
- * Test class for DatabaseUtils
- * Tests database connection and resource management without using Mockito
- */
+
 public class DatabaseUtilsTest {
 
     @Test

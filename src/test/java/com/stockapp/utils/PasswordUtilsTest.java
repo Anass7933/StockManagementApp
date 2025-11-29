@@ -3,10 +3,7 @@ package com.stockapp.utils;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
-/**
- * Test class for PasswordUtils
- * Tests password hashing and verification without using Mockito
- */
+
 public class PasswordUtilsTest {
 
     @Test

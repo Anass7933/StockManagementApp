@@ -11,11 +11,7 @@ import java.math.BigDecimal;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-/**
- * Test class for CartManager
- * Tests cart functionality without using Mockito
- * Note: These tests require a test product in the database
- */
+
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class CartManagerTest {
 
