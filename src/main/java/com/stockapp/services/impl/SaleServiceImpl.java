@@ -131,35 +131,79 @@ public class SaleServiceImpl implements SaleService {
 		return sales;
 	}
 
+	// inside SaleServiceImpl.java
+
+	@Override
 	public Sale createSaleWithItems(Sale sale, List<SaleItem> items) {
 		Connection c = null;
+		PreparedStatement psSale = null;
+		PreparedStatement psItem = null;
+		PreparedStatement psStock = null;
+
 		try {
 			c = DatabaseUtils.getConnection();
-			c.setAutoCommit(false);
+			c.setAutoCommit(false); // 1. Start Transaction
 
-			// Insert the sale using the SaleServiceImpl's create method
-			sale = this.create(sale); // create(Sale)
+			// --- STEP 1: INSERT SALE (Raw SQL) ---
+			String sqlSale = "INSERT INTO sales (total_price) VALUES (?) RETURNING id, created_at";
+			psSale = c.prepareStatement(sqlSale);
+			psSale.setDouble(1, sale.getTotalPrice());
 
-			// Use the SaleItemService to create sale items
-			SaleItemService saleItemService = new SaleItemServiceImpl();
-			ProductService productService = new ProductServiceImpl();
-
-			for (SaleItem item : items) {
-				item.setSaleId(sale.getId());
-
-				// Explicitly call create on the SaleItemService
-				item = saleItemService.create(item);
-
-				// Update stock using existing method
-				productService.updateStock(item.getProductId(), -item.getQuantity());
+			ResultSet rsSale = psSale.executeQuery();
+			if (rsSale.next()) {
+				sale.setId(rsSale.getLong("id"));
+				sale.setCreatedAt(rsSale.getTimestamp("created_at").toInstant().atOffset(ZoneOffset.UTC));
+			} else {
+				throw new RuntimeException("Failed to insert sale header");
 			}
 
+			// --- PREPARE STATEMENTS FOR LOOP ---
+			// We prepare these ONCE to make the loop faster
+			String sqlItem = "INSERT INTO sale_items (sale_id, product_id, quantity, unit_price) VALUES (?, ?, ?, ?) RETURNING id";
+			psItem = c.prepareStatement(sqlItem);
+
+			String sqlStock = "UPDATE products SET quantity = quantity + ? WHERE id = ?";
+			psStock = c.prepareStatement(sqlStock);
+
+			// --- STEP 2: LOOP THROUGH ITEMS ---
+			for (SaleItem item : items) {
+
+				// A. Insert Sale Item
+				psItem.setLong(1, sale.getId()); // Use the ID we just got
+				psItem.setLong(2, item.getProductId());
+				psItem.setInt(3, item.getQuantity());
+				psItem.setDouble(4, item.getUnitPrice());
+
+				ResultSet rsItem = psItem.executeQuery();
+				if (rsItem.next()) {
+					item.setId(rsItem.getLong("id"));
+				}
+
+				// B. Update Product Stock
+				// Note: We send negative quantity to subtract
+				psStock.setInt(1, -item.getQuantity());
+				psStock.setLong(2, item.getProductId());
+
+				int rowsUpdated = psStock.executeUpdate();
+				if (rowsUpdated == 0) {
+					// This throws exception -> triggers catch -> triggers rollback
+					throw new SQLException(
+							"Product not found or failed to update stock for Product ID: " + item.getProductId());
+				}
+
+				// Check for negative stock if your DB doesn't have a CHECK constraint
+				// (Optional: You could query the product here to ensure quantity >= 0)
+			}
+
+			// --- STEP 3: COMMIT ---
 			c.commit();
 			return sale;
 
-		} catch (SQLException e) {
+		} catch (Exception e) {
+			// --- STEP 4: ROLLBACK ---
 			if (c != null) {
 				try {
+					System.out.println("Transaction failed. Rolling back...");
 					c.rollback();
 				} catch (SQLException rollbackEx) {
 					rollbackEx.printStackTrace();
@@ -167,9 +211,15 @@ public class SaleServiceImpl implements SaleService {
 			}
 			throw new RuntimeException("Failed to create sale with items", e);
 		} finally {
+			// --- STEP 5: CLEANUP RESOURCES ---
+			// Close all statements and connection
+			closeQuietly(psSale);
+			closeQuietly(psItem);
+			closeQuietly(psStock);
+
 			if (c != null) {
 				try {
-					c.setAutoCommit(true);
+					c.setAutoCommit(true); // Reset to default
 					c.close();
 				} catch (SQLException closeEx) {
 					closeEx.printStackTrace();
@@ -178,40 +228,120 @@ public class SaleServiceImpl implements SaleService {
 		}
 	}
 
+	// Helper method to keep the finally block clean
+	private void closeQuietly(AutoCloseable resource) {
+		if (resource != null) {
+			try {
+				resource.close();
+			} catch (Exception ignored) {
+			}
+		}
+	}
+
 	@Override
 	public void updateSaleWithItems(Long saleId, Sale sale, List<SaleItem> items) {
-		// Use service implementations (explicit, non-static calls)
-		SaleItemService saleItemService = new SaleItemServiceImpl();
-		ProductService productService = new ProductServiceImpl();
+		Connection c = null;
+		PreparedStatement psSelectOld = null;
+		PreparedStatement psRestoreStock = null;
+		PreparedStatement psUpdateSale = null;
+		PreparedStatement psDeleteOldItems = null;
+		PreparedStatement psInsertNewItem = null;
+		PreparedStatement psDeductStock = null;
 
 		try {
-			// 1) Get existing sale items and restore their quantities
-			List<SaleItem> oldItems = saleItemService.findBySaleId(saleId);
-			if (oldItems != null) {
-				for (SaleItem oldItem : oldItems) {
-					// restore stock
-					productService.updateStock(oldItem.getProductId(), oldItem.getQuantity());
+			c = DatabaseUtils.getConnection();
+			c.setAutoCommit(false); // Start Transaction
+
+			// --- STEP 1: RESTORE STOCK FROM OLD ITEMS ---
+			// We must do this BEFORE deleting the items, otherwise we lose the data
+			String sqlSelectOld = "SELECT product_id, quantity FROM sale_items WHERE sale_id = ?";
+			psSelectOld = c.prepareStatement(sqlSelectOld);
+			psSelectOld.setLong(1, saleId);
+
+			String sqlRestoreStock = "UPDATE products SET quantity = quantity + ? WHERE id = ?";
+			psRestoreStock = c.prepareStatement(sqlRestoreStock);
+
+			ResultSet rsOld = psSelectOld.executeQuery();
+			while (rsOld.next()) {
+				long prodId = rsOld.getLong("product_id");
+				int oldQty = rsOld.getInt("quantity");
+
+				// Add the old quantity back to the product
+				psRestoreStock.setInt(1, oldQty);
+				psRestoreStock.setLong(2, prodId);
+				psRestoreStock.executeUpdate();
+			}
+
+			// --- STEP 2: UPDATE SALE HEADER (Total Price) ---
+			String sqlUpdateSale = "UPDATE sales SET total_price = ? WHERE id = ?";
+			psUpdateSale = c.prepareStatement(sqlUpdateSale);
+			psUpdateSale.setDouble(1, sale.getTotalPrice());
+			psUpdateSale.setLong(2, saleId);
+			psUpdateSale.executeUpdate();
+
+			// --- STEP 3: DELETE OLD ITEMS ---
+			// Now that stock is restored, we can wipe the old items
+			String sqlDeleteOld = "DELETE FROM sale_items WHERE sale_id = ?";
+			psDeleteOldItems = c.prepareStatement(sqlDeleteOld);
+			psDeleteOldItems.setLong(1, saleId);
+			psDeleteOldItems.executeUpdate();
+
+			// --- STEP 4: INSERT NEW ITEMS & DEDUCT STOCK ---
+			String sqlInsertItem = "INSERT INTO sale_items (sale_id, product_id, quantity, unit_price) VALUES (?, ?, ?, ?)";
+			psInsertNewItem = c.prepareStatement(sqlInsertItem);
+
+			String sqlDeductStock = "UPDATE products SET quantity = quantity - ? WHERE id = ?";
+			psDeductStock = c.prepareStatement(sqlDeductStock);
+
+			for (SaleItem item : items) {
+				// A. Insert new item
+				psInsertNewItem.setLong(1, saleId);
+				psInsertNewItem.setLong(2, item.getProductId());
+				psInsertNewItem.setInt(3, item.getQuantity());
+				psInsertNewItem.setDouble(4, item.getUnitPrice());
+				psInsertNewItem.executeUpdate();
+
+				// B. Deduct new quantity from stock
+				psDeductStock.setInt(1, item.getQuantity()); // passing positive value, SQL does 'quantity - ?'
+				psDeductStock.setLong(2, item.getProductId());
+				int rows = psDeductStock.executeUpdate();
+
+				if (rows == 0) {
+					throw new SQLException("Product ID " + item.getProductId() + " not found while updating stock.");
 				}
 			}
 
-			// 2) Update the sale itself (ensure sale has the correct id)
-			sale.setId(saleId);
-			this.update(sale);
-
-			// 3) Update sale items (this method should delete old items and insert/update
-			// the new ones)
-			saleItemService.updateSaleItems(saleId, items);
-
-			// 4) Deduct quantities for the newly provided items
-			if (items != null) {
-				for (SaleItem item : items) {
-					productService.updateStock(item.getProductId(), -item.getQuantity());
-				}
-			}
+			// --- STEP 5: COMMIT ---
+			c.commit();
 
 		} catch (Exception e) {
-			// translate to runtime as before; you can add logging here
-			throw new RuntimeException("Failed to update sale with items for sale ID: " + saleId, e);
+			if (c != null) {
+				try {
+					System.out.println("Update failed. Rolling back transaction...");
+					c.rollback();
+				} catch (SQLException rollbackEx) {
+					rollbackEx.printStackTrace();
+				}
+			}
+			throw new RuntimeException("Failed to update sale with items for ID: " + saleId, e);
+		} finally {
+			// --- STEP 6: CLEANUP ---
+			// Helper method 'closeQuietly' is recommended, or explicit try-catch for each
+			closeQuietly(psSelectOld);
+			closeQuietly(psRestoreStock);
+			closeQuietly(psUpdateSale);
+			closeQuietly(psDeleteOldItems);
+			closeQuietly(psInsertNewItem);
+			closeQuietly(psDeductStock);
+
+			if (c != null) {
+				try {
+					c.setAutoCommit(true);
+					c.close();
+				} catch (SQLException e) {
+					e.printStackTrace();
+				}
+			}
 		}
 	}
 
