@@ -4,14 +4,11 @@ import com.stockapp.models.entities.Product;
 import com.stockapp.models.entities.SaleItem;
 import com.stockapp.services.impl.ProductServiceImpl;
 import com.stockapp.services.interfaces.ProductService;
-
+import java.util.Optional;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
-import java.util.Optional;
-
 public class CartManager {
-
 	private static CartManager instance;
 	private ObservableList<SaleItem> cartItems;
 	private Runnable onCartChange;
@@ -27,12 +24,10 @@ public class CartManager {
 		return instance;
 	}
 
-	// Add this setter method
 	public void setOnCartChangeListener(Runnable listener) {
 		this.onCartChange = listener;
 	}
 
-	// Helper method to notify the listener
 	private void notifyCartChange() {
 		if (onCartChange != null) {
 			onCartChange.run();
@@ -43,31 +38,22 @@ public class CartManager {
 		if (quantity <= 0) {
 			throw new IllegalArgumentException("Quantity must be greater than 0");
 		}
-
 		if (quantity > product.getQuantity()) {
 			throw new IllegalArgumentException("Quantity exceeds available stock");
 		}
-
-		// Check if product already in cart
 		Optional<SaleItem> existingItem = findItemByProduct(product);
-
 		if (existingItem.isPresent()) {
-			// Update existing item quantity
 			SaleItem item = existingItem.get();
 			int newQuantity = item.getQuantity() + quantity;
-
 			if (newQuantity > product.getQuantity()) {
 				throw new IllegalArgumentException("Total quantity exceeds available stock");
 			}
-
 			item.setQuantity(newQuantity);
 		} else {
-			// Create new sale item
 			SaleItem newItem = new SaleItem();
 			newItem.setProduct(product);
 			newItem.setQuantity(quantity);
 			newItem.setUnitPrice(product.getPrice().doubleValue());
-
 			cartItems.add(newItem);
 		}
 		notifyCartChange();
@@ -83,14 +69,12 @@ public class CartManager {
 			removeItem(item);
 			return;
 		}
-
 		ProductService productService = new ProductServiceImpl();
 		Product product = productService.read(item.getProductId())
 				.orElseThrow(() -> new IllegalArgumentException("Product not found"));
 		if (newQuantity > product.getQuantity()) {
 			throw new IllegalArgumentException("Quantity exceeds available stock");
 		}
-
 		item.setQuantity(newQuantity);
 		cartItems.set(cartItems.indexOf(item), item);
 		notifyCartChange();
@@ -113,9 +97,7 @@ public class CartManager {
 	}
 
 	public double getTotalPrice() {
-		return cartItems.stream()
-				.mapToDouble(item -> item.getUnitPrice() * item.getQuantity())
-				.sum();
+		return cartItems.stream().mapToDouble(item -> item.getUnitPrice() * item.getQuantity()).sum();
 	}
 
 	public int getTotalItemCount() {
@@ -132,9 +114,7 @@ public class CartManager {
 	}
 
 	private Optional<SaleItem> findItemByProduct(Product product) {
-		return cartItems.stream()
-				.filter(item -> item.getProductId() == product.getId())
-				.findFirst();
+		return cartItems.stream().filter(item -> item.getProductId() == product.getId()).findFirst();
 	}
 
 	public boolean containsProduct(Product product) {
@@ -142,8 +122,6 @@ public class CartManager {
 	}
 
 	public int getProductQuantityInCart(Product product) {
-		return findItemByProduct(product)
-				.map(SaleItem::getQuantity)
-				.orElse(0);
+		return findItemByProduct(product).map(SaleItem::getQuantity).orElse(0);
 	}
 }

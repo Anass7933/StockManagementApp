@@ -1,16 +1,14 @@
 package com.stockapp.services.impl;
 
 import com.stockapp.models.entities.Product;
+import com.stockapp.models.enums.Category;
 import com.stockapp.services.interfaces.ProductService;
 import com.stockapp.utils.*;
-import com.stockapp.models.enums.Category;
-
 import java.sql.*;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-
 import javax.swing.text.html.Option;
 
 public class ProductServiceImpl implements ProductService {
@@ -20,23 +18,18 @@ public class ProductServiceImpl implements ProductService {
 				    VALUES (?, ?, ?, ?, ?, ?::category)
 				    RETURNING id, created_at;
 				""";
-
-		try (Connection c = DatabaseUtils.getConnection();
-				PreparedStatement ps = c.prepareStatement(sql)) {
-
+		try (Connection c = DatabaseUtils.getConnection(); PreparedStatement ps = c.prepareStatement(sql)) {
 			ps.setString(1, product.getName());
 			ps.setString(2, product.getDescription());
 			ps.setBigDecimal(3, product.getPrice());
 			ps.setInt(4, product.getQuantity());
 			ps.setInt(5, product.getMinStock());
 			ps.setString(6, product.getCategory().name());
-
 			try (ResultSet rs = ps.executeQuery()) {
 				if (rs.next()) {
 					long id = rs.getLong("id");
 					OffsetDateTime createdAt = rs.getObject("created_at", OffsetDateTime.class);
-					return new Product(
-							id,
+					return new Product(id,
 							product.getName(),
 							product.getDescription(),
 							product.getPrice(),
@@ -48,7 +41,6 @@ public class ProductServiceImpl implements ProductService {
 					throw new RuntimeException("Failed to insert product");
 				}
 			}
-
 		} catch (SQLException e) {
 			throw new RuntimeException("Failed to add product", e);
 		}
@@ -63,12 +55,9 @@ public class ProductServiceImpl implements ProductService {
 		try (Connection c = DatabaseUtils.getConnection();) {
 			PreparedStatement ps = c.prepareStatement(sql_query);
 			ps.setLong(1, id);
-
 			ResultSet rs = ps.executeQuery();
-
 			if (rs.next()) {
-				Product product = new Product(
-						rs.getLong("id"),
+				Product product = new Product(rs.getLong("id"),
 						rs.getString("name"),
 						rs.getString("description"),
 						rs.getBigDecimal("price"),
@@ -80,7 +69,6 @@ public class ProductServiceImpl implements ProductService {
 			} else {
 				return Optional.empty();
 			}
-
 		} catch (SQLException e) {
 			throw new RuntimeException("Error reading product", e);
 		}
@@ -91,12 +79,9 @@ public class ProductServiceImpl implements ProductService {
 				    UPDATE products
 				    SET name = ?, description = ?, price = ?, quantity = ?, min_stock = ?, category = ?::category
 				    WHERE id = ?
-				    RETURNING created_at;
+				    RETURNING id,created_at;
 				""";
-
-		try (Connection c = DatabaseUtils.getConnection();
-				PreparedStatement ps = c.prepareStatement(sql)) {
-
+		try (Connection c = DatabaseUtils.getConnection(); PreparedStatement ps = c.prepareStatement(sql)) {
 			ps.setString(1, product.getName());
 			ps.setString(2, product.getDescription());
 			ps.setBigDecimal(3, product.getPrice());
@@ -104,13 +89,11 @@ public class ProductServiceImpl implements ProductService {
 			ps.setInt(5, product.getMinStock());
 			ps.setString(6, product.getCategory().name());
 			ps.setLong(7, product.getId());
-
 			try (ResultSet rs = ps.executeQuery()) {
 				if (rs.next()) {
 					long id = rs.getLong("id");
 					OffsetDateTime createdAt = rs.getObject("created_at", OffsetDateTime.class);
-					return new Product(
-							id,
+					return new Product(id,
 							product.getName(),
 							product.getDescription(),
 							product.getPrice(),
@@ -122,7 +105,6 @@ public class ProductServiceImpl implements ProductService {
 					throw new RuntimeException("Failed to update product");
 				}
 			}
-
 		} catch (SQLException e) {
 			throw new RuntimeException("Failed to update product", e);
 		}
@@ -130,16 +112,12 @@ public class ProductServiceImpl implements ProductService {
 
 	public void delete(Long id) {
 		String sql = "DELETE FROM products WHERE id = ?";
-
-		try (Connection c = DatabaseUtils.getConnection();
-				PreparedStatement ps = c.prepareStatement(sql)) {
-
+		try (Connection c = DatabaseUtils.getConnection(); PreparedStatement ps = c.prepareStatement(sql)) {
 			ps.setLong(1, id);
 			int deleted = ps.executeUpdate();
 			if (deleted == 0) {
 				throw new RuntimeException("No product deleted (id=" + id + ")");
 			}
-
 		} catch (SQLException e) {
 			throw new RuntimeException("Failed to delete product", e);
 		}
@@ -151,16 +129,12 @@ public class ProductServiceImpl implements ProductService {
 				    FROM products
 				    ORDER BY id ASC
 				""";
-
 		List<Product> products = new ArrayList<>();
-
 		try (Connection c = DatabaseUtils.getConnection();
 				PreparedStatement ps = c.prepareStatement(sql);
 				ResultSet rs = ps.executeQuery()) {
-
 			while (rs.next()) {
-				products.add(new Product(
-						rs.getLong("id"),
+				products.add(new Product(rs.getLong("id"),
 						rs.getString("name"),
 						rs.getString("description"),
 						rs.getBigDecimal("price"),
@@ -169,9 +143,7 @@ public class ProductServiceImpl implements ProductService {
 						rs.getObject("created_at", OffsetDateTime.class),
 						Category.valueOf(rs.getString("category"))));
 			}
-
 			return products;
-
 		} catch (SQLException e) {
 			throw new RuntimeException("Failed to fetch products", e);
 		}
@@ -183,16 +155,11 @@ public class ProductServiceImpl implements ProductService {
 				    FROM products
 				    WHERE name = ?
 				""";
-
-		try (Connection c = DatabaseUtils.getConnection();
-				PreparedStatement ps = c.prepareStatement(sql)) {
-
+		try (Connection c = DatabaseUtils.getConnection(); PreparedStatement ps = c.prepareStatement(sql)) {
 			ps.setString(1, name);
-
 			try (ResultSet rs = ps.executeQuery()) {
 				if (rs.next()) {
-					return Optional.of(new Product(
-							rs.getLong("id"),
+					return Optional.of(new Product(rs.getLong("id"),
 							rs.getString("name"),
 							rs.getString("description"),
 							rs.getBigDecimal("price"),
@@ -204,7 +171,6 @@ public class ProductServiceImpl implements ProductService {
 					return Optional.empty();
 				}
 			}
-
 		} catch (SQLException e) {
 			throw new RuntimeException("Failed to fetch product", e);
 		}
@@ -212,17 +178,12 @@ public class ProductServiceImpl implements ProductService {
 
 	public List<Product> findByCategory(String category) {
 		String sql_query = "SELECT id, name, description, price, quantity, min_stock, created_at, category FROM products";
-
 		List<Product> products = new ArrayList<>();
-
 		try (Connection c = DatabaseUtils.getConnection();) {
 			PreparedStatement ps = c.prepareStatement(sql_query);
-
 			ResultSet rs = ps.executeQuery();
-
 			while (rs.next()) {
-				Product user = new Product(
-						rs.getLong("id"),
+				Product user = new Product(rs.getLong("id"),
 						rs.getString("name"),
 						rs.getString("description"),
 						rs.getBigDecimal("price"),
@@ -233,7 +194,6 @@ public class ProductServiceImpl implements ProductService {
 				products.add(user);
 			}
 			return products;
-
 		} catch (SQLException e) {
 			throw new RuntimeException("Error reading all products", e);
 		}
@@ -241,19 +201,13 @@ public class ProductServiceImpl implements ProductService {
 
 	public boolean isNeedRestock(Long productId) {
 		String sql = "SELECT quantity,min_stock from products where id = ?";
-
 		int quantity, min_stock;
-
-		try (Connection c = DatabaseUtils.getConnection();
-				PreparedStatement ps = c.prepareStatement(sql)) {
+		try (Connection c = DatabaseUtils.getConnection(); PreparedStatement ps = c.prepareStatement(sql)) {
 			ps.setLong(1, productId);
-
 			ResultSet rs = ps.executeQuery();
-
 			rs.next();
 			quantity = rs.getInt("quantity");
 			min_stock = rs.getInt("min_stock");
-
 			return quantity <= min_stock;
 		} catch (SQLException e) {
 			throw new RuntimeException("Failed to check product", e);
@@ -263,10 +217,7 @@ public class ProductServiceImpl implements ProductService {
 	public void updateStock(Long productId, int amount) {
 		String selectSql = "SELECT quantity FROM products WHERE id = ?";
 		String updateSql = "UPDATE products SET quantity = quantity + ? WHERE id = ?";
-
 		try (Connection c = DatabaseUtils.getConnection()) {
-
-			// 1. Check current stock
 			int currentQuantity;
 			try (PreparedStatement ps = c.prepareStatement(selectSql)) {
 				ps.setLong(1, productId);
@@ -277,19 +228,14 @@ public class ProductServiceImpl implements ProductService {
 					currentQuantity = rs.getInt("quantity");
 				}
 			}
-
-			// 2. If removing, check if enough stock exists
 			if (amount < 0 && currentQuantity + amount < 0) {
 				throw new RuntimeException("Not enough stock for product (id=" + productId + ")");
 			}
-
-			// 3. Update stock
 			try (PreparedStatement ps = c.prepareStatement(updateSql)) {
 				ps.setInt(1, amount);
 				ps.setLong(2, productId);
 				ps.executeUpdate();
 			}
-
 		} catch (SQLException e) {
 			throw new RuntimeException("Failed to update product stock", e);
 		}

@@ -1,6 +1,7 @@
 package com.stockapp.controllers.cashier;
 
 import com.stockapp.models.entities.Product;
+import java.util.Optional;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
@@ -8,10 +9,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 
-import java.util.Optional;
-
 public class QuantityFormController {
-
 	@FXML
 	private Label lblProductName;
 	@FXML
@@ -22,27 +20,19 @@ public class QuantityFormController {
 	private Button btnCancel;
 	@FXML
 	private Button btnAdd;
-
 	private Product product;
 	private Integer selectedQuantity;
 
 	@FXML
 	public void initialize() {
-		// Set default quantity to 1
 		txtQuantity.setText("1");
-
-		// Force numeric input only
 		txtQuantity.textProperty().addListener((observable, oldValue, newValue) -> {
 			if (!newValue.matches("\\d*")) {
 				txtQuantity.setText(newValue.replaceAll("[^\\d]", ""));
 			}
 		});
-
-		// Button actions
 		btnCancel.setOnAction(e -> handleCancel());
 		btnAdd.setOnAction(e -> handleAdd());
-
-		// Enter key triggers Add button
 		txtQuantity.setOnAction(e -> handleAdd());
 	}
 
@@ -50,8 +40,6 @@ public class QuantityFormController {
 		this.product = product;
 		lblProductName.setText(product.getName());
 		lblMaxStock.setText("Max: " + product.getQuantity());
-
-		// Focus on quantity field
 		txtQuantity.requestFocus();
 		txtQuantity.selectAll();
 	}
@@ -70,31 +58,22 @@ public class QuantityFormController {
 
 	private boolean validateInput() {
 		String input = txtQuantity.getText().trim();
-
-		// Check if empty
 		if (input.isEmpty()) {
 			showError("Invalid Input", "Please enter a quantity.");
 			return false;
 		}
-
 		try {
 			int quantity = Integer.parseInt(input);
-
-			// Check if positive
 			if (quantity <= 0) {
 				showError("Invalid Quantity", "Quantity must be greater than 0.");
 				return false;
 			}
-
-			// Check if exceeds stock
 			if (quantity > product.getQuantity()) {
 				showError("Insufficient Stock",
 						String.format("Only %d units available in stock.", product.getQuantity()));
 				return false;
 			}
-
 			return true;
-
 		} catch (NumberFormatException e) {
 			showError("Invalid Input", "Please enter a valid number.");
 			return false;

@@ -4,6 +4,9 @@ import com.stockapp.models.entities.Product;
 import com.stockapp.models.entities.User;
 import com.stockapp.services.impl.ProductServiceImpl;
 import com.stockapp.services.interfaces.ProductService;
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.util.List;
 import javafx.animation.Animation;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
@@ -18,52 +21,33 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 
-import java.io.IOException;
-import java.math.BigDecimal;
-import java.util.List;
-
 public class AdminProductsController {
-
 	@FXML
 	private Label userNameLabel;
-
 	@FXML
 	private Button addButton;
-
 	@FXML
 	private Button modifyButton;
-
 	@FXML
 	private Button deleteButton;
-
 	@FXML
 	private TableView<Product> productsTable;
-
 	@FXML
 	private TableColumn<Product, Long> idColumn;
-
 	@FXML
 	private TableColumn<Product, String> nameColumn;
-
 	@FXML
 	private TableColumn<Product, BigDecimal> priceColumn;
-
 	@FXML
 	private TableColumn<Product, Integer> quantityColumn;
-
 	@FXML
 	private TableColumn<Product, String> categoryColumn;
-
 	@FXML
 	private Button sighOutButton;
-
 	@FXML
 	private Button usersButton;
-
 	private User loggedUser;
-
-	private final Timeline refreshTimeline = new Timeline(
-			new KeyFrame(Duration.ZERO, e -> refreshProducts()),
+	private final Timeline refreshTimeline = new Timeline(new KeyFrame(Duration.ZERO, e -> refreshProducts()),
 			new KeyFrame(Duration.seconds(2), e -> refreshProducts()));
 
 	public void setLoggedUser(String username) {
@@ -77,7 +61,6 @@ public class AdminProductsController {
 		priceColumn.setCellValueFactory(new PropertyValueFactory<>("price"));
 		quantityColumn.setCellValueFactory(new PropertyValueFactory<>("quantity"));
 		categoryColumn.setCellValueFactory(new PropertyValueFactory<>("category"));
-
 		productsTable.setRowFactory(tv -> new TableRow<>() {
 			@Override
 			protected void updateItem(Product product, boolean empty) {
@@ -91,11 +74,8 @@ public class AdminProductsController {
 				}
 			}
 		});
-
 		productsTable.setFixedCellSize(40);
-
 		addButton.setOnAction(e -> openProductForm(0));
-
 		modifyButton.setOnAction(e -> {
 			Product selected = productsTable.getSelectionModel().getSelectedItem();
 			if (selected == null) {
@@ -104,7 +84,6 @@ public class AdminProductsController {
 			}
 			openProductForm(selected.getId());
 		});
-
 		deleteButton.setOnAction(e -> {
 			Product selected = productsTable.getSelectionModel().getSelectedItem();
 			if (selected == null) {
@@ -115,26 +94,20 @@ public class AdminProductsController {
 			productService.delete(selected.getId());
 			refreshProducts();
 		});
-
 		sighOutButton.setOnAction(e -> signOut());
-
 		usersButton.setOnAction(e -> {
 			try {
 				FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/AdminUsersDashboard.fxml"));
 				Parent root = loader.load();
-
 				AdminUsersController controller = loader.getController();
 				controller.setLoggedUser(userNameLabel.getText().replace("Hi, ", ""));
-
 				Stage stage = (Stage) usersButton.getScene().getWindow();
 				stage.setScene(new Scene(root));
 				stage.show();
-
 			} catch (IOException ex) {
 				throw new RuntimeException(ex);
 			}
 		});
-
 		refreshTimeline.setCycleCount(Animation.INDEFINITE);
 		refreshTimeline.play();
 	}
@@ -143,7 +116,6 @@ public class AdminProductsController {
 		try {
 			FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/ProductForm.fxml"));
 			Parent root = loader.load();
-
 			ProductFormController controller = loader.getController();
 			Stage stage = new Stage();
 			stage.setTitle(productId == 0 ? "Add Product" : "Edit Product");
@@ -185,14 +157,12 @@ public class AdminProductsController {
 		List<Product> products = productService.readAll();
 		ObservableList<Product> data = FXCollections.observableArrayList(products);
 		productsTable.setItems(data);
-
 		if (selected != null) {
 			data.stream()
 					.filter(p -> p.getId() == selected.getId())
 					.findFirst()
 					.ifPresent(p -> productsTable.getSelectionModel().select(p));
 		}
-
 	}
 
 	private void autoResizeTable() {

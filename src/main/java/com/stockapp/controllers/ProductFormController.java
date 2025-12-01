@@ -4,6 +4,7 @@ import com.stockapp.models.entities.Product;
 import com.stockapp.models.enums.Category;
 import com.stockapp.services.impl.ProductServiceImpl;
 import com.stockapp.services.interfaces.ProductService;
+import java.math.BigDecimal;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
@@ -13,10 +14,7 @@ import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 
-import java.math.BigDecimal;
-
 public class ProductFormController {
-
 	@FXML
 	private TextField nameField;
 	@FXML
@@ -24,7 +22,7 @@ public class ProductFormController {
 	@FXML
 	private TextField quantityField;
 	@FXML
-	private ComboBox<Category> categoryField; // <-- changed from TextField
+	private ComboBox<Category> categoryField;
 	@FXML
 	private TextField minStockField;
 	@FXML
@@ -33,7 +31,6 @@ public class ProductFormController {
 	private Button saveButton;
 	@FXML
 	private Button cancelButton;
-
 	private Stage stage;
 
 	public void setStage(Stage stage) {
@@ -42,10 +39,8 @@ public class ProductFormController {
 
 	@FXML
 	private void initialize() {
-		// Populate ComboBox with enum values
 		categoryField.getItems().setAll(Category.values());
-		categoryField.getSelectionModel().selectFirst(); // optional default selection
-
+		categoryField.getSelectionModel().selectFirst();
 		saveButton.setOnAction(e -> saveProduct());
 	}
 
@@ -60,21 +55,18 @@ public class ProductFormController {
 			int minStock = Integer.parseInt(minStockField.getText().trim());
 			String description = descriptionField.getText().trim();
 			Category category = categoryField.getValue();
-
 			if (category == null) {
 				showAlert("Please select a category.");
 				return;
 			}
-
 			Product product = new Product(name, description, price, quantity, minStock, category);
-
 			if (editingProductId == 0) {
 				productService.create(product);
 			} else {
 				product.setId(editingProductId);
 				productService.update(product);
 			}
-
+			Stage stage = (Stage) saveButton.getScene().getWindow();
 			stage.close();
 		} catch (NumberFormatException ex) {
 			showAlert("Please enter valid numeric values for price, quantity and min stock.");
@@ -88,7 +80,7 @@ public class ProductFormController {
 			nameField.setText(product.getName());
 			priceField.setText(product.getPrice().toPlainString());
 			quantityField.setText(String.valueOf(product.getQuantity()));
-			categoryField.setValue(product.getCategory()); // ComboBox uses setValue()
+			categoryField.setValue(product.getCategory());
 			minStockField.setText(String.valueOf(product.getMinStock()));
 			descriptionField.setText(product.getDescription());
 		});

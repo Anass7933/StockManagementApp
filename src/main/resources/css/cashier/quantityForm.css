@@ -1,11 +1,9 @@
-/* Dialog Styling */
 .dialog-title {
     -fx-font-size: 18px;
     -fx-font-weight: 700;
     -fx-text-fill: #111827;
 }
 
-/* Spinner Styling */
 .spinner {
     -fx-background-color: #f9fafb;
     -fx-border-color: #e5e7eb;
@@ -48,7 +46,6 @@
     -fx-background-color: #6b7280;
 }
 
-/* Label styling for dialog */
 .label {
     -fx-text-fill: #374151;
     -fx-font-size: 14px;
@@ -59,7 +56,6 @@
     -fx-font-size: 13px;
 }
 
-/* Button variants for dialog */
 #btnCancel {
     -fx-background-color: #f3f4f6;
     -fx-text-fill: #374151;

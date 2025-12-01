@@ -5,7 +5,7 @@ import com.stockapp.models.enums.UserRole;
 import com.stockapp.services.impl.UserServiceImpl;
 import com.stockapp.services.interfaces.UserService;
 import com.stockapp.utils.PasswordUtils;
-
+import java.time.OffsetDateTime;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -13,10 +13,7 @@ import javafx.scene.control.ComboBox;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 
-import java.time.OffsetDateTime;
-
 public class UserFormController {
-
 	@FXML
 	private TextField usernameField;
 	@FXML
@@ -29,7 +26,6 @@ public class UserFormController {
 	private Button saveButton;
 	@FXML
 	private Button cancelButton;
-
 	private Stage stage;
 
 	public void setStage(Stage stage) {
@@ -44,21 +40,17 @@ public class UserFormController {
 			String password = passwordField.getText();
 			UserRole role = UserRole.valueOf(roleComboBox.getValue().replace(" ", "_").toUpperCase());
 			UserService userService = new UserServiceImpl();
-
 			User user = new User(username, PasswordUtils.hashPassword(password), fullName, role, OffsetDateTime.now());
-
 			if (editingUserId == 0) {
 				userService.create(user);
 			} else {
 				user.setId(editingUserId);
 				userService.update(user);
 			}
-
 			stage.close();
 		});
 	}
 
-	// Pre-fill fields for modify
 	private long editingUserId;
 
 	public void loadUserData(long userId) {

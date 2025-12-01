@@ -11,7 +11,6 @@ public class SaleItem implements Identifiable {
 	private double lineTotal;
 
 	public SaleItem() {
-
 	}
 
 	public SaleItem(long saleItemId, long saleId, long productId, int quantity, double unitPrice, double lineTotal) {
@@ -91,5 +90,4 @@ public class SaleItem implements Identifiable {
 	public void setProduct(Product product) {
 		this.productId = product.getId();
 	}
-
 }

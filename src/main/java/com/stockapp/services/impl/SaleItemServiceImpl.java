@@ -3,27 +3,23 @@ package com.stockapp.services.impl;
 import com.stockapp.models.entities.SaleItem;
 import com.stockapp.services.interfaces.SaleItemService;
 import com.stockapp.utils.DatabaseUtils;
-
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 public class SaleItemServiceImpl implements SaleItemService {
-
 	public SaleItem create(SaleItem saleItem) {
 		String sql = """
 				INSERT INTO sale_items (sale_id, product_id, quantity, unit_price)
 				VALUES (?, ?, ?, ?)
 				RETURNING id, line_total;
 				""";
-		try (Connection c = DatabaseUtils.getConnection();
-				PreparedStatement ps = c.prepareStatement(sql)) {
+		try (Connection c = DatabaseUtils.getConnection(); PreparedStatement ps = c.prepareStatement(sql)) {
 			ps.setLong(1, saleItem.getSaleId());
 			ps.setLong(2, saleItem.getProductId());
 			ps.setInt(3, saleItem.getQuantity());
 			ps.setDouble(4, saleItem.getUnitPrice());
-
 			try (ResultSet rs = ps.executeQuery()) {
 				if (rs.next()) {
 					saleItem.setId(rs.getLong("id"));
@@ -40,8 +36,7 @@ public class SaleItemServiceImpl implements SaleItemService {
 
 	public void delete(Long saleId) {
 		String sql = "DELETE FROM sale_items WHERE sale_id = ?";
-		try (Connection c = DatabaseUtils.getConnection();
-				PreparedStatement ps = c.prepareStatement(sql)) {
+		try (Connection c = DatabaseUtils.getConnection(); PreparedStatement ps = c.prepareStatement(sql)) {
 			ps.setLong(1, saleId);
 			ps.executeUpdate();
 		} catch (SQLException e) {
@@ -51,14 +46,11 @@ public class SaleItemServiceImpl implements SaleItemService {
 
 	public Optional<SaleItem> read(Long id) {
 		String sql = "SELECT id, sale_id, product_id, quantity, unit_price, line_total FROM sale_items WHERE id = ?";
-		try (Connection c = DatabaseUtils.getConnection();
-				PreparedStatement ps = c.prepareStatement(sql)) {
+		try (Connection c = DatabaseUtils.getConnection(); PreparedStatement ps = c.prepareStatement(sql)) {
 			ps.setLong(1, id);
-
 			try (ResultSet rs = ps.executeQuery()) {
 				if (rs.next()) {
-					SaleItem saleItem = new SaleItem(
-							rs.getLong("id"),
+					SaleItem saleItem = new SaleItem(rs.getLong("id"),
 							rs.getLong("sale_id"),
 							rs.getLong("product_id"),
 							rs.getInt("quantity"),
@@ -81,15 +73,12 @@ public class SaleItemServiceImpl implements SaleItemService {
 				WHERE id = ?
 				RETURNING line_total;
 				""";
-
-		try (Connection c = DatabaseUtils.getConnection();
-				PreparedStatement ps = c.prepareStatement(sql)) {
+		try (Connection c = DatabaseUtils.getConnection(); PreparedStatement ps = c.prepareStatement(sql)) {
 			ps.setLong(1, saleItem.getSaleId());
 			ps.setLong(2, saleItem.getProductId());
 			ps.setInt(3, saleItem.getQuantity());
 			ps.setDouble(4, saleItem.getUnitPrice());
 			ps.setLong(5, saleItem.getId());
-
 			try (ResultSet rs = ps.executeQuery()) {
 				if (rs.next()) {
 					saleItem.setLineTotal(rs.getDouble("line_total"));
@@ -106,14 +95,11 @@ public class SaleItemServiceImpl implements SaleItemService {
 	public List<SaleItem> readAll() {
 		String sql = "SELECT id, sale_id, product_id, quantity, unit_price, line_total FROM sale_items";
 		List<SaleItem> saleItems = new ArrayList<>();
-
 		try (Connection c = DatabaseUtils.getConnection();
 				PreparedStatement ps = c.prepareStatement(sql);
 				ResultSet rs = ps.executeQuery()) {
-
 			while (rs.next()) {
-				SaleItem saleItem = new SaleItem(
-						rs.getLong("id"),
+				SaleItem saleItem = new SaleItem(rs.getLong("id"),
 						rs.getLong("sale_id"),
 						rs.getLong("product_id"),
 						rs.getInt("quantity"),
@@ -124,7 +110,6 @@ public class SaleItemServiceImpl implements SaleItemService {
 		} catch (SQLException e) {
 			throw new RuntimeException("Failed to read all sale items", e);
 		}
-
 		return saleItems;
 	}
 
@@ -141,14 +126,11 @@ public class SaleItemServiceImpl implements SaleItemService {
 		try {
 			c = DatabaseUtils.getConnection();
 			c.setAutoCommit(false);
-
-			// Delete existing items for this sale
 			String deleteSql = "DELETE FROM sale_items WHERE sale_id = ?";
 			try (PreparedStatement deletePs = c.prepareStatement(deleteSql)) {
 				deletePs.setLong(1, saleId);
 				deletePs.executeUpdate();
 			}
-
 			String insertSql = """
 					INSERT INTO sale_items (sale_id, product_id, quantity, unit_price)
 					VALUES (?, ?, ?, ?)
@@ -160,7 +142,6 @@ public class SaleItemServiceImpl implements SaleItemService {
 					insertPs.setLong(2, item.getProductId());
 					insertPs.setInt(3, item.getQuantity());
 					insertPs.setDouble(4, item.getUnitPrice());
-
 					try (ResultSet rs = insertPs.executeQuery()) {
 						if (rs.next()) {
 							item.setId(rs.getLong("id"));
@@ -170,7 +151,6 @@ public class SaleItemServiceImpl implements SaleItemService {
 					}
 				}
 			}
-
 			c.commit();
 		} catch (SQLException e) {
 			if (c != null) {
@@ -196,15 +176,11 @@ public class SaleItemServiceImpl implements SaleItemService {
 	public List<SaleItem> findByProductId(Long productId) {
 		String sql = "SELECT id, sale_id, product_id, quantity, unit_price, line_total FROM sale_items WHERE product_id = ?";
 		List<SaleItem> saleItems = new ArrayList<>();
-
-		try (Connection c = DatabaseUtils.getConnection();
-				PreparedStatement ps = c.prepareStatement(sql)) {
+		try (Connection c = DatabaseUtils.getConnection(); PreparedStatement ps = c.prepareStatement(sql)) {
 			ps.setLong(1, productId);
-
 			try (ResultSet rs = ps.executeQuery()) {
 				while (rs.next()) {
-					SaleItem saleItem = new SaleItem(
-							rs.getLong("id"),
+					SaleItem saleItem = new SaleItem(rs.getLong("id"),
 							rs.getLong("sale_id"),
 							rs.getLong("product_id"),
 							rs.getInt("quantity"),
@@ -216,22 +192,17 @@ public class SaleItemServiceImpl implements SaleItemService {
 		} catch (SQLException e) {
 			throw new RuntimeException("Failed to find sale items by product ID: " + productId, e);
 		}
-
 		return saleItems;
 	}
 
 	public List<SaleItem> findBySaleId(Long saleId) {
 		String sql = "SELECT id, sale_id, product_id, quantity, unit_price, line_total FROM sale_items WHERE sale_id = ?";
 		List<SaleItem> saleItems = new ArrayList<>();
-
-		try (Connection c = DatabaseUtils.getConnection();
-				PreparedStatement ps = c.prepareStatement(sql)) {
+		try (Connection c = DatabaseUtils.getConnection(); PreparedStatement ps = c.prepareStatement(sql)) {
 			ps.setLong(1, saleId);
-
 			try (ResultSet rs = ps.executeQuery()) {
 				while (rs.next()) {
-					SaleItem saleItem = new SaleItem(
-							rs.getLong("id"),
+					SaleItem saleItem = new SaleItem(rs.getLong("id"),
 							rs.getLong("sale_id"),
 							rs.getLong("product_id"),
 							rs.getInt("quantity"),
@@ -243,7 +214,6 @@ public class SaleItemServiceImpl implements SaleItemService {
 		} catch (SQLException e) {
 			throw new RuntimeException("Failed to find sale items by sale ID: " + saleId, e);
 		}
-
 		return saleItems;
 	}
 }

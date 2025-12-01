@@ -1,7 +1,7 @@
 package com.stockapp.models.entities;
 
-import java.time.OffsetDateTime;
 import com.stockapp.models.interfaces.*;
+import java.time.OffsetDateTime;
 
 public class Sale implements Identifiable, Auditable {
 	private long saleId;

@@ -1,10 +1,9 @@
 package com.stockapp.services.impl;
 
 import com.stockapp.models.entities.User;
+import com.stockapp.models.enums.UserRole;
 import com.stockapp.services.interfaces.UserService;
 import com.stockapp.utils.*;
-import com.stockapp.models.enums.UserRole;
-
 import java.sql.*;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
@@ -24,19 +23,15 @@ public class UserServiceImpl implements UserService {
 			ps.setString(2, user.getPasswordHash());
 			ps.setString(3, user.getFullName());
 			ps.setString(4, user.getRole().name());
-
 			ResultSet rs = ps.executeQuery();
-
 			if (rs.next()) {
 				user.setId(rs.getLong("id"));
 				user.setCreatedAt(rs.getObject("created_at", OffsetDateTime.class));
 			}
 			return user;
-
 		} catch (SQLException e) {
 			throw new RuntimeException("Error creating user", e);
 		}
-
 	}
 
 	public Optional<User> read(Long id) {
@@ -44,12 +39,9 @@ public class UserServiceImpl implements UserService {
 		try (Connection c = DatabaseUtils.getConnection();) {
 			PreparedStatement ps = c.prepareStatement(sql_query);
 			ps.setLong(1, id);
-
 			ResultSet rs = ps.executeQuery();
-
 			if (rs.next()) {
-				User user = new User(
-						rs.getLong("id"),
+				User user = new User(rs.getLong("id"),
 						rs.getString("username"),
 						rs.getString("password_hash"),
 						rs.getString("full_name"),
@@ -59,7 +51,6 @@ public class UserServiceImpl implements UserService {
 			} else {
 				return Optional.empty();
 			}
-
 		} catch (SQLException e) {
 			throw new RuntimeException("Error reading user", e);
 		}
@@ -78,10 +69,8 @@ public class UserServiceImpl implements UserService {
 			ps.setString(3, user.getFullName());
 			ps.setString(4, user.getRole().name());
 			ps.setLong(5, user.getId());
-
 			ps.executeUpdate();
 			return user;
-
 		} catch (SQLException e) {
 			throw new RuntimeException("Error updating user", e);
 		}
@@ -92,9 +81,7 @@ public class UserServiceImpl implements UserService {
 		try (Connection c = DatabaseUtils.getConnection();) {
 			PreparedStatement ps = c.prepareStatement(sql_query);
 			ps.setLong(1, id);
-
 			ps.executeUpdate();
-
 		} catch (SQLException e) {
 			throw new RuntimeException("Error deleting user", e);
 		}
@@ -105,12 +92,9 @@ public class UserServiceImpl implements UserService {
 		List<User> users = new ArrayList<>();
 		try (Connection c = DatabaseUtils.getConnection();) {
 			PreparedStatement ps = c.prepareStatement(sql_query);
-
 			ResultSet rs = ps.executeQuery();
-
 			while (rs.next()) {
-				User user = new User(
-						rs.getLong("id"),
+				User user = new User(rs.getLong("id"),
 						rs.getString("username"),
 						rs.getString("password_hash"),
 						rs.getString("full_name"),
@@ -119,7 +103,6 @@ public class UserServiceImpl implements UserService {
 				users.add(user);
 			}
 			return users;
-
 		} catch (SQLException e) {
 			throw new RuntimeException("Error reading all users", e);
 		}
@@ -131,12 +114,9 @@ public class UserServiceImpl implements UserService {
 		try (Connection c = DatabaseUtils.getConnection();) {
 			PreparedStatement ps = c.prepareStatement(sql_query);
 			ps.setString(1, role.name());
-
 			ResultSet rs = ps.executeQuery();
-
 			while (rs.next()) {
-				User user = new User(
-						rs.getLong("id"),
+				User user = new User(rs.getLong("id"),
 						rs.getString("username"),
 						rs.getString("password_hash"),
 						rs.getString("full_name"),
@@ -145,7 +125,6 @@ public class UserServiceImpl implements UserService {
 				users.add(user);
 			}
 			return users;
-
 		} catch (SQLException e) {
 			throw new RuntimeException("Error finding users by role", e);
 		}
@@ -156,12 +135,9 @@ public class UserServiceImpl implements UserService {
 		try (Connection c = DatabaseUtils.getConnection();) {
 			PreparedStatement ps = c.prepareStatement(sql_query);
 			ps.setString(1, userName);
-
 			ResultSet rs = ps.executeQuery();
-
 			if (rs.next()) {
-				return new User(
-						rs.getLong("id"),
+				return new User(rs.getLong("id"),
 						rs.getString("username"),
 						rs.getString("password_hash"),
 						rs.getString("full_name"),
@@ -173,5 +149,4 @@ public class UserServiceImpl implements UserService {
 			throw new RuntimeException("Error finding users by username", e);
 		}
 	}
-
 }

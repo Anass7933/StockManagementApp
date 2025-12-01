@@ -1,11 +1,9 @@
-/* Main Container */
 .cart-container {
     -fx-background-color: #f5f7fa;
     -fx-min-width: 600px;
     -fx-min-height: 500px;
 }
 
-/* Header */
 .cart-header {
     -fx-background-color: #667eea;
     -fx-padding: 25 30;
@@ -18,7 +16,6 @@
     -fx-text-fill: white;
 }
 
-/* Scroll Pane */
 .cart-scroll-pane {
     -fx-background-color: transparent;
     -fx-background: transparent;
@@ -28,14 +25,12 @@
     -fx-background-color: transparent;
 }
 
-/* Cart Items Container */
 .cart-items-container {
     -fx-padding: 20;
     -fx-spacing: 0;
     -fx-background-color: transparent;
 }
 
-/* List Header */
 .cart-list-header {
     -fx-background-color: #ffffff;
     -fx-padding: 15 20;
@@ -51,7 +46,6 @@
     -fx-text-fill: #4a5568;
 }
 
-/* List View */
 .cart-list-view {
     -fx-background-color: transparent;
     -fx-border-color: transparent;
@@ -80,7 +74,6 @@
     -fx-background-color: transparent;
 }
 
-/* Cart Item Row */
 .cart-item-row {
     -fx-padding: 15 15;
     -fx-spacing: 10;
@@ -88,7 +81,6 @@
     -fx-background-color: transparent;
 }
 
-/* Action Buttons */
 .action-buttons {
     -fx-spacing: 8;
     -fx-alignment: center-left;
@@ -124,7 +116,6 @@
     -fx-background-color: #e53e3e;
 }
 
-/* Product Labels */
 .product-name {
     -fx-font-size: 15px;
     -fx-font-weight: 500;
@@ -142,7 +133,6 @@
     -fx-text-fill: #667eea;
 }
 
-/* Footer */
 .cart-footer {
     -fx-background-color: white;
     -fx-padding: 20 30;
@@ -153,7 +143,6 @@
     -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 15, 0, 0, -3);
 }
 
-/* Total Section */
 .total-section {
     -fx-spacing: 15;
     -fx-alignment: center-left;
@@ -171,7 +160,6 @@
     -fx-text-fill: #667eea;
 }
 
-/* Close Button */
 .close-button {
     -fx-min-width: 120px;
     -fx-min-height: 45px;
@@ -191,7 +179,6 @@
     -fx-scale-x: 1.02;
 }
 
-/* Empty Cart Message */
 .empty-cart-message {
     -fx-font-size: 18px;
     -fx-text-fill: #718096;
@@ -199,7 +186,6 @@
     -fx-alignment: center;
 }
 
-/* Scrollbar Styling */
 .cart-scroll-pane .scroll-bar:vertical {
     -fx-background-color: transparent;
 }

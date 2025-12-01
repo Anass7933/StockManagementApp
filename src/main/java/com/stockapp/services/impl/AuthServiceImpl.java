@@ -1,10 +1,9 @@
 package com.stockapp.services.impl;
 
 import com.stockapp.models.entities.User;
-import com.stockapp.utils.*;
 import com.stockapp.models.enums.UserRole;
 import com.stockapp.services.interfaces.AuthService;
-
+import com.stockapp.utils.*;
 import java.sql.*;
 import java.time.OffsetDateTime;
 
@@ -14,14 +13,11 @@ public class AuthServiceImpl implements AuthService {
 		try (Connection c = DatabaseUtils.getConnection();) {
 			PreparedStatement ps = c.prepareStatement(sql_query);
 			ps.setString(1, username);
-
 			ResultSet rs = ps.executeQuery();
-
 			if (rs.next()) {
 				String storedHash = rs.getString("password_hash");
 				if (PasswordUtils.verifyPassword(password, storedHash)) {
-					User user = new User(
-							rs.getLong("id"),
+					User user = new User(rs.getLong("id"),
 							rs.getString("username"),
 							storedHash,
 							rs.getString("full_name"),

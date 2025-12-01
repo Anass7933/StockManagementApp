@@ -48,13 +48,10 @@
     -fx-background-color: #2563eb;
 }
 
-/* This is the background BEHIND the list */
 .content-area {
-    /* A very light grey/blue - common in modern dashboards */
     -fx-background-color: #f0f2f5; 
 }
 
-/* ListView Styling */
 .list-view {
     -fx-background-color: #ffffff;
     -fx-border-color: #e5e7eb;
@@ -148,7 +145,7 @@
 #btnAddSale:hover {
     -fx-background-color: #2563eb;
 }
-/* Product Cell Styles */
+
 .product-cell-container {
     -fx-padding: 10 15 10 15;
     -fx-spacing: 15;

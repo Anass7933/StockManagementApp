@@ -3,15 +3,13 @@ package com.stockapp.utils;
 import java.sql.*;
 
 public class DatabaseUtils {
-
 	private static final String HOST = "localhost";
 	private static final String PORT = "5432";
-	private static final String DATABASE = "stockdb"; // or "postgres", choose what you want
+	private static final String DATABASE = "stockdb";
 	private static final String URL = "jdbc:postgresql://" + HOST + ":" + PORT + "/" + DATABASE;
-	private static final String USER = "user"; // choose correct user
-	private static final String PASSWORD = "user1"; // choose correct password
+	private static final String USER = "user";
+	private static final String PASSWORD = "user1";
 	private static final String DRIVER = "org.postgresql.Driver";
-
 	static {
 		try {
 			Class.forName(DRIVER);

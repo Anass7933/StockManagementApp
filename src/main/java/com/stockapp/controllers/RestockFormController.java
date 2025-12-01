@@ -3,6 +3,7 @@ package com.stockapp.controllers;
 import com.stockapp.services.impl.ProductServiceImpl;
 import com.stockapp.services.interfaces.ProductService;
 import com.stockapp.utils.DatabaseUtils;
+import java.sql.Connection;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
@@ -10,17 +11,13 @@ import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 
-import java.sql.Connection;
-
 public class RestockFormController {
-
 	@FXML
 	private TextField restockAmountField;
 	@FXML
 	private Button saveButton;
 	@FXML
 	private Button cancelButton;
-
 	private Stage stage;
 
 	public void setStage(Stage stage) {
