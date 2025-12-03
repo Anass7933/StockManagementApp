@@ -44,6 +44,13 @@ public class CartViewController {
 	public void setCartManager(CartManager cartManager) {
 		this.cartManager = cartManager;
 		cartListView.setItems(cartManager.getCartItems());
+
+		this.cartManager.setOnCartChangeListener(() -> {
+			updateTotal();
+			checkEmptyCart();
+			cartListView.refresh();
+		});
+
 		updateTotal();
 		checkEmptyCart();
 	}
