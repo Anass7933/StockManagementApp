@@ -1,93 +1,109 @@
 package com.stockapp.models.entities;
 
 import com.stockapp.models.interfaces.Identifiable;
+import java.util.Objects;
 
 public class SaleItem implements Identifiable {
-	private long saleItemId;
-	private long saleId;
-	private long productId;
-	private int quantity;
-	private double unitPrice;
-	private double lineTotal;
+    private long saleItemId;
+    private long saleId;
+    private long productId;
+    private int quantity;
+    private double unitPrice;
+    private double lineTotal;
 
-	public SaleItem() {
-	}
+    public SaleItem() {
+    }
 
-	public SaleItem(long saleItemId, long saleId, long productId, int quantity, double unitPrice, double lineTotal) {
-		this.saleItemId = saleItemId;
-		this.saleId = saleId;
-		this.productId = productId;
-		this.quantity = quantity;
-		this.unitPrice = unitPrice;
-		this.lineTotal = lineTotal;
-	}
+    public SaleItem(long saleItemId, long saleId, long productId, int quantity, double unitPrice, double lineTotal) {
+        this.saleItemId = saleItemId;
+        this.saleId = saleId;
+        this.productId = productId;
+        this.quantity = quantity;
+        this.unitPrice = unitPrice;
+        this.lineTotal = lineTotal;
+    }
 
-	public SaleItem(long saleItemId, long productId, long saleId, int quantity, double unitPrice) {
-		this.saleItemId = saleItemId;
-		this.productId = productId;
-		this.saleId = saleId;
-		this.quantity = quantity;
-		this.unitPrice = unitPrice;
-		this.lineTotal = quantity * unitPrice;
-	}
+    public SaleItem(long saleItemId, long productId, long saleId, int quantity, double unitPrice) {
+        this.saleItemId = saleItemId;
+        this.productId = productId;
+        this.saleId = saleId;
+        this.quantity = quantity;
+        this.unitPrice = unitPrice;
+        this.lineTotal = quantity * unitPrice;
+    }
 
-	public SaleItem(long productId, long saleId, int quantity, double unitPrice) {
-		this.productId = productId;
-		this.saleId = saleId;
-		this.quantity = quantity;
-		this.unitPrice = unitPrice;
-		this.lineTotal = quantity * unitPrice;
-	}
+    public SaleItem(long productId, long saleId, int quantity, double unitPrice) {
+        this.productId = productId;
+        this.saleId = saleId;
+        this.quantity = quantity;
+        this.unitPrice = unitPrice;
+        this.lineTotal = quantity * unitPrice;
+    }
 
-	public long getId() {
-		return saleItemId;
-	}
+    public long getId() {
+        return saleItemId;
+    }
 
-	public long getSaleId() {
-		return saleId;
-	}
+    public long getSaleId() {
+        return saleId;
+    }
 
-	public long getProductId() {
-		return productId;
-	}
+    public long getProductId() {
+        return productId;
+    }
 
-	public int getQuantity() {
-		return quantity;
-	}
+    public int getQuantity() {
+        return quantity;
+    }
 
-	public double getUnitPrice() {
-		return unitPrice;
-	}
+    public double getUnitPrice() {
+        return unitPrice;
+    }
 
-	public double getLineTotal() {
-		return lineTotal;
-	}
+    public double getLineTotal() {
+        return lineTotal;
+    }
 
-	public void setId(long saleItemId) {
-		this.saleItemId = saleItemId;
-	}
+    public void setId(long saleItemId) {
+        this.saleItemId = saleItemId;
+    }
 
-	public void setSaleId(long saleId) {
-		this.saleId = saleId;
-	}
+    public void setSaleId(long saleId) {
+        this.saleId = saleId;
+    }
 
-	public void setProductId(long productId) {
-		this.productId = productId;
-	}
+    public void setProductId(long productId) {
+        this.productId = productId;
+    }
 
-	public void setQuantity(int quantity) {
-		this.quantity = quantity;
-	}
+    public void setQuantity(int quantity) {
+        this.quantity = quantity;
+        this.lineTotal = quantity * this.unitPrice; // auto-update lineTotal
+    }
 
-	public void setUnitPrice(double unitPrice) {
-		this.unitPrice = unitPrice;
-	}
+    public void setUnitPrice(double unitPrice) {
+        this.unitPrice = unitPrice;
+        this.lineTotal = unitPrice * this.quantity; // auto-update lineTotal
+    }
 
-	public void setLineTotal(double lineTotal) {
-		this.lineTotal = lineTotal;
-	}
+    public void setLineTotal(double lineTotal) {
+        this.lineTotal = lineTotal;
+    }
 
-	public void setProduct(Product product) {
-		this.productId = product.getId();
-	}
+    public void setProduct(Product product) {
+        this.productId = product.getId();
+    }
+
+    // ===== FIX: Override equals and hashCode =====
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof SaleItem other)) return false;
+        return productId == other.productId; // compare by productId only
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(productId);
+    }
 }

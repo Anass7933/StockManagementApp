@@ -13,21 +13,21 @@
 <AnchorPane prefHeight="720.0" prefWidth="1280.0" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.stockapp.controllers.AdminUsersController">
 
     <!-- LEFT SIDE MENU -->
-    <VBox prefHeight="720.0" prefWidth="180.0" style="-fx-background-color: #2596be;" AnchorPane.bottomAnchor="0" AnchorPane.leftAnchor="0" AnchorPane.topAnchor="0">
+    <VBox prefHeight="720.0" prefWidth="180.0" style="-fx-background-color: #9fb997;" AnchorPane.bottomAnchor="0" AnchorPane.leftAnchor="0" AnchorPane.topAnchor="0">
 
         <children>
-            <Button fx:id="usersButton" prefHeight="40" prefWidth="180" style="-fx-background-color: #2596be;" text="Users" textFill="WHITE">
-                <font><Font name="Cambria" size="25" /></font>
+            <Button fx:id="usersButton" prefHeight="40" prefWidth="180" style="-fx-background-color: #9fb997;" text="Users" textFill="WHITE">
+                <font><Font name="Cambria" size="25.0" /></font>
                 <VBox.margin><Insets top="150" /></VBox.margin>
             </Button>
 
-            <Button fx:id="productsButton" prefHeight="40" prefWidth="180" style="-fx-background-color: #2596be;" text="Products" textFill="#c5c5c5">
-                <font><Font name="Cambria" size="20" /></font>
+            <Button fx:id="productsButton" prefHeight="40" prefWidth="180" style="-fx-background-color: #9fb997;" text="Products" textFill="#c5c5c5">
+                <font><Font name="Cambria" size="20.0" /></font>
                 <VBox.margin><Insets top="20" /></VBox.margin>
             </Button>
 
-            <Button fx:id="sighOutButton" prefHeight="40" prefWidth="180" style="-fx-background-color: #2596be;" text="Sign Out" textFill="#c5c5c5">
-                <font><Font name="Cambria" size="20" /></font>
+            <Button fx:id="sighOutButton" prefHeight="40" prefWidth="180" style="-fx-background-color: #9fb997;" text="Sign Out" textFill="#c5c5c5">
+                <font><Font name="Cambria" size="20.0" /></font>
                 <VBox.margin><Insets top="20" /></VBox.margin>
             </Button>
         </children>
@@ -48,18 +48,18 @@
         <!-- TOP BUTTONS -->
         <HBox prefWidth="900" spacing="20">
             <children>
-                <Button fx:id="addButton" prefHeight="40" prefWidth="120" text="Add">
+                <Button fx:id="addButton" prefHeight="40" prefWidth="120" style="-fx-background-color: #9fb997;" text="Add" textFill="WHITE">
                     <font><Font name="Cambria" size="20" /></font>
                <opaqueInsets>
                   <Insets />
                </opaqueInsets>
                 </Button>
 
-                <Button fx:id="modifyButton" prefHeight="40" prefWidth="120" text="Modify">
+                <Button fx:id="modifyButton" prefHeight="40" prefWidth="120" style="-fx-background-color: #e9b472;" text="Modify" textFill="WHITE">
                     <font><Font name="Cambria" size="20" /></font>
                 </Button>
 
-                <Button fx:id="deleteButton" prefHeight="40" prefWidth="120" text="Delete">
+                <Button fx:id="deleteButton" prefHeight="40" prefWidth="120" style="-fx-background-color: #b898c0;" text="Delete" textFill="WHITE">
                     <font><Font name="Cambria" size="20" /></font>
                 </Button>
             </children>
@@ -72,7 +72,7 @@
         </HBox>
 
         <!-- TABLE -->
-        <TableView fx:id="usersTable" prefWidth="850" VBox.vgrow="ALWAYS">
+        <TableView fx:id="usersTable" prefWidth="850" style="-fx-background-color: white;" VBox.vgrow="ALWAYS">
             <columns>
                 <TableColumn fx:id="idColumn" prefWidth="200.0" style="-fx-alignment: CENTER;" text="Id" />
                 <TableColumn fx:id="userNameColumn" prefWidth="210.0" style="-fx-alignment: CENTER;" text="Username" />
