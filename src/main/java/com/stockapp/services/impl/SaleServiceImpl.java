@@ -2,8 +2,6 @@ package com.stockapp.services.impl;
 
 import com.stockapp.models.entities.Sale;
 import com.stockapp.models.entities.SaleItem;
-import com.stockapp.services.interfaces.ProductService;
-import com.stockapp.services.interfaces.SaleItemService;
 import com.stockapp.services.interfaces.SaleService;
 import com.stockapp.utils.DatabaseUtils;
 import java.sql.*;
@@ -186,86 +184,6 @@ public class SaleServiceImpl implements SaleService {
 			try {
 				resource.close();
 			} catch (Exception ignored) {
-			}
-		}
-	}
-
-	@Override
-	public void updateSaleWithItems(Long saleId, Sale sale, List<SaleItem> items) {
-		Connection c = null;
-		PreparedStatement psSelectOld = null;
-		PreparedStatement psRestoreStock = null;
-		PreparedStatement psUpdateSale = null;
-		PreparedStatement psDeleteOldItems = null;
-		PreparedStatement psInsertNewItem = null;
-		PreparedStatement psDeductStock = null;
-		try {
-			c = DatabaseUtils.getConnection();
-			c.setAutoCommit(false);
-			String sqlSelectOld = "SELECT product_id, quantity FROM sale_items WHERE sale_id = ?";
-			psSelectOld = c.prepareStatement(sqlSelectOld);
-			psSelectOld.setLong(1, saleId);
-			String sqlRestoreStock = "UPDATE products SET quantity = quantity + ? WHERE id = ?";
-			psRestoreStock = c.prepareStatement(sqlRestoreStock);
-			ResultSet rsOld = psSelectOld.executeQuery();
-			while (rsOld.next()) {
-				long prodId = rsOld.getLong("product_id");
-				int oldQty = rsOld.getInt("quantity");
-				psRestoreStock.setInt(1, oldQty);
-				psRestoreStock.setLong(2, prodId);
-				psRestoreStock.executeUpdate();
-			}
-			String sqlUpdateSale = "UPDATE sales SET total_price = ? WHERE id = ?";
-			psUpdateSale = c.prepareStatement(sqlUpdateSale);
-			psUpdateSale.setDouble(1, sale.getTotalPrice());
-			psUpdateSale.setLong(2, saleId);
-			psUpdateSale.executeUpdate();
-			String sqlDeleteOld = "DELETE FROM sale_items WHERE sale_id = ?";
-			psDeleteOldItems = c.prepareStatement(sqlDeleteOld);
-			psDeleteOldItems.setLong(1, saleId);
-			psDeleteOldItems.executeUpdate();
-			String sqlInsertItem = "INSERT INTO sale_items (sale_id, product_id, quantity, unit_price) VALUES (?, ?, ?, ?)";
-			psInsertNewItem = c.prepareStatement(sqlInsertItem);
-			String sqlDeductStock = "UPDATE products SET quantity = quantity - ? WHERE id = ?";
-			psDeductStock = c.prepareStatement(sqlDeductStock);
-			for (SaleItem item : items) {
-				psInsertNewItem.setLong(1, saleId);
-				psInsertNewItem.setLong(2, item.getProductId());
-				psInsertNewItem.setInt(3, item.getQuantity());
-				psInsertNewItem.setDouble(4, item.getUnitPrice());
-				psInsertNewItem.executeUpdate();
-				psDeductStock.setInt(1, item.getQuantity());
-				psDeductStock.setLong(2, item.getProductId());
-				int rows = psDeductStock.executeUpdate();
-				if (rows == 0) {
-					throw new SQLException("Product ID " + item.getProductId() + " not found while updating stock.");
-				}
-			}
-			c.commit();
-		} catch (Exception e) {
-			if (c != null) {
-				try {
-					System.out.println("Update failed. Rolling back transaction...");
-					c.rollback();
-				} catch (SQLException rollbackEx) {
-					rollbackEx.printStackTrace();
-				}
-			}
-			throw new RuntimeException("Failed to update sale with items for ID: " + saleId, e);
-		} finally {
-			closeQuietly(psSelectOld);
-			closeQuietly(psRestoreStock);
-			closeQuietly(psUpdateSale);
-			closeQuietly(psDeleteOldItems);
-			closeQuietly(psInsertNewItem);
-			closeQuietly(psDeductStock);
-			if (c != null) {
-				try {
-					c.setAutoCommit(true);
-					c.close();
-				} catch (SQLException e) {
-					e.printStackTrace();
-				}
 			}
 		}
 	}

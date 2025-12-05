@@ -24,6 +24,13 @@ public class User implements Identifiable, Auditable {
 		this.createdAt = createdAt;
 	}
 
+	public User(String userName, String passwordHash, String fullName, UserRole role) {
+		this.userName = userName;
+		this.passwordHash = passwordHash;
+		this.fullName = fullName;
+		this.role = role;
+	}
+
 	public User(String userName, String passwordHash, String fullName, UserRole role, OffsetDateTime createdAt) {
 		this.userName = userName;
 		this.passwordHash = passwordHash;
@@ -63,4 +70,21 @@ public class User implements Identifiable, Auditable {
 	public void setCreatedAt(OffsetDateTime createdAt) {
 		this.createdAt = createdAt;
 	}
+
+	public void setFullname(String fullName) {
+		this.fullName = fullName;
+	}
+
+	public void setRole(UserRole role) {
+		this.role = role;
+	}
+
+	public void setPasswordHash(String passwordHash) {
+		this.passwordHash = passwordHash;
+	}
+
+	public void setUserName(String userName) {
+		this.userName = userName;
+	}
+
 }

@@ -9,16 +9,6 @@ public class DatabaseUtils {
 	private static final String URL = "jdbc:postgresql://" + HOST + ":" + PORT + "/" + DATABASE;
 	private static final String USER = "user";
 	private static final String PASSWORD = "user1";
-	private static final String DRIVER = "org.postgresql.Driver";
-	static {
-		try {
-			Class.forName(DRIVER);
-			System.out.println("PostgreSQL driver loaded successfully");
-		} catch (ClassNotFoundException e) {
-			System.err.println("PostgreSQL driver not found!");
-			e.printStackTrace();
-		}
-	}
 
 	public static Connection getConnection() throws SQLException {
 		return DriverManager.getConnection(URL, USER, PASSWORD);

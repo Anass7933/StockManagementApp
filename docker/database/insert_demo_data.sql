@@ -1,11 +1,14 @@
+-- INSERT USERS
 INSERT INTO users (username, password_hash, full_name, role)
-	VALUES
-		('admin', '8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918', 'Admin User', 'ADMIN'),
-		('anass','5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8','anass er','CASHIER'),
-		('khalid','5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8','khalid hi','STOCK_MANAGER');
+VALUES
+    ('admin', '8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918', 'Admin User', 'ADMIN'),
+    ('anass','5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8','anass er','CASHIER'),
+    ('khalid','5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8','khalid hi','STOCK_MANAGER');
 
+-- INSERT PRODUCTS
 INSERT INTO products (name, description, price, quantity, min_stock, category)
 VALUES
+    -- Original Data
     ('Samsung Galaxy S24', 'Latest smartphone 256GB', 950.00, 8, 5, 'ELECTRONICS'),
     ('Wireless Mouse', 'Ergonomic optical mouse', 25.50, 50, 10, 'ELECTRONICS'),
     ('Clean Code', 'A Handbook of Agile Software Craftsmanship', 45.00, 30, 5, 'BOOKS'),
@@ -17,4 +20,121 @@ VALUES
     ('Arabica Coffee Beans', '1kg bag of premium beans', 18.50, 40, 10, 'GROCERIES'),
     ('Dark Chocolate', '70% Cocoa bar', 3.50, 200, 30, 'GROCERIES'),
     ('Yoga Mat', 'Non-slip exercise mat', 22.00, 25, 5, 'SPORTS_EQUIPMENT'),
-    ('Dumbbell Set', '2x10kg adjustable weights', 55.00, 8, 2, 'SPORTS_EQUIPMENT');
+    ('Dumbbell Set', '2x10kg adjustable weights', 55.00, 8, 2, 'SPORTS_EQUIPMENT'),
+
+    -- ELECTRONICS
+    ('Sony WH-1000XM5', 'Noise cancelling headphones', 348.00, 15, 3, 'ELECTRONICS'),
+    ('Dell XPS 15', 'Laptop i9 32GB RAM', 2100.00, 4, 1, 'ELECTRONICS'),
+    ('Logitech MX Master 3S', 'Performance wireless mouse', 99.00, 25, 5, 'ELECTRONICS'),
+    ('USB-C Hub', '7-in-1 adapter for laptops', 35.00, 60, 10, 'ELECTRONICS'),
+    ('Mechanical Keyboard', 'RGB Backlit Blue Switches', 85.00, 20, 5, 'ELECTRONICS'),
+    ('Curved Monitor 34"', 'Ultrawide gaming monitor', 450.00, 7, 2, 'ELECTRONICS'),
+    ('Portable Power Bank', '20000mAh fast charging', 40.00, 45, 8, 'ELECTRONICS'),
+    ('HDMI Cable 2m', 'High speed 4K support', 12.00, 100, 20, 'ELECTRONICS'),
+    ('Smart Watch Series 9', 'GPS + Cellular', 420.00, 10, 3, 'ELECTRONICS'),
+    ('Kindle Paperwhite', 'E-reader 16GB', 140.00, 18, 5, 'ELECTRONICS'),
+    ('GoPro Hero 12', 'Action camera 5.3K video', 399.00, 8, 2, 'ELECTRONICS'),
+    ('Bluetooth Speaker', 'Waterproof portable speaker', 55.00, 30, 5, 'ELECTRONICS'),
+    ('Smart Home Bulb', 'WiFi RGB LED Bulb', 15.00, 80, 15, 'ELECTRONICS'),
+    ('External SSD 1TB', 'USB 3.2 Gen 2', 110.00, 22, 5, 'ELECTRONICS'),
+    ('Raspberry Pi 5', '8GB RAM single board computer', 80.00, 15, 5, 'ELECTRONICS'),
+
+    -- FASHION
+    ('Slim Fit Jeans', 'Dark wash denim size 32', 45.00, 40, 10, 'FASHION'),
+    ('Leather Belt', 'Genuine leather brown', 25.00, 35, 8, 'FASHION'),
+    ('Aviator Sunglasses', 'Polarized UV protection', 60.00, 20, 5, 'FASHION'),
+    ('Winter Scarf', 'Wool blend grey', 18.00, 25, 5, 'FASHION'),
+    ('Hooded Sweatshirt', 'Black cotton hoodie', 35.00, 50, 10, 'FASHION'),
+    ('Ankle Socks (3 Pack)', 'White athletic socks', 10.00, 100, 20, 'FASHION'),
+    ('Denim Jacket', 'Vintage wash classic fit', 75.00, 15, 3, 'FASHION'),
+    ('Beanie Hat', 'Knitted winter hat navy', 12.00, 40, 10, 'FASHION'),
+    ('Leather Wallet', 'RFID blocking bifold', 30.00, 28, 5, 'FASHION'),
+    ('Canvas Tote Bag', 'Eco-friendly shopping bag', 8.00, 150, 20, 'FASHION'),
+    ('Summer Dress', 'Floral print maxi dress', 55.00, 18, 4, 'FASHION'),
+    ('Formal Shirt', 'White oxford button-down', 40.00, 35, 8, 'FASHION'),
+    ('Hiking Boots', 'Waterproof outdoor boots', 120.00, 12, 3, 'FASHION'),
+    ('Puffer Jacket', 'Insulated winter coat', 110.00, 10, 2, 'FASHION'),
+
+    -- HOME APPLIANCES
+    ('Air Fryer', '4L Digital Air Fryer', 85.00, 20, 4, 'HOME_APPLIANCES'),
+    ('Robot Vacuum', 'Smart navigation vacuum', 299.00, 6, 2, 'HOME_APPLIANCES'),
+    ('Electric Kettle', 'Stainless steel 1.7L', 30.00, 25, 5, 'HOME_APPLIANCES'),
+    ('Blender', 'High speed smoothie blender', 60.00, 15, 3, 'HOME_APPLIANCES'),
+    ('Toaster', '4-slice stainless steel', 45.00, 18, 4, 'HOME_APPLIANCES'),
+    ('Hair Dryer', 'Ionic ceramic blow dryer', 35.00, 22, 5, 'HOME_APPLIANCES'),
+    ('Steam Iron', 'Non-stick soleplate', 28.00, 20, 5, 'HOME_APPLIANCES'),
+    ('Rice Cooker', '10-cup uncooked capacity', 50.00, 12, 3, 'HOME_APPLIANCES'),
+    ('Stand Mixer', '5L bowl 6-speed', 180.00, 5, 2, 'HOME_APPLIANCES'),
+    ('Desk Lamp', 'LED adjustable brightness', 22.00, 30, 8, 'HOME_APPLIANCES'),
+    ('Air Purifier', 'HEPA filter for large rooms', 130.00, 8, 2, 'HOME_APPLIANCES'),
+    ('Electric Toothbrush', 'Rechargeable sonic brush', 45.00, 25, 5, 'HOME_APPLIANCES'),
+    ('Space Heater', 'Ceramic portable heater', 35.00, 15, 5, 'HOME_APPLIANCES'),
+
+    -- BOOKS
+    ('Design Patterns', 'Elements of Reusable Object-Oriented Software', 50.00, 15, 3, 'BOOKS'),
+    ('Introduction to Algorithms', 'CLRS 4th Edition', 90.00, 10, 2, 'BOOKS'),
+    ('The Hobbit', 'J.R.R. Tolkien classic', 12.00, 40, 10, 'BOOKS'),
+    ('1984', 'George Orwell dystopian novel', 10.00, 50, 10, 'BOOKS'),
+    ('Sapiens', 'A Brief History of Humankind', 18.00, 25, 5, 'BOOKS'),
+    ('Atomic Habits', 'Build Good Habits & Break Bad Ones', 20.00, 35, 5, 'BOOKS'),
+    ('Head First Java', 'A Brain-Friendly Guide', 48.00, 20, 4, 'BOOKS'),
+    ('Effective Java', 'Best practices for the platform', 52.00, 18, 4, 'BOOKS'),
+    ('Thinking, Fast and Slow', 'Daniel Kahneman', 16.00, 22, 5, 'BOOKS'),
+    ('Dune', 'Frank Herbert sci-fi masterpiece', 14.00, 30, 8, 'BOOKS'),
+    ('Refactoring', 'Improving the Design of Existing Code', 55.00, 12, 3, 'BOOKS'),
+    ('Project Hail Mary', 'Andy Weir novel', 22.00, 28, 5, 'BOOKS'),
+
+    -- TOYS
+    ('Lego Star Wars Set', 'X-Wing Fighter building kit', 49.99, 15, 3, 'TOYS'),
+    ('Rubik''s Cube', 'Original 3x3 puzzle', 10.00, 60, 10, 'TOYS'),
+    ('Monopoly Board Game', 'Classic property trading game', 25.00, 20, 5, 'TOYS'),
+    ('Plush Teddy Bear', 'Soft brown bear 30cm', 15.00, 40, 10, 'TOYS'),
+    ('Remote Control Car', 'Off-road RC truck', 45.00, 12, 4, 'TOYS'),
+    ('Action Figure', 'Superhero collectable', 18.00, 30, 5, 'TOYS'),
+    ('Jigsaw Puzzle 1000pc', 'Landscape scenery', 20.00, 25, 5, 'TOYS'),
+    ('Uno Card Game', 'Family card game', 8.00, 80, 20, 'TOYS'),
+    ('Drone with Camera', 'Entry level quadcopter', 70.00, 10, 2, 'TOYS'),
+    ('Play-Doh Set', 'Creative modeling clay', 12.00, 50, 10, 'TOYS'),
+    ('Chess Set', 'Wooden folding board', 35.00, 15, 5, 'TOYS'),
+    ('Nerf Blaster', 'Foam dart launcher', 28.00, 20, 5, 'TOYS'),
+
+    -- GROCERIES
+    ('Basmati Rice 5kg', 'Extra long grain', 12.50, 60, 15, 'GROCERIES'),
+    ('Olive Oil 1L', 'Extra Virgin Cold Pressed', 14.00, 40, 10, 'GROCERIES'),
+    ('Pasta Spaghetti', '500g durum wheat', 1.50, 150, 30, 'GROCERIES'),
+    ('Tomato Sauce', 'Basil and garlic pasta sauce', 2.50, 100, 20, 'GROCERIES'),
+    ('Green Tea Bags', 'Box of 50 organic bags', 6.00, 80, 15, 'GROCERIES'),
+    ('Almonds', 'Raw unsalted 500g', 9.00, 45, 10, 'GROCERIES'),
+    ('Oat Milk', 'Barista edition 1L', 3.00, 60, 12, 'GROCERIES'),
+    ('Peanut Butter', 'Crunchy 350g jar', 4.50, 50, 10, 'GROCERIES'),
+    ('Honey', 'Organic wildflower honey 500g', 8.50, 30, 8, 'GROCERIES'),
+    ('Canned Tuna', 'Skipjack in brine 3-pack', 5.00, 80, 20, 'GROCERIES'),
+    ('Cereal', 'Whole grain breakfast flakes', 4.00, 40, 10, 'GROCERIES'),
+    ('Mineral Water', '6-pack 1.5L bottles', 3.50, 100, 20, 'GROCERIES'),
+    ('Instant Coffee', 'Gold freeze dried 200g', 9.50, 50, 10, 'GROCERIES'),
+
+    -- BEAUTY_PRODUCTS
+    ('Face Moisturizer', 'Hydrating daily cream', 18.00, 35, 8, 'BEAUTY_PRODUCTS'),
+    ('Sunscreen SPF 50', 'Broad spectrum protection', 15.00, 50, 10, 'BEAUTY_PRODUCTS'),
+    ('Shampoo', 'Argan oil repair 500ml', 12.00, 60, 15, 'BEAUTY_PRODUCTS'),
+    ('Shower Gel', 'Citrus refreshing wash', 6.50, 80, 20, 'BEAUTY_PRODUCTS'),
+    ('Perfume - Vetiver', 'Woody fragrance for men 100ml', 85.00, 15, 3, 'BEAUTY_PRODUCTS'),
+    ('Lip Balm', 'Shea butter moisturizing', 3.00, 120, 30, 'BEAUTY_PRODUCTS'),
+    ('Mascara', 'Volumizing black lash', 14.00, 40, 10, 'BEAUTY_PRODUCTS'),
+    ('Hand Cream', 'Intensive repair formula', 8.00, 50, 12, 'BEAUTY_PRODUCTS'),
+    ('Deodorant Stick', '24h protection', 5.00, 90, 20, 'BEAUTY_PRODUCTS'),
+    ('Hair Wax', 'Matte finish strong hold', 16.00, 30, 8, 'BEAUTY_PRODUCTS'),
+    ('Facial Cleanser', 'Gentle foaming wash', 13.00, 40, 10, 'BEAUTY_PRODUCTS'),
+
+    -- SPORTS_EQUIPMENT
+    ('Resistance Bands', 'Set of 5 levels', 15.00, 45, 10, 'SPORTS_EQUIPMENT'),
+    ('Tennis Racket', 'Graphite composite', 80.00, 10, 2, 'SPORTS_EQUIPMENT'),
+    ('Basketball', 'Size 7 indoor/outdoor', 25.00, 20, 5, 'SPORTS_EQUIPMENT'),
+    ('Swimming Goggles', 'Anti-fog UV protection', 18.00, 35, 8, 'SPORTS_EQUIPMENT'),
+    ('Jump Rope', 'Speed rope adjustable', 10.00, 50, 10, 'SPORTS_EQUIPMENT'),
+    ('Kettlebell 12kg', 'Cast iron vinyl coated', 35.00, 8, 2, 'SPORTS_EQUIPMENT'),
+    ('Foam Roller', 'Muscle recovery massage', 20.00, 25, 5, 'SPORTS_EQUIPMENT'),
+    ('Gym Gloves', 'Padded weightlifting gloves', 16.00, 40, 10, 'SPORTS_EQUIPMENT'),
+    ('Cycling Helmet', 'Road bike safety helmet', 45.00, 12, 3, 'SPORTS_EQUIPMENT'),
+    ('Protein Shaker', '700ml mixing bottle', 8.00, 80, 20, 'SPORTS_EQUIPMENT'),
+    ('Camping Tent', '2-person dome tent', 90.00, 5, 2, 'SPORTS_EQUIPMENT');
