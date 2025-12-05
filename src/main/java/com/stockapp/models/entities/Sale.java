@@ -1,26 +1,28 @@
 package com.stockapp.models.entities;
 
 import com.stockapp.models.interfaces.*;
+
+import java.math.BigDecimal;
 import java.time.OffsetDateTime;
 
 public class Sale implements Identifiable, Auditable {
 	private long saleId;
-	private long totalPrice;
+	private BigDecimal totalPrice;
 	private OffsetDateTime createdAt;
 
-	public Sale(long saleId, long totalPrice, OffsetDateTime createdAt) {
+	public Sale(long saleId, BigDecimal totalPrice, OffsetDateTime createdAt) {
 		this.saleId = saleId;
 		this.totalPrice = totalPrice;
 		this.createdAt = createdAt;
 	}
 
-	public Sale(int saleId, long total_price) {
+	public Sale(int saleId, BigDecimal total_price) {
 		this.saleId = saleId;
 		this.totalPrice = total_price;
 		this.createdAt = OffsetDateTime.now();
 	}
 
-	public Sale(long total_price) {
+	public Sale(BigDecimal total_price) {
 		this.totalPrice = total_price;
 		this.createdAt = OffsetDateTime.now();
 	}
@@ -29,7 +31,7 @@ public class Sale implements Identifiable, Auditable {
 		return saleId;
 	}
 
-	public long getTotalPrice() {
+	public BigDecimal getTotalPrice() {
 		return totalPrice;
 	}
 
@@ -41,7 +43,7 @@ public class Sale implements Identifiable, Auditable {
 		this.saleId = saleId;
 	}
 
-	public void setTotalPrice(long totalPrice) {
+	public void setTotalPrice(BigDecimal totalPrice) {
 		this.totalPrice = totalPrice;
 	}
 

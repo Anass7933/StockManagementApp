@@ -44,8 +44,7 @@ public class CartViewControllerTest extends ApplicationTest {
                 100,
                 5,
                 null,
-                Category.BOOKS
-        );
+                Category.BOOKS);
         Product product2 = new Product(
                 2L,
                 "Product 2",
@@ -54,8 +53,7 @@ public class CartViewControllerTest extends ApplicationTest {
                 50,
                 3,
                 null,
-                Category.BOOKS
-        );
+                Category.BOOKS);
 
         cartManager.addItem(product1, 2);
         cartManager.addItem(product2, 3);
@@ -66,7 +64,7 @@ public class CartViewControllerTest extends ApplicationTest {
 
     @Test
     public void testCartTotalUpdates() {
-        double total = cartManager.getTotalPrice();
+        double total = cartManager.getTotalPrice().doubleValue();
         Label totalLabel = lookup("#totalPriceLabel").queryAs(Label.class);
         assertNotNull(totalLabel, "Total price label should exist");
         assertEquals(String.format("$%.2f", total), totalLabel.getText());

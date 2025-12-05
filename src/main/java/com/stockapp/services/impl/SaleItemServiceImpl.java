@@ -19,11 +19,11 @@ public class SaleItemServiceImpl implements SaleItemService {
 			ps.setLong(1, saleItem.getSaleId());
 			ps.setLong(2, saleItem.getProductId());
 			ps.setInt(3, saleItem.getQuantity());
-			ps.setDouble(4, saleItem.getUnitPrice());
+			ps.setBigDecimal(4, saleItem.getUnitPrice());
 			try (ResultSet rs = ps.executeQuery()) {
 				if (rs.next()) {
 					saleItem.setId(rs.getLong("id"));
-					saleItem.setLineTotal(rs.getDouble("line_total"));
+					saleItem.setLineTotal(rs.getBigDecimal("line_total"));
 					return saleItem;
 				} else {
 					throw new RuntimeException("Failed to insert sale item");
@@ -54,8 +54,8 @@ public class SaleItemServiceImpl implements SaleItemService {
 							rs.getLong("sale_id"),
 							rs.getLong("product_id"),
 							rs.getInt("quantity"),
-							rs.getDouble("unit_price"),
-							rs.getDouble("line_total"));
+							rs.getBigDecimal("unit_price"),
+							rs.getBigDecimal("line_total"));
 					return Optional.of(saleItem);
 				} else {
 					return Optional.empty();
@@ -77,11 +77,11 @@ public class SaleItemServiceImpl implements SaleItemService {
 			ps.setLong(1, saleItem.getSaleId());
 			ps.setLong(2, saleItem.getProductId());
 			ps.setInt(3, saleItem.getQuantity());
-			ps.setDouble(4, saleItem.getUnitPrice());
+			ps.setBigDecimal(4, saleItem.getUnitPrice());
 			ps.setLong(5, saleItem.getId());
 			try (ResultSet rs = ps.executeQuery()) {
 				if (rs.next()) {
-					saleItem.setLineTotal(rs.getDouble("line_total"));
+					saleItem.setLineTotal(rs.getBigDecimal("line_total"));
 					return saleItem;
 				} else {
 					throw new RuntimeException("Failed to update sale item with ID: " + saleItem.getId());
@@ -103,8 +103,8 @@ public class SaleItemServiceImpl implements SaleItemService {
 						rs.getLong("sale_id"),
 						rs.getLong("product_id"),
 						rs.getInt("quantity"),
-						rs.getDouble("unit_price"),
-						rs.getDouble("line_total"));
+						rs.getBigDecimal("unit_price"),
+						rs.getBigDecimal("line_total"));
 				saleItems.add(saleItem);
 			}
 		} catch (SQLException e) {
@@ -124,8 +124,8 @@ public class SaleItemServiceImpl implements SaleItemService {
 							rs.getLong("sale_id"),
 							rs.getLong("product_id"),
 							rs.getInt("quantity"),
-							rs.getDouble("unit_price"),
-							rs.getDouble("line_total"));
+							rs.getBigDecimal("unit_price"),
+							rs.getBigDecimal("line_total"));
 					saleItems.add(saleItem);
 				}
 			}
@@ -146,8 +146,8 @@ public class SaleItemServiceImpl implements SaleItemService {
 							rs.getLong("sale_id"),
 							rs.getLong("product_id"),
 							rs.getInt("quantity"),
-							rs.getDouble("unit_price"),
-							rs.getDouble("line_total"));
+							rs.getBigDecimal("unit_price"),
+							rs.getBigDecimal("line_total"));
 					saleItems.add(saleItem);
 				}
 			}

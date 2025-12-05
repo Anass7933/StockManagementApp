@@ -4,6 +4,10 @@ import com.stockapp.models.entities.Product;
 import com.stockapp.models.entities.SaleItem;
 import com.stockapp.services.impl.ProductServiceImpl;
 import com.stockapp.services.interfaces.ProductService;
+
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -11,10 +15,11 @@ import javafx.collections.ObservableList;
 public class CartManager {
 	private static CartManager instance;
 	private ObservableList<SaleItem> cartItems;
-	private Runnable onCartChange;
+	private List<Runnable> cartChangeListeners;
 
 	public CartManager() {
 		cartItems = FXCollections.observableArrayList();
+		cartChangeListeners = new ArrayList<>();
 	}
 
 	public static CartManager getInstance() {
@@ -24,13 +29,19 @@ public class CartManager {
 		return instance;
 	}
 
-	public void setOnCartChangeListener(Runnable listener) {
-		this.onCartChange = listener;
+	public void addCartChangeListener(Runnable listener) {
+		if (listener != null && !cartChangeListeners.contains(listener)) {
+			cartChangeListeners.add(listener);
+		}
+	}
+
+	public void removeCartChangeListener(Runnable listener) {
+		cartChangeListeners.remove(listener);
 	}
 
 	private void notifyCartChange() {
-		if (onCartChange != null) {
-			onCartChange.run();
+		for (Runnable listener : cartChangeListeners) {
+			listener.run();
 		}
 	}
 
@@ -52,8 +63,8 @@ public class CartManager {
 		} else {
 			SaleItem newItem = new SaleItem();
 			newItem.setProduct(product);
+			newItem.setUnitPrice(product.getPrice());
 			newItem.setQuantity(quantity);
-			newItem.setUnitPrice(product.getPrice().doubleValue());
 			cartItems.add(newItem);
 		}
 		notifyCartChange();
@@ -96,8 +107,16 @@ public class CartManager {
 		return FXCollections.unmodifiableObservableList(cartItems);
 	}
 
-	public double getTotalPrice() {
-		return cartItems.stream().mapToDouble(item -> item.getUnitPrice() * item.getQuantity()).sum();
+	public BigDecimal getTotalPrice() {
+		BigDecimal total = BigDecimal.ZERO;
+
+		for (var item : cartItems) {
+			BigDecimal itemTotal = item.getUnitPrice().multiply(BigDecimal.valueOf(item.getQuantity()));
+
+			total = total.add(itemTotal);
+		}
+
+		return total;
 	}
 
 	public int getTotalItemCount() {

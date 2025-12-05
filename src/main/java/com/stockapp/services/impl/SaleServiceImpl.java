@@ -19,7 +19,7 @@ public class SaleServiceImpl implements SaleService {
 				RETURNING id, created_at;
 				""";
 		try (Connection c = DatabaseUtils.getConnection(); PreparedStatement ps = c.prepareStatement(sql)) {
-			ps.setDouble(1, sale.getTotalPrice());
+			ps.setBigDecimal(1, sale.getTotalPrice());
 			try (ResultSet rs = ps.executeQuery()) {
 				if (rs.next()) {
 					sale.setId(rs.getLong("id"));
@@ -42,7 +42,7 @@ public class SaleServiceImpl implements SaleService {
 			try (ResultSet rs = ps.executeQuery()) {
 				if (rs.next()) {
 					Sale sale = new Sale(rs.getLong("id"),
-							rs.getLong("total_price"),
+							rs.getBigDecimal("total_price"),
 							rs.getTimestamp("created_at").toInstant().atOffset(ZoneOffset.UTC));
 					return Optional.of(sale);
 				} else {
@@ -63,7 +63,7 @@ public class SaleServiceImpl implements SaleService {
 				RETURNING created_at;
 				""";
 		try (Connection c = DatabaseUtils.getConnection(); PreparedStatement ps = c.prepareStatement(sql)) {
-			ps.setDouble(1, sale.getTotalPrice());
+			ps.setBigDecimal(1, sale.getTotalPrice());
 			ps.setLong(2, sale.getId());
 			try (ResultSet rs = ps.executeQuery()) {
 				if (rs.next()) {
@@ -101,7 +101,7 @@ public class SaleServiceImpl implements SaleService {
 				ResultSet rs = ps.executeQuery()) {
 			while (rs.next()) {
 				Sale sale = new Sale(rs.getLong("id"),
-						rs.getLong("total_price"),
+						rs.getBigDecimal("total_price"),
 						rs.getTimestamp("created_at").toInstant().atOffset(ZoneOffset.UTC));
 				sales.add(sale);
 			}
@@ -122,7 +122,7 @@ public class SaleServiceImpl implements SaleService {
 			c.setAutoCommit(false);
 			String sqlSale = "INSERT INTO sales (total_price) VALUES (?) RETURNING id, created_at";
 			psSale = c.prepareStatement(sqlSale);
-			psSale.setDouble(1, sale.getTotalPrice());
+			psSale.setBigDecimal(1, sale.getTotalPrice());
 			ResultSet rsSale = psSale.executeQuery();
 			if (rsSale.next()) {
 				sale.setId(rsSale.getLong("id"));
@@ -139,7 +139,7 @@ public class SaleServiceImpl implements SaleService {
 				psItem.setLong(1, sale.getId());
 				psItem.setLong(2, item.getProductId());
 				psItem.setInt(3, item.getQuantity());
-				psItem.setDouble(4, item.getUnitPrice());
+				psItem.setBigDecimal(4, item.getUnitPrice());
 				ResultSet rsItem = psItem.executeQuery();
 				if (rsItem.next()) {
 					item.setId(rsItem.getLong("id"));

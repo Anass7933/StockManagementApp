@@ -35,14 +35,14 @@ class SaleItemServiceImplTest {
 		Product p = new Product(SHARED_PROD_NAME, "Desc", new BigDecimal("20.00"), 100, 10, Category.ELECTRONICS);
 		sharedProduct = productService.create(p);
 
-		Sale s = new Sale(0);
+		Sale s = new Sale(BigDecimal.ZERO);
 		sharedSale = saleService.create(s);
 
 		SaleItem item = new SaleItem(
 				sharedProduct.getId(),
 				sharedSale.getId(),
 				5,
-				20.00);
+				BigDecimal.valueOf(20.00));
 
 		sharedSaleItem = saleItemService.create(item);
 		System.out.println("Shared SaleItem created with ID: " + sharedSaleItem.getId());
@@ -79,7 +79,7 @@ class SaleItemServiceImplTest {
 
 		assertTrue(fetched.isPresent(), "Should find the shared item");
 		assertEquals(sharedProduct.getId(), fetched.get().getProductId());
-		assertEquals(100.00, fetched.get().getLineTotal(), 0.001);
+		assertEquals(100.00, fetched.get().getLineTotal().doubleValue(), 0.001);
 	}
 
 	@Test
@@ -96,7 +96,7 @@ class SaleItemServiceImplTest {
 		SaleItem updated = saleItemService.read(sharedSaleItem.getId()).orElseThrow();
 
 		assertEquals(2, updated.getQuantity());
-		assertEquals(40.00, updated.getLineTotal(), 0.001);
+		assertEquals(40.00, updated.getLineTotal().doubleValue(), 0.001);
 
 		System.out.println("	undoing changes");
 		try {
@@ -115,7 +115,7 @@ class SaleItemServiceImplTest {
 				sharedProduct.getId(),
 				sharedSale.getId(),
 				1,
-				50.00);
+				BigDecimal.valueOf(50.00));
 
 		SaleItem created = saleItemService.create(tempItem);
 		assertNotNull(created.getId());

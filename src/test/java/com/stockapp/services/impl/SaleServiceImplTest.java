@@ -33,7 +33,7 @@ class SaleServiceImplTest {
 		productService = new ProductServiceImpl();
 		System.out.println("--- Setup: ensuring clean environment---");
 
-		Sale s = new Sale(SHARED_TOTAL_PRICE);
+		Sale s = new Sale(BigDecimal.valueOf(SHARED_TOTAL_PRICE));
 
 		sharedSale = saleService.create(s);
 		System.out.println("Shared Sale created with ID: " + sharedSale.getId());
@@ -66,7 +66,7 @@ class SaleServiceImplTest {
 		}, "Critical Failure : read threw an unexpected exception");
 
 		assertTrue(fetched.isPresent(), "Should find the shared sale");
-		assertEquals(SHARED_TOTAL_PRICE, fetched.get().getTotalPrice(), 0.001);
+		assertEquals(SHARED_TOTAL_PRICE, fetched.get().getTotalPrice().doubleValue(), 0.001);
 		assertNotNull(fetched.get().getCreatedAt(), "Date should be auto-generated");
 	}
 
@@ -75,8 +75,8 @@ class SaleServiceImplTest {
 		System.out.println("Running: testUpdate_Sale");
 
 		Sale current = saleService.read(sharedSale.getId()).orElseThrow();
-		long oldPrice = current.getTotalPrice();
-		long newPrice = 999;
+		BigDecimal oldPrice = current.getTotalPrice();
+		BigDecimal newPrice = BigDecimal.valueOf(999);
 
 		current.setTotalPrice(newPrice);
 
@@ -84,7 +84,7 @@ class SaleServiceImplTest {
 				"Critical Failure : update threw an unexpected exception");
 
 		Sale updated = saleService.read(sharedSale.getId()).orElseThrow();
-		assertEquals(newPrice, updated.getTotalPrice(), 0.001);
+		assertEquals(newPrice.doubleValue(), updated.getTotalPrice().doubleValue(), 0.001);
 
 		System.out.println("    undoing changes");
 		try {
@@ -99,7 +99,7 @@ class SaleServiceImplTest {
 	void testDelete_Independent() {
 		System.out.println("Running: testDelete_Independent");
 
-		Sale tempSale = new Sale(10);
+		Sale tempSale = new Sale(BigDecimal.valueOf(10));
 
 		Sale created = saleService.create(tempSale);
 		assertNotNull(created.getId());
@@ -133,13 +133,13 @@ class SaleServiceImplTest {
 
 		try {
 
-			Sale saleHeader = new Sale(20);
+			Sale saleHeader = new Sale(BigDecimal.valueOf(20));
 
 			SaleItem item = new SaleItem(
 					savedProd.getId(),
 					saleHeader.getId(),
 					2,
-					10.00);
+					BigDecimal.valueOf(10.00));
 
 			createdSale = assertDoesNotThrow(() -> {
 				return saleService.createSaleWithItems(saleHeader, List.of(item));

@@ -53,7 +53,7 @@ public class CashierController {
 		productService = new ProductServiceImpl();
 		saleService = new SaleServiceImpl();
 		cartManager = CartManager.getInstance();
-		cartManager.setOnCartChangeListener(() -> {
+		cartManager.addCartChangeListener(() -> {
 			ProductListView.refresh();
 			updateCartButton();
 		});
@@ -181,7 +181,7 @@ public class CashierController {
 		if (result.isPresent() && result.get() == ButtonType.OK) {
 			try {
 				List<SaleItem> items = cartManager.getCartItems();
-				Sale sale = new Sale((long) cartManager.getTotalPrice());
+				Sale sale = new Sale(cartManager.getTotalPrice());
 				saleService.createSaleWithItems(sale, items);
 				cartManager.clearCart();
 				updateCartButton();
