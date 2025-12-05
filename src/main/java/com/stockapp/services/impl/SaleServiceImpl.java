@@ -204,4 +204,33 @@ public class SaleServiceImpl implements SaleService {
 			throw new RuntimeException("Failed to get total revenue for sale ID: " + saleId, e);
 		}
 	}
+
+    public int totalSales() {
+        return count("SELECT COUNT(*) FROM sales WHERE created_at BETWEEN :startDate AND :endDate;");
+    }
+
+    public int totalRevenue() {
+        return count(" SELECT SUM(total_price) FROM sales WHERE created_at BETWEEN :startDate AND :endDate;");
+    }
+
+    public int totalItemsSold() {
+        return count(" SELECT SUM(quantity) FROM sale_items si JOIN sales s ON si.sale_id = s.idWHERE s.created_at BETWEEN :startDate AND :endDate;");
+    }
+
+    public int averageSaleValue() {
+        return count(" SELECT AVG(total_price) FROM sales WHERE created_at BETWEEN :startDate AND :endDate;");
+    }
+
+
+    public int count(String query) {
+        int x;
+        try (Connection c = DatabaseUtils.getConnection(); PreparedStatement ps = c.prepareStatement(query)) {
+            ResultSet rs = ps.executeQuery();
+            rs.next();
+            x = rs.getInt(1);
+        } catch (SQLException e) {
+            throw new RuntimeException("Failed to check product", e);
+        }
+        return x;
+    }
 }

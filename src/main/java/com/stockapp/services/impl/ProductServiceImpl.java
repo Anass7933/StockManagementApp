@@ -51,7 +51,7 @@ public class ProductServiceImpl implements ProductService {
 				    FROM products
 				    WHERE id = ?
 				""";
-		try (Connection c = DatabaseUtils.getConnection();) {
+		try (Connection c = DatabaseUtils.getConnection()) {
 			PreparedStatement ps = c.prepareStatement(sql_query);
 			ps.setLong(1, id);
 			ResultSet rs = ps.executeQuery();
@@ -178,7 +178,7 @@ public class ProductServiceImpl implements ProductService {
 	public List<Product> findByCategory(String category) {
 		String sql_query = "SELECT id, name, description, price, quantity, min_stock, created_at, category FROM products";
 		List<Product> products = new ArrayList<>();
-		try (Connection c = DatabaseUtils.getConnection();) {
+		try (Connection c = DatabaseUtils.getConnection()) {
 			PreparedStatement ps = c.prepareStatement(sql_query);
 			ResultSet rs = ps.executeQuery();
 			while (rs.next()) {
@@ -257,7 +257,7 @@ public class ProductServiceImpl implements ProductService {
 	}
 
 	public int count(String query) {
-		int x = 0;
+		int x;
 		try (Connection c = DatabaseUtils.getConnection(); PreparedStatement ps = c.prepareStatement(query)) {
 			ResultSet rs = ps.executeQuery();
 			rs.next();

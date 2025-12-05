@@ -57,6 +57,8 @@ public class StockManagerDashboardController {
 	private Label outOfStockLabel;
 	@FXML
 	private Button sighOutButton;
+	@FXML
+	private Button salesButton;
 	private User loggedUser;
 	private final Timeline refreshTimeline = new Timeline(new KeyFrame(Duration.ZERO, e -> refreshProducts()),
 			new KeyFrame(Duration.seconds(2), e -> refreshProducts()));
@@ -119,6 +121,20 @@ public class StockManagerDashboardController {
 				return;
 			}
 			openRestockForm(selected.getId());
+		});
+
+		salesButton.setOnAction(e -> {
+			try {
+				FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/StockManagerSalesDashboard.fxml"));
+				Parent root = loader.load();
+				StockManagerSalesDashboardController controller = loader.getController();
+				controller.setLoggedUser(userNameLabel.getText().replace("Hi, ", ""));
+				Stage stage = (Stage) salesButton.getScene().getWindow();
+				stage.setScene(new Scene(root));
+				stage.show();
+			} catch (IOException ex) {
+				throw new RuntimeException(ex);
+			}
 		});
 		sighOutButton.setOnAction(e -> signOut());
 		refreshTimeline.setCycleCount(Animation.INDEFINITE);
