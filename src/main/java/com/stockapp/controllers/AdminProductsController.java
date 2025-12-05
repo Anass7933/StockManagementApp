@@ -139,19 +139,28 @@ public class AdminProductsController {
 		alert.showAndWait();
 	}
 
-	private void signOut() {
-		try {
-			FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/Login.fxml"));
-			Stage currentStage = (Stage) sighOutButton.getScene().getWindow();
-			currentStage.setScene(new Scene(loader.load()));
-			currentStage.setTitle("Login");
-			currentStage.show();
-		} catch (IOException e) {
-			throw new RuntimeException("Unable to load login screen", e);
-		}
-	}
+    private void signOut() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/Login.fxml"));
+            Parent root = loader.load();
 
-	private void refreshProducts() {
+            // Open a NEW login window
+            Stage loginStage = new Stage();
+            loginStage.setTitle("Login");
+            loginStage.setScene(new Scene(root));
+            loginStage.show();
+
+            // Close the current admin window
+            Stage currentStage = (Stage) sighOutButton.getScene().getWindow();
+            currentStage.close();
+
+        } catch (IOException e) {
+            throw new RuntimeException("Unable to load login screen", e);
+        }
+    }
+
+
+    private void refreshProducts() {
 		Product selected = productsTable.getSelectionModel().getSelectedItem();
 		ProductService productService = new ProductServiceImpl();
 		List<Product> products = productService.readAll();
