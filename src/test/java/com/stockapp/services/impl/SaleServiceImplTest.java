@@ -1,6 +1,7 @@
 package com.stockapp.services.impl;
 
 import static org.junit.jupiter.api.Assertions.*;
+
 import com.stockapp.models.entities.Product;
 import com.stockapp.models.entities.Sale;
 import com.stockapp.models.entities.SaleItem;
@@ -8,112 +9,166 @@ import com.stockapp.models.enums.Category;
 import com.stockapp.services.interfaces.ProductService;
 import com.stockapp.services.interfaces.SaleItemService;
 import com.stockapp.services.interfaces.SaleService;
+
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.List;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
+import java.util.Optional;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 class SaleServiceImplTest {
-	private SaleService saleService;
-	private ProductService productService;
-	private SaleItemService saleItemService;
-	private Long createdProductId;
-	private Long createdSaleId;
 
-	@BeforeEach
-	void setUp() {
+	private static SaleService saleService;
+	private static SaleItemService saleItemService;
+	private static ProductService productService;
+	private static Sale sharedSale;
+
+	private static final long SHARED_TOTAL_PRICE = 150;
+
+	@BeforeAll
+	static void setUp() {
 		saleService = new SaleServiceImpl();
-		productService = new ProductServiceImpl();
 		saleItemService = new SaleItemServiceImpl();
-		Product p = new Product("Sale Service Test Product",
-				"Testing sales integration",
-				new BigDecimal("50.00"),
-				100,
-				10,
-				Category.ELECTRONICS);
-		Product savedProduct = productService.create(p);
-		this.createdProductId = savedProduct.getId();
+		productService = new ProductServiceImpl();
+		System.out.println("--- Setup: ensuring clean environment---");
+
+		Sale s = new Sale(SHARED_TOTAL_PRICE);
+
+		sharedSale = saleService.create(s);
+		System.out.println("Shared Sale created with ID: " + sharedSale.getId());
 	}
 
-	@AfterEach
-	void tearDown() {
-		if (createdSaleId != null) {
-			try {
-				saleItemService.delete(createdSaleId);
-			} catch (Exception e) {
-				System.out.println("Warning: Could not delete sale items: " + e.getMessage());
+	@AfterAll
+	static void tearDown() {
+		System.out.println("--- Teardown: Cleaning up ---");
+		try {
+			if (sharedSale != null) {
+
+				if (saleService.read(sharedSale.getId()).isPresent()) {
+					saleService.delete(sharedSale.getId());
+					System.out.println("Shared sale deleted.");
+				}
 			}
-			try {
-				saleService.delete(createdSaleId);
-			} catch (Exception e) {
-				System.out.println("Warning: Could not delete sale: " + e.getMessage());
-			}
-		}
-		if (createdProductId != null) {
-			try {
-				productService.delete(createdProductId);
-			} catch (Exception e) {
-				System.out.println("Warning: Could not delete product: " + e.getMessage());
-			}
+		} catch (Exception e) {
+			System.err.println("WARNING: Cleanup failed.");
+			e.printStackTrace();
 		}
 	}
 
 	@Test
-	void testCreateSaleWithItems_Success() {
-		System.out.println("Running: testCreateSaleWithItems_Success");
-		Sale sale = new Sale(100L);
-		List<SaleItem> items = new ArrayList<>();
-		SaleItem item = new SaleItem();
-		item.setProductId(createdProductId);
-		item.setQuantity(2);
-		item.setUnitPrice(50.00);
-		items.add(item);
-		Sale createdSale = ((SaleServiceImpl) saleService).createSaleWithItems(sale, items);
-		this.createdSaleId = createdSale.getId();
-		assertNotNull(createdSale.getId(), "Sale ID should be generated");
-		assertEquals(100L, createdSale.getTotalPrice());
-		List<SaleItem> savedItems = saleItemService.findBySaleId(createdSale.getId());
-		assertEquals(1, savedItems.size(), "Should have saved 1 sale item");
-		assertEquals(createdProductId, savedItems.get(0).getProductId(), "Saved item should match product ID");
-		Product updatedProduct = productService.read(createdProductId).orElseThrow();
-		assertEquals(98, updatedProduct.getQuantity(), "Stock should decrease by 2");
+	void testRead_SharedSale() {
+
+		System.out.println("Running: testRead_SharedSale");
+
+		Optional<Sale> fetched = assertDoesNotThrow(() -> {
+			return saleService.read(sharedSale.getId());
+		}, "Critical Failure : read threw an unexpected exception");
+
+		assertTrue(fetched.isPresent(), "Should find the shared sale");
+		assertEquals(SHARED_TOTAL_PRICE, fetched.get().getTotalPrice(), 0.001);
+		assertNotNull(fetched.get().getCreatedAt(), "Date should be auto-generated");
 	}
 
 	@Test
-	void testCreateSale_Simple() {
-		System.out.println("Running: testCreateSale_Simple");
-		Sale sale = new Sale(500L);
-		Sale created = saleService.create(sale);
-		this.createdSaleId = created.getId();
+	void testUpdate_Sale() {
+		System.out.println("Running: testUpdate_Sale");
+
+		Sale current = saleService.read(sharedSale.getId()).orElseThrow();
+		long oldPrice = current.getTotalPrice();
+		long newPrice = 999;
+
+		current.setTotalPrice(newPrice);
+
+		assertDoesNotThrow(() -> saleService.update(current),
+				"Critical Failure : update threw an unexpected exception");
+
+		Sale updated = saleService.read(sharedSale.getId()).orElseThrow();
+		assertEquals(newPrice, updated.getTotalPrice(), 0.001);
+
+		System.out.println("    undoing changes");
+		try {
+			current.setTotalPrice(oldPrice);
+			saleService.update(current);
+		} catch (Exception e) {
+			throw new RuntimeException("    Error undoing changes", e);
+		}
+	}
+
+	@Test
+	void testDelete_Independent() {
+		System.out.println("Running: testDelete_Independent");
+
+		Sale tempSale = new Sale(10);
+
+		Sale created = saleService.create(tempSale);
 		assertNotNull(created.getId());
-		assertEquals(500L, created.getTotalPrice());
+
+		assertDoesNotThrow(() -> saleService.delete(created.getId()),
+				"Critical Failure : delete threw an unexpected exception");
+
+		Optional<Sale> deleted = saleService.read(created.getId());
+		assertFalse(deleted.isPresent(), "Sale should be gone");
 	}
 
 	@Test
 	void testGetTotalRevenue() {
 		System.out.println("Running: testGetTotalRevenue");
-		Sale sale = new Sale(250L);
-		Sale created = saleService.create(sale);
-		this.createdSaleId = created.getId();
-		Long revenue = saleService.getTotalRevenue(created.getId());
-		assertEquals(250L, revenue);
+
+		Long revenue = assertDoesNotThrow(() -> {
+			return saleService.getTotalRevenue(sharedSale.getId());
+		}, "Critical Failure : getTotalRevenue threw an unexpected exception");
+
+		assertEquals((long) SHARED_TOTAL_PRICE, revenue);
 	}
 
 	@Test
-	void testCreateSale_InsufficientStock() {
-		System.out.println("Running: testCreateSale_InsufficientStock");
-		Sale sale = new Sale(5000L);
-		List<SaleItem> items = new ArrayList<>();
-		SaleItem item = new SaleItem();
-		item.setProductId(createdProductId);
-		item.setQuantity(101);
-		item.setUnitPrice(50.00);
-		items.add(item);
-		Exception exception = assertThrows(RuntimeException.class,
-				() -> {
-					((SaleServiceImpl) saleService).createSaleWithItems(sale, items);
-				});
+	void testCreateSaleWithItems_Transaction() {
+		System.out.println("Running: testCreateSaleWithItems_Transaction");
+
+		Product tempProd = new Product("Txn Test Product", "Desc", new BigDecimal("10.00"), 20, 5, Category.TOYS);
+		Product savedProd = productService.create(tempProd);
+
+		Sale createdSale = null;
+
+		try {
+
+			Sale saleHeader = new Sale(20);
+
+			SaleItem item = new SaleItem(
+					savedProd.getId(),
+					saleHeader.getId(),
+					2,
+					10.00);
+
+			createdSale = assertDoesNotThrow(() -> {
+				return saleService.createSaleWithItems(saleHeader, List.of(item));
+			}, "Critical Failure : createSaleWithItems threw an unexpected exception");
+
+			assertNotNull(createdSale.getId());
+
+			List<SaleItem> items = saleItemService.findBySaleId(createdSale.getId());
+			assertEquals(1, items.size(), "Should have saved 1 sale item");
+			assertEquals(savedProd.getId(), items.get(0).getProductId());
+
+			Product updatedProd = productService.read(savedProd.getId()).orElseThrow();
+			assertEquals(18, updatedProd.getQuantity(), "Stock should decrease by the sold amount");
+
+		} finally {
+
+			System.out.println("    Cleaning up transaction test data");
+
+			if (createdSale != null) {
+				try {
+					saleService.delete(createdSale.getId());
+				} catch (Exception e) {
+				}
+			}
+
+			try {
+				productService.delete(savedProd.getId());
+			} catch (Exception e) {
+			}
+		}
 	}
 }

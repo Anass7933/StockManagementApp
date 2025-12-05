@@ -41,6 +41,10 @@ public class Sale implements Identifiable, Auditable {
 		this.saleId = saleId;
 	}
 
+	public void setTotalPrice(long totalPrice) {
+		this.totalPrice = totalPrice;
+	}
+
 	public void setCreatedAt(OffsetDateTime createdAt) {
 		this.createdAt = createdAt;
 	}

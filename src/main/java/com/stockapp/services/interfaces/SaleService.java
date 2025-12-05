@@ -7,7 +7,5 @@ import java.util.List;
 public interface SaleService extends CrudService<Sale> {
 	Sale createSaleWithItems(Sale sale, List<SaleItem> items);
 
-	void updateSaleWithItems(Long saleId, Sale sale, List<SaleItem> items);
-
 	Long getTotalRevenue(Long SaleId);
 }

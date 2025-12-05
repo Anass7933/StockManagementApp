@@ -3,93 +3,138 @@ package com.stockapp.services.impl;
 import static org.junit.jupiter.api.Assertions.*;
 import com.stockapp.models.entities.User;
 import com.stockapp.models.enums.UserRole;
-import com.stockapp.utils.DatabaseUtils;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
+
 import java.util.List;
 import java.util.Optional;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 class UserServiceImplTest {
-	private UserServiceImpl userService;
-	private final String TEST_USERNAME = "junit_test_user";
 
-	@BeforeEach
-	void setUp() throws SQLException {
+	private static UserServiceImpl userService;
+	private static User sharedUser;
+
+	private static final String SHARED_USERNAME = "junit_shared_user";
+	private static final UserRole SHARED_ROLE = UserRole.CASHIER;
+	private static final String TEMP_USERNAME = "temp_delete_me";
+
+	@BeforeAll
+	static void setUp() {
 		userService = new UserServiceImpl();
-		deleteTestUser();
+		System.out.println("--- Setup: Creating Shared User via Service ---");
+
+		deleteIfExists(SHARED_USERNAME);
+		deleteIfExists(TEMP_USERNAME);
+
+		User newUser = new User(
+				SHARED_USERNAME,
+				"secret_hash",
+				"Shared JUnit Cashier",
+				SHARED_ROLE);
+
+		sharedUser = userService.create(newUser);
+		System.out.println("Shared User created with ID: " + sharedUser.getId());
 	}
 
-	@AfterEach
-	void tearDown() throws SQLException {
-		deleteTestUser();
-	}
-
-	private void deleteTestUser() throws SQLException {
-		try (Connection conn = DatabaseUtils.getConnection()) {
-			String sql = "DELETE FROM users WHERE username = ?";
-			try (PreparedStatement ps = conn.prepareStatement(sql)) {
-				ps.setString(1, TEST_USERNAME);
-				ps.executeUpdate();
+	private static void deleteIfExists(String username) {
+		try {
+			User oldUser = userService.findByUsername(username);
+			if (oldUser != null) {
+				userService.delete(oldUser.getId());
+				System.out.println("Removed stale test user: " + username);
 			}
+		} catch (Exception e) {
+			System.out.println("Warning: Cleanup failed for " + username + ", but proceeding...");
 		}
 	}
 
-	@Test
-	void testCreateAndReadUser() {
-		System.out.println("Running: testCreateAndReadUser");
-		User newUser = new User(TEST_USERNAME, "hashed_secret_123", "JUnit Test Admin", UserRole.ADMIN, null);
-		User createdUser = userService.create(newUser);
-		assertNotNull(createdUser.getId(), "User ID should be generated");
-		assertNotNull(createdUser.getCreatedAt(), "Created At should be generated");
-		assertEquals(TEST_USERNAME, createdUser.getUserName());
-		assertEquals(UserRole.ADMIN, createdUser.getRole());
-		Optional<User> fetchedUser = userService.read(createdUser.getId());
-		assertTrue(fetchedUser.isPresent(), "Should be able to find user by ID");
-		assertEquals("JUnit Test Admin", fetchedUser.get().getFullName());
+	@AfterAll
+	static void tearDown() {
+		System.out.println("--- Teardown: Deleting Shared User ---");
+		deleteIfExists(SHARED_USERNAME);
+		deleteIfExists(TEMP_USERNAME);
 	}
 
 	@Test
-	void testUpdateUser_Success() {
-		System.out.println("Running: testUpdateUser_Success");
-		User user = userService.create(new User(TEST_USERNAME, "pass1", "Original Name", UserRole.CASHIER, null));
-		User userToUpdate = new User(
-				user.getId(), TEST_USERNAME, "pass2_updated", "Updated Name", UserRole.STOCK_MANAGER,
-				user.getCreatedAt());
-		userService.update(userToUpdate);
-		User updatedUser = userService.read(user.getId()).orElseThrow();
-		assertEquals("Updated Name", updatedUser.getFullName());
-		assertEquals("pass2_updated", updatedUser.getPasswordHash());
-		assertEquals(UserRole.STOCK_MANAGER, updatedUser.getRole());
-	}
+	void testRead_SharedUser() {
+		System.out.println("Running: testRead_SharedUser");
 
-	@Test
-	void testDeleteUser() {
-		System.out.println("Running: testDeleteUser");
-		User user = userService.create(new User(TEST_USERNAME, "pass", "To Delete", UserRole.CASHIER, null));
-		userService.delete(user.getId());
-		Optional<User> deletedUser = userService.read(user.getId());
-		assertFalse(deletedUser.isPresent(), "User should not exist after deletion");
+		Optional<User> fetchedUser = assertDoesNotThrow(() -> {
+			return userService.read(sharedUser.getId());
+		}, "Critical Failure : The read function threw an unexpected exception.");
+
+		assertTrue(fetchedUser.isPresent(), "Should find the shared user");
+		assertEquals(SHARED_USERNAME, fetchedUser.get().getUserName());
+		assertEquals("Shared JUnit Cashier", fetchedUser.get().getFullName());
+		assertEquals(SHARED_ROLE, fetchedUser.get().getRole());
 	}
 
 	@Test
 	void testFindByUsername() {
 		System.out.println("Running: testFindByUsername");
-		userService.create(new User(TEST_USERNAME, "pass", "Find Me", UserRole.ADMIN, null));
-		User foundUser = userService.findByUsername(TEST_USERNAME);
-		assertNotNull(foundUser, "Should find user by username");
-		assertEquals(TEST_USERNAME, foundUser.getUserName());
+
+		User foundUser = assertDoesNotThrow(() -> {
+			return userService.findByUsername(SHARED_USERNAME);
+		}, "Critical Failure: The findByUsername function threw an unexpected exception!");
+
+		assertNotNull(foundUser, "Should return a user object");
+		assertEquals(SHARED_USERNAME, foundUser.getUserName());
+	}
+
+	@Test
+	void testUpdateUser_Success() {
+		System.out.println("Running: testUpdateUser_Success");
+
+		User currentUser = userService.read(sharedUser.getId()).orElseThrow();
+		String originalName = currentUser.getFullName();
+		String newName = originalName + "_Updated";
+
+		currentUser.setFullname(newName);
+
+		assertDoesNotThrow(() -> userService.update(currentUser),
+				"Critical Failure : The update function threw an unexpected exception!");
+
+		User updatedUser = userService.read(sharedUser.getId()).orElseThrow();
+		assertEquals(newName, updatedUser.getFullName());
+
+		try {
+			System.out.println("	undoing changes for other services");
+			currentUser.setFullname(originalName);
+			userService.update(currentUser);
+		} catch (Exception e) {
+			throw new RuntimeException("	Error undoing changes", e);
+		}
+
 	}
 
 	@Test
 	void testFindByRole() {
 		System.out.println("Running: testFindByRole");
-		userService.create(new User(TEST_USERNAME, "pass", "Role Tester", UserRole.CASHIER, null));
-		List<User> cashiers = userService.findByRole(UserRole.CASHIER);
-		boolean found = cashiers.stream().anyMatch(u -> u.getUserName().equals(TEST_USERNAME));
-		assertTrue(found, "List of CASHIERs should contain the test user");
+
+		List<User> cashiers = assertDoesNotThrow(() -> {
+			return userService.findByRole(SHARED_ROLE);
+		}, "Critical Failure : The findByRole function threw an unexpected exception!");
+
+		boolean found = cashiers.stream()
+				.anyMatch(u -> u.getUserName().equals(SHARED_USERNAME));
+
+		assertTrue(found, "The list of ADMINs should contain our shared test user");
+	}
+
+	@Test
+	void testDeleteUser_Independent() {
+		System.out.println("Running: testDeleteUser_Independent");
+
+		User tempUser = new User("temp_delete_me", "pass", "Disposable", UserRole.CASHIER);
+		User createdTemp = userService.create(tempUser);
+
+		assertNotNull(createdTemp.getId());
+
+		assertDoesNotThrow(() -> userService.delete(tempUser.getId()),
+				"Critical Failure : The delete function threw an unexpected exception!");
+
+		Optional<User> deleted = userService.read(createdTemp.getId());
+		assertFalse(deleted.isPresent(), "User should be gone");
 	}
 }

@@ -34,13 +34,13 @@ public class SaleItemServiceImpl implements SaleItemService {
 		}
 	}
 
-	public void delete(Long saleId) {
-		String sql = "DELETE FROM sale_items WHERE sale_id = ?";
+	public void delete(Long Id) {
+		String sql = "DELETE FROM sale_items WHERE id = ?";
 		try (Connection c = DatabaseUtils.getConnection(); PreparedStatement ps = c.prepareStatement(sql)) {
-			ps.setLong(1, saleId);
+			ps.setLong(1, Id);
 			ps.executeUpdate();
 		} catch (SQLException e) {
-			throw new RuntimeException("Failed to delete sale items for sale ID: " + saleId, e);
+			throw new RuntimeException("Failed to delete sale item  : " + Id, e);
 		}
 	}
 
@@ -111,66 +111,6 @@ public class SaleItemServiceImpl implements SaleItemService {
 			throw new RuntimeException("Failed to read all sale items", e);
 		}
 		return saleItems;
-	}
-
-	public List<SaleItem> creatSaleItems(List<SaleItem> items) {
-		List<SaleItem> createdItems = new ArrayList<>();
-		for (SaleItem item : items) {
-			createdItems.add(create(item));
-		}
-		return createdItems;
-	}
-
-	public void updateSaleItems(Long saleId, List<SaleItem> items) {
-		Connection c = null;
-		try {
-			c = DatabaseUtils.getConnection();
-			c.setAutoCommit(false);
-			String deleteSql = "DELETE FROM sale_items WHERE sale_id = ?";
-			try (PreparedStatement deletePs = c.prepareStatement(deleteSql)) {
-				deletePs.setLong(1, saleId);
-				deletePs.executeUpdate();
-			}
-			String insertSql = """
-					INSERT INTO sale_items (sale_id, product_id, quantity, unit_price)
-					VALUES (?, ?, ?, ?)
-					RETURNING id, line_total;
-					""";
-			try (PreparedStatement insertPs = c.prepareStatement(insertSql)) {
-				for (SaleItem item : items) {
-					insertPs.setLong(1, saleId);
-					insertPs.setLong(2, item.getProductId());
-					insertPs.setInt(3, item.getQuantity());
-					insertPs.setDouble(4, item.getUnitPrice());
-					try (ResultSet rs = insertPs.executeQuery()) {
-						if (rs.next()) {
-							item.setId(rs.getLong("id"));
-							item.setSaleId(saleId);
-							item.setLineTotal(rs.getDouble("line_total"));
-						}
-					}
-				}
-			}
-			c.commit();
-		} catch (SQLException e) {
-			if (c != null) {
-				try {
-					c.rollback();
-				} catch (SQLException rollbackEx) {
-					rollbackEx.printStackTrace();
-				}
-			}
-			throw new RuntimeException("Failed to update sale items for sale ID: " + saleId, e);
-		} finally {
-			if (c != null) {
-				try {
-					c.setAutoCommit(true);
-					c.close();
-				} catch (SQLException closeEx) {
-					closeEx.printStackTrace();
-				}
-			}
-		}
 	}
 
 	public List<SaleItem> findByProductId(Long productId) {

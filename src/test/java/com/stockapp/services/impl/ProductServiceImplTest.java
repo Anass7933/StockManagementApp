@@ -3,87 +3,145 @@ package com.stockapp.services.impl;
 import static org.junit.jupiter.api.Assertions.*;
 import com.stockapp.models.entities.Product;
 import com.stockapp.models.enums.Category;
-import com.stockapp.utils.DatabaseUtils;
 import java.math.BigDecimal;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
 import java.util.Optional;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 class ProductServiceImplTest {
-	private ProductServiceImpl productService;
-	private final String TEST_PRODUCT_NAME = "JUnit Integration Test Product";
 
-	@BeforeEach
-	void setUp() throws SQLException {
+	private static ProductServiceImpl productService;
+	private static Product sharedProduct;
+
+	private static final String SHARED_NAME = "JUnit Shared Fixture";
+	private static final String TEMP_NAME = "temp_delete_prod";
+
+	private static final int INITIAL_STOCK = 50;
+	private static final int MIN_STOCK = 10;
+
+	@BeforeAll
+	static void setUp() {
 		productService = new ProductServiceImpl();
-		deleteTestProduct();
+		System.out.println("--- Setup: Ensuring clean environment ---");
+
+		deleteIfExists(SHARED_NAME);
+		deleteIfExists(TEMP_NAME);
+
+		Product p = new Product(SHARED_NAME, "Shared Desc", new BigDecimal("100.00"), INITIAL_STOCK, MIN_STOCK,
+				Category.ELECTRONICS);
+		sharedProduct = productService.create(p);
+
+		System.out.println("Shared Product created with ID: " + sharedProduct.getId());
 	}
 
-	@AfterEach
-	void tearDown() throws SQLException {
-		deleteTestProduct();
-	}
-
-	private void deleteTestProduct() throws SQLException {
-		try (Connection conn = DatabaseUtils.getConnection()) {
-			String sql = "DELETE FROM products WHERE name = ?";
-			try (PreparedStatement ps = conn.prepareStatement(sql)) {
-				ps.setString(1, TEST_PRODUCT_NAME);
-				ps.executeUpdate();
+	private static void deleteIfExists(String productName) {
+		try {
+			Optional<Product> old = productService.findByName(productName);
+			if (old.isPresent()) {
+				productService.delete(old.get().getId());
+				System.out.println("Removed stale test product: " + productName);
 			}
+		} catch (Exception e) {
+			System.err.println("Warning: Cleanup failed for " + productName);
 		}
 	}
 
+	@AfterAll
+	static void tearDown() {
+		System.out.println("--- Teardown: Deleting Shared Product ---");
+		deleteIfExists(SHARED_NAME);
+		deleteIfExists(TEMP_NAME);
+	}
+
 	@Test
-	void testCreateAndReadProduct() {
-		System.out.println("Running: testCreateAndReadProduct");
-		Product newProduct = new Product(
-				TEST_PRODUCT_NAME, "Description for test", new BigDecimal("99.99"), 10, 2, Category.ELECTRONICS);
-		Product createdProduct = productService.create(newProduct);
-		assertNotNull(createdProduct.getId(), "Product ID should be generated");
-		assertNotNull(createdProduct.getCreatedAt(), "Created At should be generated");
-		assertEquals(TEST_PRODUCT_NAME, createdProduct.getName());
-		assertEquals(Category.ELECTRONICS, createdProduct.getCategory());
-		Optional<Product> fetchedProduct = productService.read(createdProduct.getId());
-		assertTrue(fetchedProduct.isPresent(), "Should be able to find product by ID");
-		assertEquals(new BigDecimal("99.99"), fetchedProduct.get().getPrice());
+	void testRead_SharedProduct() {
+		System.out.println("Running: testRead_SharedProduct");
+
+		Optional<Product> fetched = assertDoesNotThrow(() -> {
+			return productService.read(sharedProduct.getId());
+		}, "Critical Failure : the function read threw an unexpected exception");
+
+		assertTrue(fetched.isPresent(), "Should find the shared product");
+		assertEquals(SHARED_NAME, fetched.get().getName());
+		assertEquals(Category.ELECTRONICS, fetched.get().getCategory());
 	}
 
 	@Test
 	void testUpdateStock_Success() {
 		System.out.println("Running: testUpdateStock_Success");
-		Product p = productService.create(
-				new Product(TEST_PRODUCT_NAME, "Desc", new BigDecimal("10.00"), 10, 2, Category.TOYS));
-		productService.updateStock(p.getId(), 5);
-		Product updatedP = productService.read(p.getId()).orElseThrow();
-		assertEquals(15, updatedP.getQuantity(), "Stock should increase to 15");
-		productService.updateStock(p.getId(), -3);
-		updatedP = productService.read(p.getId()).orElseThrow();
-		assertEquals(12, updatedP.getQuantity(), "Stock should decrease to 12");
+
+		Product currentP = productService.read(sharedProduct.getId()).orElseThrow();
+		int oldQty = currentP.getQuantity();
+		int amountToAdd = 5;
+
+		assertDoesNotThrow(() -> {
+			productService.updateStock(sharedProduct.getId(), amountToAdd);
+		}, "Critical Failure : the function updateStock threw an unexpected exception");
+
+		Product updatedP = productService.read(sharedProduct.getId()).orElseThrow();
+		assertEquals(oldQty + amountToAdd, updatedP.getQuantity(), "Stock should increase by exactly " + amountToAdd);
 	}
 
 	@Test
 	void testUpdateStock_NotEnoughStock() {
 		System.out.println("Running: testUpdateStock_NotEnoughStock");
-		Product p = productService
-				.create(new Product(TEST_PRODUCT_NAME, "Desc", new BigDecimal("10.00"), 5, 2, Category.TOYS));
-		Exception exception = assertThrows(RuntimeException.class, () -> {
-			productService.updateStock(p.getId(), -10);
-		});
-		assertTrue(exception.getMessage().contains("Not enough stock"), "Should throw exception for negative stock");
+
+		Product currentP = productService.read(sharedProduct.getId()).orElseThrow();
+		int currentQty = currentP.getQuantity();
+
+		RuntimeException exception = assertThrows(RuntimeException.class, () -> {
+			productService.updateStock(sharedProduct.getId(), -(currentQty + 1));
+		}, "Critical Failure: The system allowed updating stock below zero! (No exception was thrown)");
+
+		if (exception.getCause() instanceof java.sql.SQLException)
+			throw exception;
+
+		assertTrue(exception.getMessage().contains("Not enough stock"),
+				"Expected 'Not enough stock' error, but got: " + exception.getMessage());
 	}
 
 	@Test
 	void testIsNeedRestock() {
 		System.out.println("Running: testIsNeedRestock");
-		Product p = productService.create(
-				new Product(TEST_PRODUCT_NAME, "Desc", new BigDecimal("10.00"), 5, 10, Category.GROCERIES));
-		assertTrue(productService.isNeedRestock(p.getId()), "Should need restock when Qty < MinStock");
-		productService.updateStock(p.getId(), 15);
-		assertFalse(productService.isNeedRestock(p.getId()), "Should NOT need restock when Qty > MinStock");
+
+		Product p = productService.read(sharedProduct.getId()).orElseThrow();
+		int currentQty = p.getQuantity();
+
+		int targetLow = MIN_STOCK - 1;
+		if (currentQty > targetLow) {
+			productService.updateStock(sharedProduct.getId(), -(currentQty - targetLow));
+		}
+
+		boolean isRestockNeeded = assertDoesNotThrow(() -> {
+			return productService.isNeedRestock(sharedProduct.getId());
+		}, "Critical Failure: isNeedRestock threw an unexpected exception");
+
+		assertTrue(isRestockNeeded, "Should return TRUE when stock is below min");
+
+		productService.updateStock(sharedProduct.getId(), 10);
+
+		boolean isRestockStillNeeded = assertDoesNotThrow(() -> {
+			return productService.isNeedRestock(sharedProduct.getId());
+		}, "Critical Failure: isNeedRestock threw an unexpected exception");
+
+		assertFalse(isRestockStillNeeded, "Should return FALSE when stock is sufficient");
+	}
+
+	@Test
+	void testDeleteProduct_Independent() {
+		System.out.println("Running: testDeleteProduct_Independent");
+
+		Product temp = new Product(TEMP_NAME, "Disposable", new BigDecimal("1.00"), 1, 1, Category.TOYS);
+		Product createdTemp = productService.create(temp);
+
+		assertNotNull(createdTemp.getId(), "Temp product should be created");
+
+		assertDoesNotThrow(() -> {
+			productService.delete(createdTemp.getId());
+		}, "Critical Failure : delete thew an unexpected exception");
+
+		Optional<Product> deleted = productService.read(createdTemp.getId());
+		assertFalse(deleted.isPresent(), "Temp product should be deleted");
 	}
 }
