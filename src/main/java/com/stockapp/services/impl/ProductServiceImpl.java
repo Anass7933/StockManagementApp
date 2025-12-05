@@ -239,4 +239,32 @@ public class ProductServiceImpl implements ProductService {
 			throw new RuntimeException("Failed to update product stock", e);
 		}
 	}
+
+	public int totalProducts() {
+		return count("SELECT COUNT(*) FROM products");
+	}
+
+	public int lowStock() {
+		return count("SELECT COUNT(*) FROM products WHERE quantity <= min_stock");
+	}
+
+	public int inStock() {
+		return count("SELECT COUNT(*) FROM products WHERE quantity > 0");
+	}
+
+	public int outOfStock() {
+		return count("SELECT COUNT(*) FROM products WHERE quantity = 0");
+	}
+
+	public int count(String query) {
+		int x = 0;
+		try (Connection c = DatabaseUtils.getConnection(); PreparedStatement ps = c.prepareStatement(query)) {
+			ResultSet rs = ps.executeQuery();
+			rs.next();
+			x = rs.getInt(1);
+		} catch (SQLException e) {
+			throw new RuntimeException("Failed to check product", e);
+		}
+		return x;
+	}
 }

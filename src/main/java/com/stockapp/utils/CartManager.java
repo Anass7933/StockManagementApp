@@ -13,7 +13,7 @@ public class CartManager {
 	private ObservableList<SaleItem> cartItems;
 	private Runnable onCartChange;
 
-	private CartManager() {
+	public CartManager() {
 		cartItems = FXCollections.observableArrayList();
 	}
 

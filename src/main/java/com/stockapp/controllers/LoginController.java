@@ -42,6 +42,7 @@ public class LoginController {
 				controller.setLoggedUser(username);
 				Stage stage = (Stage) loginButton.getScene().getWindow();
 				stage.setScene(new Scene(root));
+				stage.setTitle("Admin Dashboard");
 				stage.setMaximized(true);
 				stage.show();
 			} else if (currentUser != null && currentUser.getRole().name().equals("STOCK_MANAGER")) {
@@ -51,6 +52,7 @@ public class LoginController {
 				controller.setLoggedUser(username);
 				Stage stage = (Stage) loginButton.getScene().getWindow();
 				stage.setScene(scene);
+				stage.setTitle("Stock Manager Dashboard");
 				stage.setMaximized(true);
 				stage.show();
 			} else if (currentUser != null && currentUser.getRole().name().equals("CASHIER")) {
@@ -58,6 +60,7 @@ public class LoginController {
 				Scene scene = new Scene(loader.load());
 				Stage stage = (Stage) loginButton.getScene().getWindow();
 				stage.setScene(scene);
+				stage.setTitle("Cashier Dashboard");
 				stage.setMaximized(true);
 				stage.show();
 			} else {

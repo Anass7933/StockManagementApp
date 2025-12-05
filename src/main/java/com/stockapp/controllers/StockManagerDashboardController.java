@@ -48,6 +48,14 @@ public class StockManagerDashboardController {
 	@FXML
 	private TableColumn<Product, String> stockCheckColumn;
 	@FXML
+	private Label totalProductsLabel;
+	@FXML
+	private Label lowStockLabel;
+	@FXML
+	private Label inStockLabel;
+	@FXML
+	private Label outOfStockLabel;
+	@FXML
 	private Button sighOutButton;
 	private User loggedUser;
 	private final Timeline refreshTimeline = new Timeline(new KeyFrame(Duration.ZERO, e -> refreshProducts()),
@@ -181,6 +189,7 @@ public class StockManagerDashboardController {
 		List<Product> products = productService.readAll();
 		ObservableList<Product> data = FXCollections.observableArrayList(products);
 		productsTable.setItems(data);
+		stat();
 		if (selected != null) {
 			data.stream()
 					.filter(p -> p.getId() == selected.getId())
@@ -199,5 +208,14 @@ public class StockManagerDashboardController {
 		double totalHeight = headerHeight + rows * productsTable.getFixedCellSize();
 		double maxHeight = 500;
 		productsTable.setPrefHeight(Math.min(totalHeight, maxHeight));
+	}
+
+	private void stat() {
+		ProductServiceImpl productServiceImpl = new ProductServiceImpl();
+		totalProductsLabel.setText(String.valueOf(productServiceImpl.totalProducts()));
+		lowStockLabel.setText(String.valueOf(productServiceImpl.lowStock()));
+		inStockLabel.setText(String.valueOf(productServiceImpl.inStock()));
+		outOfStockLabel.setText(String.valueOf(productServiceImpl.outOfStock()));
+
 	}
 }

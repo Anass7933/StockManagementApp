@@ -7,6 +7,7 @@ public enum Category {
 	BOOKS,
 	TOYS,
 	GROCERIES,
+	BEAUTY,
 	BEAUTY_PRODUCTS,
 	SPORTS_EQUIPMENT
 }
