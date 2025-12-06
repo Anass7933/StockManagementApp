@@ -79,14 +79,12 @@ public class CartViewControllerTest extends ApplicationTest {
             fail("Cart should have items for this test");
         }
 
-        SaleItem itemToRemove = listView.getItems().get(0);
+        SaleItem itemToRemove = listView.getItems().getFirst();
         int initialSize = listView.getItems().size();
 
-        // Run the blocking dialog call asynchronously
         WaitForAsyncUtils.asyncFx(() -> controller.handleRemoveItem(itemToRemove));
         WaitForAsyncUtils.waitForFxEvents();
 
-        // Interact with the dialog (Click OK)
         clickOn("OK");
         WaitForAsyncUtils.waitForFxEvents();
 
@@ -95,12 +93,10 @@ public class CartViewControllerTest extends ApplicationTest {
 
     @Test
     public void testUpdateItemQuantity() {
-        SaleItem item = cartManager.getCartItems().get(0);
+        SaleItem item = cartManager.getCartItems().getFirst();
 
-        // Update quantity via CartManager directly
-        interact(() -> {
-            cartManager.updateItemQuantity(item, 5);
-        });
+        interact(() -> cartManager.updateItemQuantity(item, 5));
+
         WaitForAsyncUtils.waitForFxEvents();
 
         assertEquals(5, item.getQuantity());
@@ -114,8 +110,6 @@ public class CartViewControllerTest extends ApplicationTest {
     public void testEmptyCartMessage() {
         interact(() -> {
             cartManager.clearCart();
-            // Re-set manager to trigger checkEmptyCart since it's not triggered by list
-            // listener
             controller.setCartManager(cartManager);
         });
         WaitForAsyncUtils.waitForFxEvents();

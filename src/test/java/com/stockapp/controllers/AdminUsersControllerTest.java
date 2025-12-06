@@ -28,11 +28,7 @@ public class AdminUsersControllerTest extends ApplicationTest {
 
     @BeforeEach
     public void setUp() throws Exception {
-        // Set alert consumer to avoid blocking dialogs
-        interact(() -> controller.setAlertConsumer(msg -> {
-        }));
 
-        // Set logged user
         interact(() -> controller.setLoggedUser("TestUser"));
         WaitForAsyncUtils.waitForFxEvents();
     }
@@ -98,14 +94,11 @@ public class AdminUsersControllerTest extends ApplicationTest {
     public void testUsersTableHasColumns() {
         TableView<User> table = lookup("#usersTable").queryAs(TableView.class);
         assertNotNull(table);
-
         assertNotNull(table.getColumns().stream().filter(c -> "Id".equals(c.getText())).findFirst().orElse(null));
         assertNotNull(table.getColumns().stream().filter(c -> "Username".equals(c.getText())).findFirst().orElse(null));
-        assertNotNull(
-                table.getColumns().stream().filter(c -> "Full Name".equals(c.getText())).findFirst().orElse(null));
+        assertNotNull(table.getColumns().stream().filter(c -> "Full Name".equals(c.getText())).findFirst().orElse(null));
         assertNotNull(table.getColumns().stream().filter(c -> "Role".equals(c.getText())).findFirst().orElse(null));
-        assertNotNull(
-                table.getColumns().stream().filter(c -> "Created At".equals(c.getText())).findFirst().orElse(null));
+        assertNotNull(table.getColumns().stream().filter(c -> "Created At".equals(c.getText())).findFirst().orElse(null));
     }
 
 }

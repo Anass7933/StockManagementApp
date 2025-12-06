@@ -19,7 +19,6 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class LoginControllerTest extends ApplicationTest {
 
-    private LoginController controller;
     private final String TEST_MGR_USERNAME = "test_stock_mgr";
     private final String TEST_MGR_PASSWORD = "testPassword123";
 
@@ -27,7 +26,7 @@ public class LoginControllerTest extends ApplicationTest {
     public void start(Stage stage) throws Exception {
         var loader = new javafx.fxml.FXMLLoader(getClass().getResource("/fxml/Login.fxml"));
         Parent root = loader.load();
-        controller = loader.getController();
+        LoginController controller = loader.getController();
         stage.setScene(new javafx.scene.Scene(root));
         stage.show();
     }
@@ -39,7 +38,7 @@ public class LoginControllerTest extends ApplicationTest {
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        // Clear fields before each test
+
         interact(() -> {
             TextField usernameField = lookup("#usernameField").queryAs(TextField.class);
             PasswordField passwordField = lookup("#passwordField").queryAs(PasswordField.class);
@@ -65,7 +64,7 @@ public class LoginControllerTest extends ApplicationTest {
     }
 
     private void createTestUser() throws SQLException {
-        deleteTestUser(); // Ensure clean state
+        deleteTestUser();
         String hashedPassword = PasswordUtils.hashPassword(TEST_MGR_PASSWORD);
         try (Connection conn = DatabaseUtils.getConnection()) {
             String sql = "INSERT INTO users (username, password_hash, full_name, role, created_at) "
@@ -92,14 +91,12 @@ public class LoginControllerTest extends ApplicationTest {
 
     @Test
     public void testSuccessfulAdminLogin() {
-        // Type credentials using TestFX
         clickOn("#usernameField").write("admin");
         clickOn("#passwordField").write("admin");
 
         clickOn("#loginButton");
         WaitForAsyncUtils.waitForFxEvents();
 
-        // Verify a new window opened (Admin Dashboard)
         boolean dashboardOpened = listTargetWindows().stream()
                 .filter(w -> w instanceof Stage)
                 .map(w -> (Stage) w)
