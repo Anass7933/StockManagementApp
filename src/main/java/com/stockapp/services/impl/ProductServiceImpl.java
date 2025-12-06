@@ -269,43 +269,43 @@ public class ProductServiceImpl implements ProductService {
 		}
 	}
 
-	public int totalProducts() {
-		return getStatFromView("total_products");
-	}
+    public int totalProducts() {
+        return getStatFromView("total_products");
+    }
 
-	public int lowStock() {
-		return getStatFromView("low_stock");
-	}
+    public int lowStock() {
+        return getStatFromView("low_stock");
+    }
 
-	public int inStock() {
-		return getStatFromView("in_stock");
-	}
+    public int inStock() {
+        return getStatFromView("in_stock");
+    }
 
-	public int outOfStock() {
-		return getStatFromView("out_of_stock");
-	}
+    public int outOfStock() {
+        return getStatFromView("out_of_stock");
+    }
 
-	private int getStatFromView(String columnName) {
-		String sql = "SELECT " + columnName + " FROM mv_product_stats";
-		try (Connection c = DatabaseUtils.getConnection();
-				PreparedStatement ps = c.prepareStatement(sql);
-				ResultSet rs = ps.executeQuery()) {
+    private int getStatFromView(String columnName) {
+        String sql = "SELECT " + columnName + " FROM mv_product_stats";
+        try (Connection c = DatabaseUtils.getConnection();
+             PreparedStatement ps = c.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
 
-			if (rs.next()) {
-				return rs.getInt(1);
-			}
-			return 0;
-		} catch (SQLException e) {
-			throw new RuntimeException("Failed to fetch stat: " + columnName, e);
-		}
-	}
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+            return 0;
+        } catch (SQLException e) {
+            throw new RuntimeException("Failed to fetch stat: " + columnName, e);
+        }
+    }
 
-	public void refreshStats() {
-		try (Connection c = DatabaseUtils.getConnection();
-				Statement s = c.createStatement()) {
-			s.execute("REFRESH MATERIALIZED VIEW mv_product_stats");
-		} catch (SQLException e) {
-			throw new RuntimeException("Failed to refresh product stats", e);
-		}
-	}
+    public void refreshStats() {
+        try (Connection c = DatabaseUtils.getConnection();
+             Statement s = c.createStatement()) {
+            s.execute("REFRESH MATERIALIZED VIEW mv_product_stats");
+        } catch (SQLException e) {
+            throw new RuntimeException("Failed to refresh product stats", e);
+        }
+    }
 }

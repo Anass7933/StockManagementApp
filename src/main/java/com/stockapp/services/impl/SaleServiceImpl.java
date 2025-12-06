@@ -15,6 +15,25 @@ import java.util.Optional;
 public class SaleServiceImpl implements SaleService {
 
 	@Override
+	public Sale create(Sale sale) {
+		String sql = "INSERT INTO sales (total_price) VALUES (?) RETURNING id, created_at";
+		try (Connection c = DatabaseUtils.getConnection(); PreparedStatement ps = c.prepareStatement(sql)) {
+			ps.setBigDecimal(1, sale.getTotalPrice());
+			try (ResultSet rs = ps.executeQuery()) {
+				if (rs.next()) {
+					sale.setId(rs.getLong("id"));
+					sale.setCreatedAt(rs.getTimestamp("created_at").toInstant().atOffset(ZoneOffset.UTC));
+					return sale;
+				} else {
+					throw new RuntimeException("Failed to create sale");
+				}
+			}
+		} catch (SQLException e) {
+			throw new RuntimeException("Failed to create sale", e);
+		}
+	}
+
+	@Override
 	public Optional<Sale> read(Long id) {
 		String sql = "SELECT id, total_price, created_at FROM sales WHERE id = ?";
 		try (Connection c = DatabaseUtils.getConnection(); PreparedStatement ps = c.prepareStatement(sql)) {
@@ -74,7 +93,13 @@ public class SaleServiceImpl implements SaleService {
 
 	@Override
 	public List<Sale> readAll() {
-		String sql = "SELECT id, total_price, created_at FROM sales ORDER BY created_at DESC";
+		String sql = """
+				SELECT s.id, s.total_price, s.created_at, COALESCE(SUM(si.quantity), 0) as total_items
+				FROM sales s
+				LEFT JOIN sale_items si ON s.id = si.sale_id
+				GROUP BY s.id, s.total_price, s.created_at
+				ORDER BY s.created_at DESC
+				""";
 		List<Sale> sales = new ArrayList<>();
 		try (Connection c = DatabaseUtils.getConnection();
 				PreparedStatement ps = c.prepareStatement(sql);
@@ -83,6 +108,7 @@ public class SaleServiceImpl implements SaleService {
 				Sale sale = new Sale(rs.getLong("id"),
 						rs.getBigDecimal("total_price"),
 						rs.getTimestamp("created_at").toInstant().atOffset(ZoneOffset.UTC));
+				sale.setTotalItems(rs.getInt("total_items"));
 				sales.add(sale);
 			}
 		} catch (SQLException e) {
@@ -169,57 +195,56 @@ public class SaleServiceImpl implements SaleService {
 		}
 	}
 
-	public int totalSales(LocalDate start, LocalDate end) {
-		String sql = "SELECT SUM(total_sales_count) FROM mv_sales_stats WHERE sale_date BETWEEN ? AND ?";
-		return getStatFromView(sql, start, end);
-	}
+    public int totalSales(LocalDate start, LocalDate end) {
+        return getSalesStat("SUM(total_sales_count)", start, end);
+    }
 
-	public int totalRevenue(LocalDate start, LocalDate end) {
-		String sql = "SELECT SUM(total_revenue) FROM mv_sales_stats WHERE sale_date BETWEEN ? AND ?";
-		return getStatFromView(sql, start, end);
-	}
+    public int totalRevenue(LocalDate start, LocalDate end) {
+        return getSalesStat("SUM(total_revenue)", start, end);
+    }
 
-	public int totalItemsSold(LocalDate start, LocalDate end) {
-		String sql = "SELECT SUM(total_items_sold) FROM mv_sales_stats WHERE sale_date BETWEEN ? AND ?";
-		return getStatFromView(sql, start, end);
-	}
+    public int totalItemsSold(LocalDate start, LocalDate end) {
+        return getSalesStat("SUM(total_items_sold)", start, end);
+    }
 
-	public int averageSaleValue(LocalDate start, LocalDate end) {
-		String sql = """
-				    SELECT CASE
-				        WHEN SUM(total_sales_count) = 0 THEN 0
-				        ELSE SUM(total_revenue) / SUM(total_sales_count)
-				    END
-				    FROM mv_sales_stats
-				    WHERE sale_date BETWEEN ? AND ?
-				""";
-		return getStatFromView(sql, start, end);
-	}
+    public int averageSaleValue(LocalDate start, LocalDate end) {
+        String expression = """
+        CASE
+            WHEN SUM(total_sales_count) = 0 THEN 0
+            ELSE SUM(total_revenue) / SUM(total_sales_count)
+        END
+        """;
+        return getSalesStat(expression, start, end);
+    }
 
-	private int getStatFromView(String sql, LocalDate start, LocalDate end) {
-		try (Connection c = DatabaseUtils.getConnection();
-				PreparedStatement ps = c.prepareStatement(sql)) {
+    private int getSalesStat(String columnExpression, LocalDate start, LocalDate end) {
+        String sql = "SELECT " + columnExpression + " FROM mv_sales_stats WHERE sale_date BETWEEN ? AND ?";
 
-			ps.setObject(1, start);
-			ps.setObject(2, end);
+        try (Connection c = DatabaseUtils.getConnection();
+             PreparedStatement ps = c.prepareStatement(sql)) {
 
-			try (ResultSet rs = ps.executeQuery()) {
-				if (rs.next()) {
-					return rs.getInt(1);
-				}
-				return 0;
-			}
-		} catch (SQLException e) {
-			throw new RuntimeException("Failed to fetch sales stats", e);
-		}
-	}
+            ps.setObject(1, start);
+            ps.setObject(2, end);
 
-	public void refreshStats() {
-		try (Connection c = DatabaseUtils.getConnection();
-				Statement s = c.createStatement()) {
-			s.execute("REFRESH MATERIALIZED VIEW mv_sales_stats");
-		} catch (SQLException e) {
-			throw new RuntimeException("Failed to refresh sales stats", e);
-		}
-	}
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1);
+                }
+                return 0;
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Failed to fetch sales stat: " + columnExpression, e);
+        }
+    }
+
+
+    public void refreshStats() {
+        try (Connection c = DatabaseUtils.getConnection();
+             Statement s = c.createStatement()) {
+            s.execute("REFRESH MATERIALIZED VIEW mv_sales_stats");
+        } catch (SQLException e) {
+            throw new RuntimeException("Failed to refresh sales stats", e);
+        }
+    }
+
 }

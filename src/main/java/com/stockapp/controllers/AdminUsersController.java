@@ -151,20 +151,7 @@ public class AdminUsersController {
 					.findFirst()
 					.ifPresent(u -> usersTable.getSelectionModel().select(u));
 		}
-		javafx.application.Platform.runLater(() -> autoResizeTable());
 	}
 
-	private void autoResizeTable() {
-		double headerHeight = 30;
-		var header = usersTable.lookup(".column-header-background");
-		if (header != null) {
-			headerHeight = header.prefHeight(-1);
-		}
-		int rows = usersTable.getItems().size();
-		double rowHeight = usersTable.getFixedCellSize();
-		double totalHeight = headerHeight + rows * rowHeight;
-		double maxHeight = 500;
-		usersTable.setPrefHeight(Math.min(totalHeight, maxHeight));
-	}
 
 }

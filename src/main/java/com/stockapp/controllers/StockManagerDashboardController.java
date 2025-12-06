@@ -21,6 +21,7 @@ import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.stage.Stage;
 import javafx.util.Duration;
+import javafx.scene.image.ImageView;
 
 public class StockManagerDashboardController {
 	@FXML
@@ -59,9 +60,14 @@ public class StockManagerDashboardController {
 	private Button sighOutButton;
 	@FXML
 	private Button salesButton;
+	@FXML
+	private ImageView refreshButton;
+	@FXML
 	private User loggedUser;
+	// Auto-refresh timeline for table data only
 	private final Timeline refreshTimeline = new Timeline(new KeyFrame(Duration.ZERO, e -> refreshProducts()),
 			new KeyFrame(Duration.seconds(2), e -> refreshProducts()));
+
 
 	public void setLoggedUser(String username) {
 		userNameLabel.setText("Hi, " + username);
@@ -69,6 +75,11 @@ public class StockManagerDashboardController {
 
 	@FXML
 	private void initialize() {
+		try {
+			new ProductServiceImpl().refreshStats();
+		} catch (Exception e) {
+			System.err.println("Warning: Could not refresh product stats: " + e.getMessage());
+		}
 		idColumn.setCellValueFactory(new PropertyValueFactory<>("id"));
 		nameColumn.setCellValueFactory(new PropertyValueFactory<>("name"));
 		priceColumn.setCellValueFactory(new PropertyValueFactory<>("price"));
@@ -110,9 +121,22 @@ public class StockManagerDashboardController {
 				showAlert("Select a product to delete.");
 				return;
 			}
-			ProductService productService = new ProductServiceImpl();
-			productService.delete(selected.getId());
-			refreshProducts();
+			try {
+				ProductService productService = new ProductServiceImpl();
+				productService.delete(selected.getId());
+				refreshProducts();
+			} catch (Exception ex) {
+				String errorMsg = ex.getMessage();
+				if (ex.getCause() != null) {
+					errorMsg = ex.getCause().getMessage();
+				}
+				if (errorMsg != null && (errorMsg.contains("foreign key") || errorMsg.contains("sale_items")
+						|| errorMsg.contains("violates"))) {
+					showAlert("Cannot delete this product because it has been sold. Consider modifying it instead.");
+				} else {
+					showAlert("Error deleting product: " + errorMsg);
+				}
+			}
 		});
 		restockButton.setOnAction(e -> {
 			Product selected = productsTable.getSelectionModel().getSelectedItem();
@@ -132,13 +156,22 @@ public class StockManagerDashboardController {
 				Stage stage = (Stage) salesButton.getScene().getWindow();
 				stage.setScene(new Scene(root));
 				stage.show();
-			} catch (IOException ex) {
-				throw new RuntimeException(ex);
+			} catch (Exception ex) {
+				ex.printStackTrace();
+				showAlert("Error loading Sales dashboard: " + ex.getMessage());
 			}
 		});
 		sighOutButton.setOnAction(e -> signOut());
+		refreshButton.setOnMouseClicked(e -> refreshAnalytics());
 		refreshTimeline.setCycleCount(Animation.INDEFINITE);
 		refreshTimeline.play();
+		stat();
+	}
+
+	private void refreshAnalytics() {
+		ProductServiceImpl productService = new ProductServiceImpl();
+		productService.refreshStats();
+		stat();
 	}
 
 	private void openProductForm(long productId) {
@@ -205,7 +238,7 @@ public class StockManagerDashboardController {
 		List<Product> products = productService.readAll();
 		ObservableList<Product> data = FXCollections.observableArrayList(products);
 		productsTable.setItems(data);
-		stat();
+
 		if (selected != null) {
 			data.stream()
 					.filter(p -> p.getId() == selected.getId())
@@ -214,24 +247,11 @@ public class StockManagerDashboardController {
 		}
 	}
 
-	private void autoResizeTable() {
-		double headerHeight = 30;
-		var header = productsTable.lookup(".column-header-background");
-		if (header != null) {
-			headerHeight = header.prefHeight(-1);
-		}
-		int rows = productsTable.getItems().size();
-		double totalHeight = headerHeight + rows * productsTable.getFixedCellSize();
-		double maxHeight = 500;
-		productsTable.setPrefHeight(Math.min(totalHeight, maxHeight));
-	}
-
 	private void stat() {
 		ProductServiceImpl productServiceImpl = new ProductServiceImpl();
 		totalProductsLabel.setText(String.valueOf(productServiceImpl.totalProducts()));
 		lowStockLabel.setText(String.valueOf(productServiceImpl.lowStock()));
 		inStockLabel.setText(String.valueOf(productServiceImpl.inStock()));
 		outOfStockLabel.setText(String.valueOf(productServiceImpl.outOfStock()));
-
 	}
 }

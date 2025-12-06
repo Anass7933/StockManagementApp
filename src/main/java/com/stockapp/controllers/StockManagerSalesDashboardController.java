@@ -6,6 +6,7 @@ import com.stockapp.models.entities.User;
 import com.stockapp.services.impl.SaleServiceImpl;
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -19,6 +20,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.stage.Stage;
+import javafx.scene.image.ImageView;
 
 public class StockManagerSalesDashboardController {
     @FXML
@@ -45,6 +47,9 @@ public class StockManagerSalesDashboardController {
     private Button sighOutButton;
     @FXML
     private Button productsButton;
+    @FXML
+    private ImageView refreshButton;
+    @FXML
     private User loggedUser;
 
     public void setLoggedUser(String username) {
@@ -53,9 +58,13 @@ public class StockManagerSalesDashboardController {
 
     @FXML
     private void initialize() {
+        try {
+            new SaleServiceImpl().refreshStats();
+        } catch (Exception e) {
+            System.err.println("Warning: Could not refresh sales stats: " + e.getMessage());
+        }
 
         idColumn.setCellValueFactory(new PropertyValueFactory<>("id"));
-
         dateColumn.setCellValueFactory(cellData -> {
             OffsetDateTime dt = cellData.getValue().getCreatedAt();
             String formatted = dt != null
@@ -64,9 +73,8 @@ public class StockManagerSalesDashboardController {
             return new SimpleStringProperty(formatted);
         });
 
-        totalItemsColumn.setCellValueFactory(cellData ->
-                new SimpleStringProperty(String.valueOf(cellData.getValue().getTotalItems()))
-        );
+        totalItemsColumn.setCellValueFactory(
+                cellData -> new SimpleStringProperty(String.valueOf(cellData.getValue().getTotalItems())));
 
         totalAmountColumn.setCellValueFactory(new PropertyValueFactory<>("totalPrice"));
 
@@ -74,7 +82,6 @@ public class StockManagerSalesDashboardController {
 
         salesTable.setFixedCellSize(40);
         stat();
-        autoResizeTable();
 
         productsButton.setOnAction(e -> {
             try {
@@ -89,8 +96,15 @@ public class StockManagerSalesDashboardController {
                 throw new RuntimeException(ex);
             }
         });
+        refreshButton.setOnMouseClicked(e -> refreshAnalytics());
 
         sighOutButton.setOnAction(e -> signOut());
+    }
+
+    private void refreshAnalytics() {
+        SaleServiceImpl saleService = new SaleServiceImpl();
+        saleService.refreshStats();
+        stat();
     }
 
     private void loadSalesTable() {
@@ -99,10 +113,8 @@ public class StockManagerSalesDashboardController {
 
         ObservableList<Sale> data = FXCollections.observableArrayList(sales);
 
-        // ID column
         idColumn.setCellValueFactory(new PropertyValueFactory<>("id"));
 
-        // Date column
         dateColumn.setCellValueFactory(cellData -> {
             OffsetDateTime dt = cellData.getValue().getCreatedAt();
             String formatted = dt != null
@@ -111,19 +123,13 @@ public class StockManagerSalesDashboardController {
             return new SimpleStringProperty(formatted);
         });
 
-        // Total Amount column (BigDecimal)
         totalAmountColumn.setCellValueFactory(new PropertyValueFactory<>("totalPrice"));
 
-        // Total Items column (int)
-        totalItemsColumn.setCellValueFactory(cellData ->
-                new SimpleStringProperty(String.valueOf(cellData.getValue().getTotalItems()))
-        );
+        totalItemsColumn.setCellValueFactory(
+                cellData -> new SimpleStringProperty(String.valueOf(cellData.getValue().getTotalItems())));
 
         salesTable.setItems(data);
     }
-
-
-
 
     private void signOut() {
         try {
@@ -137,24 +143,14 @@ public class StockManagerSalesDashboardController {
         }
     }
 
-    private void autoResizeTable() {
-        double headerHeight = 30;
-        var header = salesTable.lookup(".column-header-background");
-        if (header != null) {
-            headerHeight = header.prefHeight(-1);
-        }
-        int rows = salesTable.getItems().size();
-        double totalHeight = headerHeight + rows * salesTable.getFixedCellSize();
-        double maxHeight = 500;
-        salesTable.setPrefHeight(Math.min(totalHeight, maxHeight));
-    }
 
     private void stat() {
         SaleServiceImpl saleServiceImpl = new SaleServiceImpl();
-        totalSalesLabel.setText(String.valueOf(saleServiceImpl.totalSales()));
-        totalRevenueLabel.setText(String.valueOf(saleServiceImpl.totalRevenue()));
-        totalItemsSoldLabel.setText(String.valueOf(saleServiceImpl.totalItemsSold()));
-        averageSaleValueLabel.setText(String.valueOf(saleServiceImpl.averageSaleValue()));
-
+        LocalDate endDate = LocalDate.now();
+        LocalDate startDate = endDate.minusDays(30);
+        totalSalesLabel.setText(String.valueOf(saleServiceImpl.totalSales(startDate, endDate)));
+        totalRevenueLabel.setText(String.valueOf(saleServiceImpl.totalRevenue(startDate, endDate)));
+        totalItemsSoldLabel.setText(String.valueOf(saleServiceImpl.totalItemsSold(startDate, endDate)));
+        averageSaleValueLabel.setText(String.valueOf(saleServiceImpl.averageSaleValue(startDate, endDate)));
     }
 }
