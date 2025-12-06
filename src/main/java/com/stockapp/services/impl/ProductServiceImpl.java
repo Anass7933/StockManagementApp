@@ -25,20 +25,19 @@ public class ProductServiceImpl implements ProductService {
 			ps.setInt(5, product.getMinStock());
 			ps.setString(6, product.getCategory().name());
 			try (ResultSet rs = ps.executeQuery()) {
-				if (rs.next()) {
-					long id = rs.getLong("id");
-					OffsetDateTime createdAt = rs.getObject("created_at", OffsetDateTime.class);
-					return new Product(id,
-							product.getName(),
-							product.getDescription(),
-							product.getPrice(),
-							product.getQuantity(),
-							product.getMinStock(),
-							createdAt,
-							product.getCategory());
-				} else {
-					throw new RuntimeException("Failed to insert product");
-				}
+				rs.next();
+				long id = rs.getLong("id");
+				OffsetDateTime createdAt = rs.getObject("created_at", OffsetDateTime.class);
+				return new Product(id,
+						product.getName(),
+						product.getDescription(),
+						product.getPrice(),
+						product.getQuantity(),
+						product.getMinStock(),
+						createdAt,
+						product.getCategory());
+			} catch (Exception e) {
+				throw new RuntimeException("Failed to execute the query", e);
 			}
 		} catch (SQLException e) {
 			throw new RuntimeException("Failed to add product", e);
@@ -273,30 +272,42 @@ public class ProductServiceImpl implements ProductService {
 	}
 
 	public int totalProducts() {
-		return count("SELECT COUNT(*) FROM products");
+		return getStatFromView("total_products");
 	}
 
 	public int lowStock() {
-		return count("SELECT COUNT(*) FROM products WHERE quantity <= min_stock");
+		return getStatFromView("low_stock");
 	}
 
 	public int inStock() {
-		return count("SELECT COUNT(*) FROM products WHERE quantity > 0");
+		return getStatFromView("in_stock");
 	}
 
 	public int outOfStock() {
-		return count("SELECT COUNT(*) FROM products WHERE quantity = 0");
+		return getStatFromView("out_of_stock");
 	}
 
-	public int count(String query) {
-		int x;
-		try (Connection c = DatabaseUtils.getConnection(); PreparedStatement ps = c.prepareStatement(query)) {
-			ResultSet rs = ps.executeQuery();
-			rs.next();
-			x = rs.getInt(1);
+	private int getStatFromView(String columnName) {
+		String sql = "SELECT " + columnName + " FROM mv_product_stats";
+		try (Connection c = DatabaseUtils.getConnection();
+				PreparedStatement ps = c.prepareStatement(sql);
+				ResultSet rs = ps.executeQuery()) {
+
+			if (rs.next()) {
+				return rs.getInt(1);
+			}
+			return 0;
 		} catch (SQLException e) {
-			throw new RuntimeException("Failed to check product", e);
+			throw new RuntimeException("Failed to fetch stat: " + columnName, e);
 		}
-		return x;
+	}
+
+	public void refreshStats() {
+		try (Connection c = DatabaseUtils.getConnection();
+				Statement s = c.createStatement()) {
+			s.execute("REFRESH MATERIALIZED VIEW mv_product_stats");
+		} catch (SQLException e) {
+			throw new RuntimeException("Failed to refresh product stats", e);
+		}
 	}
 }

@@ -5,6 +5,7 @@ import com.stockapp.models.entities.SaleItem;
 import com.stockapp.services.interfaces.SaleService;
 import com.stockapp.utils.DatabaseUtils;
 import java.sql.*;
+import java.time.LocalDate;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.List;
@@ -188,49 +189,57 @@ public class SaleServiceImpl implements SaleService {
 		}
 	}
 
-	@Override
-	public Long getTotalRevenue(Long saleId) {
-		String sql = "SELECT total_price FROM sales WHERE id = ?";
-		try (Connection c = DatabaseUtils.getConnection(); PreparedStatement ps = c.prepareStatement(sql)) {
-			ps.setLong(1, saleId);
+	public int totalSales(LocalDate start, LocalDate end) {
+		String sql = "SELECT SUM(total_sales_count) FROM mv_sales_stats WHERE sale_date BETWEEN ? AND ?";
+		return getStatFromView(sql, start, end);
+	}
+
+	public int totalRevenue(LocalDate start, LocalDate end) {
+		String sql = "SELECT SUM(total_revenue) FROM mv_sales_stats WHERE sale_date BETWEEN ? AND ?";
+		return getStatFromView(sql, start, end);
+	}
+
+	public int totalItemsSold(LocalDate start, LocalDate end) {
+		String sql = "SELECT SUM(total_items_sold) FROM mv_sales_stats WHERE sale_date BETWEEN ? AND ?";
+		return getStatFromView(sql, start, end);
+	}
+
+	public int averageSaleValue(LocalDate start, LocalDate end) {
+		String sql = """
+				    SELECT CASE
+				        WHEN SUM(total_sales_count) = 0 THEN 0
+				        ELSE SUM(total_revenue) / SUM(total_sales_count)
+				    END
+				    FROM mv_sales_stats
+				    WHERE sale_date BETWEEN ? AND ?
+				""";
+		return getStatFromView(sql, start, end);
+	}
+
+	private int getStatFromView(String sql, LocalDate start, LocalDate end) {
+		try (Connection c = DatabaseUtils.getConnection();
+				PreparedStatement ps = c.prepareStatement(sql)) {
+
+			ps.setObject(1, start);
+			ps.setObject(2, end);
+
 			try (ResultSet rs = ps.executeQuery()) {
 				if (rs.next()) {
-					return rs.getLong("total_price");
-				} else {
-					throw new RuntimeException("No sale found with ID: " + saleId);
+					return rs.getInt(1);
 				}
+				return 0;
 			}
 		} catch (SQLException e) {
-			throw new RuntimeException("Failed to get total revenue for sale ID: " + saleId, e);
+			throw new RuntimeException("Failed to fetch sales stats", e);
 		}
 	}
 
-    public int totalSales() {
-        return count("SELECT COUNT(*) FROM sales WHERE created_at BETWEEN :startDate AND :endDate;");
-    }
-
-    public int totalRevenue() {
-        return count(" SELECT SUM(total_price) FROM sales WHERE created_at BETWEEN :startDate AND :endDate;");
-    }
-
-    public int totalItemsSold() {
-        return count(" SELECT SUM(quantity) FROM sale_items si JOIN sales s ON si.sale_id = s.idWHERE s.created_at BETWEEN :startDate AND :endDate;");
-    }
-
-    public int averageSaleValue() {
-        return count(" SELECT AVG(total_price) FROM sales WHERE created_at BETWEEN :startDate AND :endDate;");
-    }
-
-
-    public int count(String query) {
-        int x;
-        try (Connection c = DatabaseUtils.getConnection(); PreparedStatement ps = c.prepareStatement(query)) {
-            ResultSet rs = ps.executeQuery();
-            rs.next();
-            x = rs.getInt(1);
-        } catch (SQLException e) {
-            throw new RuntimeException("Failed to check product", e);
-        }
-        return x;
-    }
+	public void refreshStats() {
+		try (Connection c = DatabaseUtils.getConnection();
+				Statement s = c.createStatement()) {
+			s.execute("REFRESH MATERIALIZED VIEW mv_sales_stats");
+		} catch (SQLException e) {
+			throw new RuntimeException("Failed to refresh sales stats", e);
+		}
+	}
 }

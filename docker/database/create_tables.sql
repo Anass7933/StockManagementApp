@@ -52,8 +52,29 @@ CREATE TABLE sale_items (
     FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE RESTRICT
 );
 
+-- MATERIALIZED VIEWS
+
+CREATE MATERIALIZED VIEW mv_product_stats AS
+SELECT
+    COUNT(*) as total_products,
+    COUNT(*) FILTER (WHERE quantity <= min_stock) as low_stock,
+    COUNT(*) FILTER (WHERE quantity > 0) as in_stock,
+    COUNT(*) FILTER (WHERE quantity = 0) as out_of_stock
+FROM products;
+
+CREATE MATERIALIZED VIEW mv_sales_stats AS
+SELECT
+    DATE(s.created_at) as sale_date,
+    COUNT(s.id) as total_sales_count,
+    COALESCE(SUM(s.total_price), 0) as total_revenue,
+    COALESCE(SUM(si.quantity), 0) as total_items_sold
+FROM sales s
+LEFT JOIN sale_items si ON s.id = si.sale_id
+GROUP BY DATE(s.created_at);
+
 -- INDEXES
 
 CREATE INDEX idx_products_name ON products(name);
 CREATE INDEX idx_sales_created_at ON sales(created_at);
 CREATE INDEX idx_sale_items_product_id ON sale_items(product_id);
+CREATE INDEX idx_mv_sales_date ON mv_sales_stats(sale_date);
