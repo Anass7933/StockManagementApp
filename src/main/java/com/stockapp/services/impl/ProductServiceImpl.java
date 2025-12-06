@@ -25,19 +25,19 @@ public class ProductServiceImpl implements ProductService {
 			ps.setInt(5, product.getMinStock());
 			ps.setString(6, product.getCategory().name());
 			try (ResultSet rs = ps.executeQuery()) {
-				rs.next();
-				long id = rs.getLong("id");
-				OffsetDateTime createdAt = rs.getObject("created_at", OffsetDateTime.class);
-				return new Product(id,
-						product.getName(),
-						product.getDescription(),
-						product.getPrice(),
-						product.getQuantity(),
-						product.getMinStock(),
-						createdAt,
-						product.getCategory());
-			} catch (Exception e) {
-				throw new RuntimeException("Failed to execute the query", e);
+				if (rs.next()) {
+					long id = rs.getLong("id");
+					OffsetDateTime createdAt = rs.getObject("created_at", OffsetDateTime.class);
+					return new Product(id,
+							product.getName(),
+							product.getDescription(),
+							product.getPrice(),
+							product.getQuantity(),
+							product.getMinStock(),
+							createdAt,
+							product.getCategory());
+				} else
+					throw new RuntimeException("Failed to retrieve generated product ID and creation timestamp.");
 			}
 		} catch (SQLException e) {
 			throw new RuntimeException("Failed to add product", e);
@@ -53,22 +53,22 @@ public class ProductServiceImpl implements ProductService {
 		try (Connection c = DatabaseUtils.getConnection()) {
 			PreparedStatement ps = c.prepareStatement(sql_query);
 			ps.setLong(1, id);
-			ResultSet rs = ps.executeQuery();
-			if (rs.next()) {
-				Product product = new Product(rs.getLong("id"),
-						rs.getString("name"),
-						rs.getString("description"),
-						rs.getBigDecimal("price"),
-						rs.getInt("quantity"),
-						rs.getInt("min_stock"),
-						rs.getObject("created_at", OffsetDateTime.class),
-						Category.valueOf(rs.getString("category")));
-				return Optional.of(product);
-			} else {
-				return Optional.empty();
+			try (ResultSet rs = ps.executeQuery()) {
+				if (rs.next()) {
+					Product product = new Product(rs.getLong("id"),
+							rs.getString("name"),
+							rs.getString("description"),
+							rs.getBigDecimal("price"),
+							rs.getInt("quantity"),
+							rs.getInt("min_stock"),
+							rs.getObject("created_at", OffsetDateTime.class),
+							Category.valueOf(rs.getString("category")));
+					return Optional.of(product);
+				} else
+					return Optional.empty();
 			}
 		} catch (SQLException e) {
-			throw new RuntimeException("Error reading product", e);
+			throw new RuntimeException("Error reading product with ID : " + id, e);
 		}
 	}
 
@@ -100,7 +100,7 @@ public class ProductServiceImpl implements ProductService {
 							createdAt,
 							product.getCategory());
 				} else {
-					throw new RuntimeException("Failed to update product");
+					throw new RuntimeException("Can not update : product with ID : " + product.getId() + " not found");
 				}
 			}
 		} catch (SQLException e) {
@@ -168,8 +168,6 @@ public class ProductServiceImpl implements ProductService {
 				} else {
 					return Optional.empty();
 				}
-			} catch (SQLException e) {
-				throw new RuntimeException("error executing the query");
 			}
 		} catch (SQLException e) {
 			throw new RuntimeException("Failed to fetch product", e);
