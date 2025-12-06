@@ -9,6 +9,8 @@ public interface ProductService extends CrudService<Product> {
 
 	Optional<Product> findByName(String keyword);
 
+	List<Product> findByPreName(String keyword);
+
 	void updateStock(Long productId, int ammount);
 
 	boolean isNeedRestock(Long productId);

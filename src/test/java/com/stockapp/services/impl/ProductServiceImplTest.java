@@ -3,6 +3,8 @@ package com.stockapp.services.impl;
 import static org.junit.jupiter.api.Assertions.*;
 import com.stockapp.models.entities.Product;
 import com.stockapp.models.enums.Category;
+
+import java.util.List;
 import java.math.BigDecimal;
 import java.util.Optional;
 import org.junit.jupiter.api.AfterAll;
@@ -55,12 +57,25 @@ class ProductServiceImplTest {
 	}
 
 	@Test
-	void testRead_SharedProduct() {
-		System.out.println("Running: testRead_SharedProduct");
+	void testReadById_SharedProduct() {
+		System.out.println("Running: testReadById_SharedProduct");
 
 		Optional<Product> fetched = assertDoesNotThrow(() -> {
 			return productService.read(sharedProduct.getId());
 		}, "Critical Failure : the function read threw an unexpected exception");
+
+		assertTrue(fetched.isPresent(), "Should find the shared product");
+		assertEquals(SHARED_NAME, fetched.get().getName());
+		assertEquals(Category.ELECTRONICS, fetched.get().getCategory());
+	}
+
+	@Test
+	void testReadByName_SharedProduct() {
+		System.out.println("Ruunning: testReadByName_SharedProduct");
+
+		Optional<Product> fetched = assertDoesNotThrow(() -> {
+			return productService.findByName(sharedProduct.getName());
+		}, "Critical Failure : the function findByName threw an unexpected exception");
 
 		assertTrue(fetched.isPresent(), "Should find the shared product");
 		assertEquals(SHARED_NAME, fetched.get().getName());
@@ -143,5 +158,19 @@ class ProductServiceImplTest {
 
 		Optional<Product> deleted = productService.read(createdTemp.getId());
 		assertFalse(deleted.isPresent(), "Temp product should be deleted");
+	}
+
+	@Test
+	void testFindByPrefixName() {
+		System.out.println("Running: testFindByPrefixName");
+
+		List<Product> products = assertDoesNotThrow(() -> {
+			return productService.findByPreName("JUnit");
+		}, "findByPrefixName should not throw an exception");
+
+		assertNotNull(products, "Returned list should not be null");
+		assertFalse(products.isEmpty(), "Should find at least one product with the prefix");
+		assertTrue(products.stream().anyMatch(p -> p.getId() == sharedProduct.getId()),
+				"Shared product should be found by its prefix");
 	}
 }

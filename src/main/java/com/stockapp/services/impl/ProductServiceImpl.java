@@ -169,6 +169,8 @@ public class ProductServiceImpl implements ProductService {
 				} else {
 					return Optional.empty();
 				}
+			} catch (SQLException e) {
+				throw new RuntimeException("error executing the query");
 			}
 		} catch (SQLException e) {
 			throw new RuntimeException("Failed to fetch product", e);
@@ -237,6 +239,36 @@ public class ProductServiceImpl implements ProductService {
 			}
 		} catch (SQLException e) {
 			throw new RuntimeException("Failed to update product stock", e);
+		}
+	}
+
+	@Override
+	public List<Product> findByPreName(String preName) {
+		String sql = "SELECT * FROM products WHERE name LIKE ?";
+		List<Product> listResult = new ArrayList<>();
+
+		try (Connection c = DatabaseUtils.getConnection(); PreparedStatement ps = c.prepareStatement(sql)) {
+			ps.setString(1, preName + "%");
+			try {
+				ResultSet rs = ps.executeQuery();
+				while (rs.next()) {
+					listResult.add(
+							new Product(
+									rs.getLong("id"),
+									rs.getString("name"),
+									rs.getString("description"),
+									rs.getBigDecimal("price"),
+									rs.getInt("quantity"),
+									rs.getInt("min_stock"),
+									rs.getObject("created_at", OffsetDateTime.class),
+									Category.valueOf(rs.getString("category"))));
+				}
+				return listResult;
+			} catch (SQLException e) {
+				throw new RuntimeException("error executing query", e);
+			}
+		} catch (SQLException e) {
+			throw new RuntimeException("error connecting to the database", e);
 		}
 	}
 

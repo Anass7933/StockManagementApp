@@ -6,6 +6,7 @@ import com.stockapp.services.impl.*;
 import com.stockapp.services.interfaces.*;
 import com.stockapp.utils.CartManager;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import javafx.collections.FXCollections;
@@ -50,23 +51,29 @@ public class CashierController {
 
 	@FXML
 	public void initialize() {
+
 		productService = new ProductServiceImpl();
 		saleService = new SaleServiceImpl();
 		cartManager = CartManager.getInstance();
+
 		cartManager.addCartChangeListener(() -> {
 			ProductListView.refresh();
 			updateCartButton();
 		});
+
 		productList = FXCollections.observableArrayList();
 		ProductListView.setItems(productList);
 		ProductListView.setCellFactory(lv -> new ProductListCell(this));
+
 		loadAllProducts();
+
 		searchField.textProperty().addListener((obs, oldVal, newVal) -> performSearch());
 		searchTypeGroup.selectedToggleProperty().addListener((obs, oldVal, newVal) -> performSearch());
 		LogOutButton.setOnAction(e -> handleLogout());
 		btnCart.setOnAction(e -> openCartView());
 		btnClearCart.setOnAction(e -> handleClearCart());
 		btnAddSale.setOnAction(e -> handleAddSale());
+
 		updateCartButton();
 	}
 
@@ -86,18 +93,16 @@ public class CashierController {
 			return;
 		}
 		try {
-			Optional<Product> result;
+			List<Product> result = new ArrayList<>();
 			if (searchByIdButton.isSelected()) {
 				try {
-					long id = Long.parseLong(searchText);
-					result = productService.read(id);
+					productService.read(Long.parseLong(searchText)).ifPresent(result::add);
 				} catch (NumberFormatException e) {
-					result = Optional.empty();
 				}
 			} else {
-				result = productService.findByName(searchText);
+				result = productService.findByPreName(searchText);
 			}
-			productList.setAll(result.map(List::of).orElse(List.of()));
+			productList.setAll(result);
 		} catch (Exception e) {
 			showError("Search failed", e.getMessage());
 		}
