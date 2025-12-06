@@ -19,7 +19,7 @@
             <font><Font name="Cambria" size="25.0" /></font>
             <VBox.margin><Insets top="150" /></VBox.margin>
         </Button>
-        <Button fx:id="salesButton" layoutX="10.0" layoutY="160.0" prefHeight="40" prefWidth="180" style="-fx-background-color: #9fb997;" text="Sales" textFill="WHITE">
+        <Button layoutX="10.0" layoutY="160.0" prefHeight="40" prefWidth="180" style="-fx-background-color: #9fb997;" text="Sales" textFill="WHITE">
             <font>
                 <Font name="Cambria" size="25.0" />
             </font>

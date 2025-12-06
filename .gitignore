@@ -37,6 +37,8 @@ Thumbs.db
 *.iml
 .idea/
 out/
+.settings/
+
 
 /comment_removing/*
 .clang-format

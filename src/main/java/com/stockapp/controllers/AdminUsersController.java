@@ -45,7 +45,8 @@ public class AdminUsersController {
 	@FXML
 	private Button productsButton;
 	private User loggedUser;
-	private final Timeline refreshTimeline = new Timeline(new KeyFrame(Duration.ZERO, e -> refreshUsers()),
+	private final Timeline refreshTimeline = new Timeline(
+            new KeyFrame(Duration.ZERO, e -> refreshUsers()),
 			new KeyFrame(Duration.seconds(2), e -> refreshUsers()));
 
 	public void setLoggedUser(String username) {
@@ -165,18 +166,5 @@ public class AdminUsersController {
 		double maxHeight = 500;
 		usersTable.setPrefHeight(Math.min(totalHeight, maxHeight));
 	}
-
-    private java.util.function.Consumer<String> alertConsumer = this::defaultAlert;
-    public void setAlertConsumer(java.util.function.Consumer<String> consumer) {
-        this.alertConsumer = consumer;
-    }
-    private void defaultAlert(String msg) {
-        Alert alert = new Alert(Alert.AlertType.WARNING);
-        alert.setHeaderText(null);
-        alert.setContentText(msg);
-        alert.showAndWait();
-    }
-
-
 
 }

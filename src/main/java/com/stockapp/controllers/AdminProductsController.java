@@ -173,16 +173,4 @@ public class AdminProductsController {
 					.ifPresent(p -> productsTable.getSelectionModel().select(p));
 		}
 	}
-
-	private void autoResizeTable() {
-		double headerHeight = 30;
-		var header = productsTable.lookup(".column-header-background");
-		if (header != null) {
-			headerHeight = header.prefHeight(-1);
-		}
-		int rows = productsTable.getItems().size();
-		double totalHeight = headerHeight + rows * productsTable.getFixedCellSize();
-		double maxHeight = 500;
-		productsTable.setPrefHeight(Math.min(totalHeight, maxHeight));
-	}
 }

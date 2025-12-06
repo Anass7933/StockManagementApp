@@ -1,11 +1,17 @@
 
 package com.stockapp.controllers;
 
-import com.stockapp.models.entities.Product;
+import com.stockapp.models.entities.Sale;
 import com.stockapp.models.entities.User;
 import com.stockapp.services.impl.SaleServiceImpl;
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.time.OffsetDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.List;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -18,15 +24,15 @@ public class StockManagerSalesDashboardController {
     @FXML
     private Label userNameLabel;
     @FXML
-    private TableView<Product> salesTable;
+    private TableView<Sale> salesTable;
     @FXML
-    private TableColumn<Product, Long> idColumn;
+    private TableColumn<Sale, Long> idColumn;
     @FXML
-    private TableColumn<Product, String> dateColumn;
+    private TableColumn<Sale, String> dateColumn;
     @FXML
-    private TableColumn<Product, BigDecimal> totalItemsColumn;
+    private TableColumn<Sale, BigDecimal> totalAmountColumn;
     @FXML
-    private TableColumn<Product, Integer> totalAmountColumn;
+    private TableColumn<Sale, String> totalItemsColumn;
     @FXML
     private Label totalSalesLabel;
     @FXML
@@ -47,12 +53,28 @@ public class StockManagerSalesDashboardController {
 
     @FXML
     private void initialize() {
+
         idColumn.setCellValueFactory(new PropertyValueFactory<>("id"));
-        dateColumn.setCellValueFactory(new PropertyValueFactory<>("name"));
-        totalItemsColumn.setCellValueFactory(new PropertyValueFactory<>("price"));
-        totalAmountColumn.setCellValueFactory(new PropertyValueFactory<>("quantity"));
+
+        dateColumn.setCellValueFactory(cellData -> {
+            OffsetDateTime dt = cellData.getValue().getCreatedAt();
+            String formatted = dt != null
+                    ? dt.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"))
+                    : "";
+            return new SimpleStringProperty(formatted);
+        });
+
+        totalItemsColumn.setCellValueFactory(cellData ->
+                new SimpleStringProperty(String.valueOf(cellData.getValue().getTotalItems()))
+        );
+
+        totalAmountColumn.setCellValueFactory(new PropertyValueFactory<>("totalPrice"));
+
+        loadSalesTable();
 
         salesTable.setFixedCellSize(40);
+        stat();
+        autoResizeTable();
 
         productsButton.setOnAction(e -> {
             try {
@@ -71,12 +93,37 @@ public class StockManagerSalesDashboardController {
         sighOutButton.setOnAction(e -> signOut());
     }
 
-    private void showAlert(String msg) {
-        Alert alert = new Alert(Alert.AlertType.WARNING);
-        alert.setHeaderText(null);
-        alert.setContentText(msg);
-        alert.showAndWait();
+    private void loadSalesTable() {
+        SaleServiceImpl saleService = new SaleServiceImpl();
+        List<Sale> sales = saleService.readAll();
+
+        ObservableList<Sale> data = FXCollections.observableArrayList(sales);
+
+        // ID column
+        idColumn.setCellValueFactory(new PropertyValueFactory<>("id"));
+
+        // Date column
+        dateColumn.setCellValueFactory(cellData -> {
+            OffsetDateTime dt = cellData.getValue().getCreatedAt();
+            String formatted = dt != null
+                    ? dt.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"))
+                    : "";
+            return new SimpleStringProperty(formatted);
+        });
+
+        // Total Amount column (BigDecimal)
+        totalAmountColumn.setCellValueFactory(new PropertyValueFactory<>("totalPrice"));
+
+        // Total Items column (int)
+        totalItemsColumn.setCellValueFactory(cellData ->
+                new SimpleStringProperty(String.valueOf(cellData.getValue().getTotalItems()))
+        );
+
+        salesTable.setItems(data);
     }
+
+
+
 
     private void signOut() {
         try {

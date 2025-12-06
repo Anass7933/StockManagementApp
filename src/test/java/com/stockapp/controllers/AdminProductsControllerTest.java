@@ -32,9 +32,6 @@ public class AdminProductsControllerTest extends ApplicationTest {
         WaitForAsyncUtils.waitForFxEvents();
     }
 
-    /**
-     * Test that the user label is set correctly.
-     */
     @Test
     public void testUserLabelIsSet() {
         Label label = lookup("#userNameLabel").queryAs(Label.class);
@@ -42,9 +39,6 @@ public class AdminProductsControllerTest extends ApplicationTest {
         assertEquals("Hi, TestUser", label.getText());
     }
 
-    /**
-     * Test that the "Add Product" button opens the product form.
-     */
     @Test
     public void testAddButtonOpensForm() {
         Button addButton = lookup("#addButton").queryAs(Button.class);
@@ -61,9 +55,6 @@ public class AdminProductsControllerTest extends ApplicationTest {
         assertTrue(formOpened, "Add Product form should open");
     }
 
-    /**
-     * Test that sign-out opens the login window.
-     */
     @Test
     public void testSignOutButtonWorks() {
         Button signOut = lookup("#sighOutButton").queryAs(Button.class);
@@ -80,9 +71,6 @@ public class AdminProductsControllerTest extends ApplicationTest {
         assertTrue(loginWindowOpened, "Login window should open after sign out");
     }
 
-    /**
-     * Test that the products table has all required columns.
-     */
     @Test
     public void testProductsTableHasColumns() {
         TableView<Product> table = lookup("#productsTable").queryAs(TableView.class);

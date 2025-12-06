@@ -15,18 +15,18 @@
 
     <!-- LEFT SIDEBAR -->
     <VBox prefHeight="720.0" prefWidth="180.0" style="-fx-background-color: #9fb997;" AnchorPane.bottomAnchor="0" AnchorPane.leftAnchor="0" AnchorPane.topAnchor="0">
-         <Button fx:id="ProductsButton" prefHeight="40" prefWidth="180" style="-fx-background-color: #9fb997;" text="Products" textFill="WHITE">
+         <Button prefHeight="40" prefWidth="180" style="-fx-background-color: #9fb997;" text="Products" textFill="WHITE">
                 <font><Font name="Cambria" size="25.0" /></font>
                 <VBox.margin><Insets top="150" /></VBox.margin>
             </Button>
-      <Button fx:id="salesButton" layoutX="10.0" layoutY="160.0" prefHeight="40" prefWidth="180" style="-fx-background-color: #9fb997;" text="Sales" textFill="#c5c5c5">
+         <Button fx:id="salesButton" layoutX="10.0" layoutY="160.0" prefHeight="40" prefWidth="180" style="-fx-background-color: #9fb997;" text="Sales" textFill="#c5c5c5">
          <font>
             <Font name="Cambria" size="25.0" />
          </font>
          <VBox.margin>
             <Insets top="20.0" />
          </VBox.margin>
-      </Button>
+         </Button>
 
             <Button fx:id="sighOutButton" prefHeight="40" prefWidth="180" style="-fx-background-color: #9fb997;" text="Sign Out" textFill="#c5c5c5">
                 <font><Font name="Cambria" size="20.0" /></font>

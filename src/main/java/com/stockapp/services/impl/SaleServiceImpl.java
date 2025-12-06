@@ -4,6 +4,7 @@ import com.stockapp.models.entities.Sale;
 import com.stockapp.models.entities.SaleItem;
 import com.stockapp.services.interfaces.SaleService;
 import com.stockapp.utils.DatabaseUtils;
+
 import java.sql.*;
 import java.time.LocalDate;
 import java.time.ZoneOffset;
@@ -12,28 +13,6 @@ import java.util.List;
 import java.util.Optional;
 
 public class SaleServiceImpl implements SaleService {
-	@Override
-	public Sale create(Sale sale) {
-		String sql = """
-				INSERT INTO sales (total_price)
-				VALUES (?)
-				RETURNING id, created_at;
-				""";
-		try (Connection c = DatabaseUtils.getConnection(); PreparedStatement ps = c.prepareStatement(sql)) {
-			ps.setBigDecimal(1, sale.getTotalPrice());
-			try (ResultSet rs = ps.executeQuery()) {
-				if (rs.next()) {
-					sale.setId(rs.getLong("id"));
-					sale.setCreatedAt(rs.getTimestamp("created_at").toInstant().atOffset(ZoneOffset.UTC));
-					return sale;
-				} else {
-					throw new RuntimeException("Failed to insert sale");
-				}
-			}
-		} catch (SQLException e) {
-			throw new RuntimeException("Failed to create sale", e);
-		}
-	}
 
 	@Override
 	public Optional<Sale> read(Long id) {
@@ -145,6 +124,7 @@ public class SaleServiceImpl implements SaleService {
 				if (rsItem.next()) {
 					item.setId(rsItem.getLong("id"));
 				}
+				// Note: Your logic here adds a negative number to reduce stock
 				psStock.setInt(1, -item.getQuantity());
 				psStock.setLong(2, item.getProductId());
 				int rowsUpdated = psStock.executeUpdate();

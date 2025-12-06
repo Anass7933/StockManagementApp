@@ -9,8 +9,10 @@ public class Sale implements Identifiable, Auditable {
 	private long saleId;
 	private BigDecimal totalPrice;
 	private OffsetDateTime createdAt;
+    private int totalItems;
 
-	public Sale(long saleId, BigDecimal totalPrice, OffsetDateTime createdAt) {
+
+    public Sale(long saleId, BigDecimal totalPrice, OffsetDateTime createdAt) {
 		this.saleId = saleId;
 		this.totalPrice = totalPrice;
 		this.createdAt = createdAt;
@@ -39,6 +41,8 @@ public class Sale implements Identifiable, Auditable {
 		return createdAt;
 	}
 
+    public int getTotalItems() { return totalItems; }
+
 	public void setId(Long saleId) {
 		this.saleId = saleId;
 	}
@@ -50,4 +54,7 @@ public class Sale implements Identifiable, Auditable {
 	public void setCreatedAt(OffsetDateTime createdAt) {
 		this.createdAt = createdAt;
 	}
+
+    public void setTotalItems(int totalItems) { this.totalItems = totalItems; }
+
 }
