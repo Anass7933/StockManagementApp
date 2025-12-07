@@ -26,38 +26,56 @@ public class ProductListCell extends ListCell<Product> {
 	private final CashierController cashierController;
 
 	public ProductListCell(CashierController cashierController) {
+
 		this.cashierController = cashierController;
+
 		container = new HBox(15);
 		container.setAlignment(Pos.CENTER_LEFT);
 		container.getStyleClass().add("product-cell-container");
+
 		infoContainer = new VBox(6);
 		infoContainer.setAlignment(Pos.CENTER_LEFT);
+
 		HBox.setHgrow(infoContainer, Priority.ALWAYS);
+
 		nameLabel = new Label();
 		nameLabel.getStyleClass().add("product-name");
+
 		detailsRow = new HBox(20);
 		detailsRow.setAlignment(Pos.CENTER_LEFT);
 		detailsRow.getStyleClass().add("product-details");
+
 		idLabel = new Label();
 		idLabel.getStyleClass().add("product-id");
+
 		categoryLabel = new Label();
 		categoryLabel.getStyleClass().add("product-category");
+
 		priceLabel = new Label();
 		priceLabel.getStyleClass().add("product-price");
+
 		stockLabel = new Label();
 		stockLabel.getStyleClass().add("product-stock");
+
 		detailsRow.getChildren().addAll(idLabel, categoryLabel, priceLabel, stockLabel);
+
 		infoContainer.getChildren().addAll(nameLabel, detailsRow);
+
 		spacer = new Region();
+
 		HBox.setHgrow(spacer, Priority.ALWAYS);
+
 		addButton = new Button("Add to Cart");
 		addButton.getStyleClass().add("add-to-cart-button");
+
 		container.getChildren().addAll(infoContainer, spacer, addButton);
 	}
 
 	@Override
 	protected void updateItem(Product product, boolean empty) {
+
 		super.updateItem(product, empty);
+
 		if (empty || product == null) {
 			setGraphic(null);
 			setText(null);
@@ -66,11 +84,14 @@ public class ProductListCell extends ListCell<Product> {
 			idLabel.setText("ID: " + product.getId());
 			categoryLabel.setText(product.getCategory().toString());
 			priceLabel.setText(String.format("$%.2f", product.getPrice()));
+
 			int actualStock = product.getQuantity();
 			int minStock = product.getMinStock();
 			int inCart = CartManager.getInstance().getProductQuantityInCart(product);
 			int displayStock = Math.max(0, actualStock - inCart);
+
 			stockLabel.getStyleClass().removeAll("product-stock", "product-stock-low", "product-stock-out");
+
 			if (displayStock == 0) {
 				stockLabel.setText("Out of Stock");
 				stockLabel.getStyleClass().add("product-stock-out");
@@ -84,10 +105,12 @@ public class ProductListCell extends ListCell<Product> {
 				stockLabel.getStyleClass().add("product-stock");
 				addButton.setDisable(false);
 			}
+
 			addButton.setOnAction(e -> {
 				e.consume();
 				cashierController.openQuantityForm(product);
 			});
+
 			setGraphic(container);
 			setText(null);
 		}

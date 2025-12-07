@@ -9,6 +9,9 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+
+import javax.management.Query;
+
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
@@ -141,6 +144,11 @@ public class CartManager {
 	}
 
 	public int getProductQuantityInCart(Product product) {
-		return findItemByProduct(product).map(SaleItem::getQuantity).orElse(0);
+		Optional<SaleItem> itemContainer = findItemByProduct(product);
+
+		if (itemContainer.isPresent())
+			return itemContainer.get().getQuantity();
+		else
+			return 0;
 	}
 }

@@ -44,6 +44,7 @@ public class CashierController {
 	private Button btnClearCart;
 	@FXML
 	private Button btnAddSale;
+
 	private ProductService productService;
 	private SaleService saleService;
 	private CartManager cartManager;
@@ -136,7 +137,6 @@ public class CashierController {
 		try {
 			cartManager.addItem(product, quantity);
 			updateCartButton();
-			showInfo("Success", "Product added to cart");
 		} catch (Exception e) {
 			showError("Failed to add to cart", e.getMessage());
 		}
@@ -169,7 +169,6 @@ public class CashierController {
 		if (result.isPresent() && result.get() == ButtonType.OK) {
 			cartManager.clearCart();
 			updateCartButton();
-			showInfo("Success", "Cart cleared");
 		}
 	}
 
@@ -245,4 +244,9 @@ public class CashierController {
 		alert.setContentText(message);
 		alert.showAndWait();
 	}
+
+	public void setLoggedUser(String name) {
+		this.usernameText.setText(name);
+	}
+
 }

@@ -101,7 +101,6 @@ public class CartViewController {
 
 		Optional<javafx.scene.control.ButtonType> result = alert.showAndWait();
 		if (result.isPresent() && result.get() == javafx.scene.control.ButtonType.OK) {
-			// Remove by productId to avoid object reference issues
 			cartManager.getCartItems().removeIf(i -> i.getProductId() == item.getProductId());
 
 			updateTotal();

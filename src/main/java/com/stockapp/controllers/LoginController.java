@@ -1,5 +1,6 @@
 package com.stockapp.controllers;
 
+import com.stockapp.controllers.cashier.CashierController;
 import com.stockapp.models.entities.User;
 import com.stockapp.services.impl.AuthServiceImpl;
 import com.stockapp.services.interfaces.AuthService;
@@ -58,6 +59,8 @@ public class LoginController {
 			} else if (currentUser != null && currentUser.getRole().name().equals("CASHIER")) {
 				FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/cashier/CashierView.fxml"));
 				Scene scene = new Scene(loader.load());
+				CashierController cashierController = loader.getController();
+				cashierController.setLoggedUser(username); // Pass the actual username variable here
 				Stage stage = (Stage) loginButton.getScene().getWindow();
 				stage.setScene(scene);
 				stage.setTitle("Cashier Dashboard");
