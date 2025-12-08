@@ -61,20 +61,7 @@ public class AdminProductsController {
 		priceColumn.setCellValueFactory(new PropertyValueFactory<>("price"));
 		quantityColumn.setCellValueFactory(new PropertyValueFactory<>("quantity"));
 		categoryColumn.setCellValueFactory(new PropertyValueFactory<>("category"));
-		productsTable.setRowFactory(tv -> new TableRow<>() {
-			@Override
-			protected void updateItem(Product product, boolean empty) {
-				super.updateItem(product, empty);
-				if (empty || product == null) {
-					setStyle("");
-				} else if (product.getQuantity() <= product.getMinStock()) {
-					setStyle("-fx-background-color: rgba(255,0,0,0.15);");
-				} else {
-					setStyle("");
-				}
-			}
-		});
-		productsTable.setFixedCellSize(40);
+
 		addButton.setOnAction(e -> openProductForm(0));
 		modifyButton.setOnAction(e -> {
 			Product selected = productsTable.getSelectionModel().getSelectedItem();
@@ -108,7 +95,9 @@ public class AdminProductsController {
 				throw new RuntimeException(ex);
 			}
 		});
-		refreshTimeline.setCycleCount(Animation.INDEFINITE);
+
+        refreshProducts();
+        refreshTimeline.setCycleCount(Animation.INDEFINITE);
 		refreshTimeline.play();
 	}
 
@@ -143,14 +132,10 @@ public class AdminProductsController {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/Login.fxml"));
             Parent root = loader.load();
-
-            // Open a NEW login window
             Stage loginStage = new Stage();
             loginStage.setTitle("Login");
             loginStage.setScene(new Scene(root));
             loginStage.show();
-
-            // Close the current admin window
             Stage currentStage = (Stage) sighOutButton.getScene().getWindow();
             currentStage.close();
 

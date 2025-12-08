@@ -58,29 +58,8 @@ public class StockManagerSalesDashboardController {
 
     @FXML
     private void initialize() {
-        try {
-            new SaleServiceImpl().refreshStats();
-        } catch (Exception e) {
-            System.err.println("Warning: Could not refresh sales stats: " + e.getMessage());
-        }
-
-        idColumn.setCellValueFactory(new PropertyValueFactory<>("id"));
-        dateColumn.setCellValueFactory(cellData -> {
-            OffsetDateTime dt = cellData.getValue().getCreatedAt();
-            String formatted = dt != null
-                    ? dt.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"))
-                    : "";
-            return new SimpleStringProperty(formatted);
-        });
-
-        totalItemsColumn.setCellValueFactory(
-                cellData -> new SimpleStringProperty(String.valueOf(cellData.getValue().getTotalItems())));
-
-        totalAmountColumn.setCellValueFactory(new PropertyValueFactory<>("totalPrice"));
-
         loadSalesTable();
 
-        salesTable.setFixedCellSize(40);
         stat();
 
         productsButton.setOnAction(e -> {

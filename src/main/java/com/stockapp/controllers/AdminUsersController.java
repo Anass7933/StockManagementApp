@@ -60,7 +60,6 @@ public class AdminUsersController {
 		fullNameColumn.setCellValueFactory(new PropertyValueFactory<>("fullName"));
 		roleColumn.setCellValueFactory(new PropertyValueFactory<>("role"));
 		createdAtColumn.setCellValueFactory(new PropertyValueFactory<>("createdAt"));
-		refreshUsers();
 		addButton.setOnAction(e -> openUserForm(null));
 		modifyButton.setOnAction(e -> {
 			User selected = usersTable.getSelectionModel().getSelectedItem();

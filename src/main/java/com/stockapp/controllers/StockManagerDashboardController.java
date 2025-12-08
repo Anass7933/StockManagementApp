@@ -64,7 +64,7 @@ public class StockManagerDashboardController {
 	private ImageView refreshButton;
 	@FXML
 	private User loggedUser;
-	// Auto-refresh timeline for table data only
+
 	private final Timeline refreshTimeline = new Timeline(new KeyFrame(Duration.ZERO, e -> refreshProducts()),
 			new KeyFrame(Duration.seconds(2), e -> refreshProducts()));
 
@@ -92,19 +92,6 @@ public class StockManagerDashboardController {
 			String value = needsRestock ? "Need Restock" : "Stable";
 			return new ReadOnlyStringWrapper(value);
 		});
-		productsTable.setRowFactory(tv -> new TableRow<>() {
-			@Override
-			protected void updateItem(Product product, boolean empty) {
-				super.updateItem(product, empty);
-				if (empty || product == null) {
-					setStyle("");
-				} else if (product.getQuantity() <= product.getMinStock()) {
-					setStyle("-fx-background-color: rgba(255,0,0,0.15);");
-				} else {
-					setStyle("");
-				}
-			}
-		});
 		productsTable.setFixedCellSize(40);
 		addButton.setOnAction(e -> openProductForm(0));
 		modifyButton.setOnAction(e -> {
@@ -127,11 +114,7 @@ public class StockManagerDashboardController {
 				refreshProducts();
 			} catch (Exception ex) {
 				String errorMsg = ex.getMessage();
-				if (ex.getCause() != null) {
-					errorMsg = ex.getCause().getMessage();
-				}
-				if (errorMsg != null && (errorMsg.contains("foreign key") || errorMsg.contains("sale_items")
-						|| errorMsg.contains("violates"))) {
+				if (errorMsg != null && (errorMsg.contains("foreign key") || errorMsg.contains("sale_items") || errorMsg.contains("violates"))) {
 					showAlert("Cannot delete this product because it has been sold. Consider modifying it instead.");
 				} else {
 					showAlert("Error deleting product: " + errorMsg);
