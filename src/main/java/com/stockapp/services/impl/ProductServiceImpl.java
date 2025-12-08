@@ -175,13 +175,14 @@ public class ProductServiceImpl implements ProductService {
 	}
 
 	public List<Product> findByCategory(String category) {
-		String sql_query = "SELECT id, name, description, price, quantity, min_stock, created_at, category FROM products";
+		String sql_query = "SELECT id, name, description, price, quantity, min_stock, created_at, category FROM products WHERE category = ?";
 		List<Product> products = new ArrayList<>();
 		try (Connection c = DatabaseUtils.getConnection()) {
 			PreparedStatement ps = c.prepareStatement(sql_query);
+            ps.setString(1, category.toUpperCase());
 			ResultSet rs = ps.executeQuery();
 			while (rs.next()) {
-				Product user = new Product(rs.getLong("id"),
+				Product product = new Product(rs.getLong("id"),
 						rs.getString("name"),
 						rs.getString("description"),
 						rs.getBigDecimal("price"),
@@ -189,7 +190,7 @@ public class ProductServiceImpl implements ProductService {
 						rs.getInt("min_stock"),
 						rs.getObject("created_at", OffsetDateTime.class),
 						Category.valueOf(rs.getString("category")));
-				products.add(user);
+				products.add(product);
 			}
 			return products;
 		} catch (SQLException e) {

@@ -1,5 +1,7 @@
 package com.stockapp.controllers;
 
+import com.stockapp.models.entities.User;
+import com.stockapp.services.impl.UserServiceImpl;
 import javafx.scene.Parent;
 import javafx.scene.control.*;
 import javafx.stage.Stage;
@@ -65,18 +67,13 @@ public class LoginControllerTest extends ApplicationTest {
 
     private void createTestUser() throws SQLException {
         deleteTestUser();
-        String hashedPassword = PasswordUtils.hashPassword(TEST_MGR_PASSWORD);
-        try (Connection conn = DatabaseUtils.getConnection()) {
-            String sql = "INSERT INTO users (username, password_hash, full_name, role, created_at) "
-                    + "VALUES (?, ?, ?, ?::user_role, NOW())";
-            try (PreparedStatement ps = conn.prepareStatement(sql)) {
-                ps.setString(1, TEST_MGR_USERNAME);
-                ps.setString(2, hashedPassword);
-                ps.setString(3, "Test Stock Manager");
-                ps.setString(4, UserRole.STOCK_MANAGER.name());
-                ps.executeUpdate();
-            }
-        }
+        UserServiceImpl userServiceImpl = new UserServiceImpl();
+        userServiceImpl.create(new User(
+                TEST_MGR_USERNAME,
+                PasswordUtils.hashPassword(TEST_MGR_PASSWORD),
+                "Test Stock Manager",
+                UserRole.STOCK_MANAGER
+        ));
     }
 
     private void deleteTestUser() throws SQLException {
@@ -141,7 +138,6 @@ public class LoginControllerTest extends ApplicationTest {
 
         WaitForAsyncUtils.waitForFxEvents();
 
-        // Verify Stock Manager dashboard opened
         boolean dashboardOpened = listTargetWindows().stream()
                 .filter(w -> w instanceof Stage)
                 .map(w -> (Stage) w)
@@ -153,13 +149,12 @@ public class LoginControllerTest extends ApplicationTest {
 
     @Test
     public void testEmptyCredentialsShowsError() {
-        // Leave fields empty and click login
         clickOn("#loginButton");
         WaitForAsyncUtils.waitForFxEvents();
 
-        // Should show error or do nothing (depending on implementation)
         Label errorLabel = lookup("#incorrectLabel").queryAs(Label.class);
         assertNotNull(errorLabel, "Error label should exist");
+        assertEquals("Invalid username or password.", errorLabel.getText());
     }
 
     @Test
